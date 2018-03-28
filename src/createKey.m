@@ -37,11 +37,8 @@ while (flag==0)
     d= diag([1 1 1],0);
     mul= tril(m,-1)+d;
     mup= triu(m,1)+d; 
-    m= mul*mup;
-    
-    LogM= mod(inv(m),1)==0;
-    
-    if all(all(LogM == true))
+    if all(all(mod(inv(mul),1)==0)) && all(all(mod(inv(mup),1)==0))
+        m= mul*mup;
         flag=1;
         keyM= m;
     end
