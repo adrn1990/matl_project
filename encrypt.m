@@ -1,9 +1,21 @@
-%HEADER
-%Bruno & Adi Projekt
+%**************************************************************************
+%Project:           Brute-Force Tool
 %
+%Authors:           B. Hürzeler
+%                   A. Gonzalez
 %
+%Name:              encrypt
 %
+%Description:       This function encrypts a 1xn char-array with a random
+%                   generated key. The 
+%Preconditions:     
+%Postconditions:
 %
+%copyright:         for further information visit: 
+%                   http://www.4er.org/LinearAlgebra/CASES/3.%20ea1code.pdf
+%
+%**************************************************************************
+
 
 function [encrString] = encrypt (CharArray)
 %{
