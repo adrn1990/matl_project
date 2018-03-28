@@ -23,24 +23,28 @@
 %                   http://www.4er.org/LinearAlgebra/CASES/3.%20ea1code.pdf
 %
 %************************************************************************** 
-function [keyM] = createKey()
-
-flag=0;
-
+function [KeyM] = createKey()
+%tic
 while (flag==0)
     
     %create a random 3x3 matrix m
     m = randi(10,3,3);
     
     %create a new 3x3 matrix as multiplication of the lower and upper triangular part
-    %of the matrix m which is hard to "crack".
+    %of the matrix m..
     d= diag([1 1 1],0);
     mul= tril(m,-1)+d;
     mup= triu(m,1)+d; 
-    if all(all(mod(inv(mul),1)==0)) && all(all(mod(inv(mup),1)==0))
-        m= mul*mup;
-        flag=1;
-        keyM= m;
+    m= mul*mup;
+    
+    %check if the elements of the inverse matrix are only integers.
+    LogM= mod(inv(m),1)==0;
+    
+    %check if the resulting matrix LogM only contains true results. If this
+    %is true, KeyM is returned.
+    if all(all(LogM == true))
+        KeyM= m;
+        %toc
     end
 end
 end
