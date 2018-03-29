@@ -46,6 +46,8 @@ while (flag==0)
     if all(all(LogM == true))
         KeyM= m;
         flag= 1;
+        
+        
         %toc
     end
 end
