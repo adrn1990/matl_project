@@ -25,6 +25,7 @@
 %************************************************************************** 
 function [KeyM] = createKey()
 %tic
+flag= 0;
 while (flag==0)
     
     %create a random 3x3 matrix m
@@ -44,6 +45,7 @@ while (flag==0)
     %is true, KeyM is returned.
     if all(all(LogM == true))
         KeyM= m;
+        flag= 1;
         %toc
     end
 end
