@@ -37,14 +37,13 @@ classdef userInterface < matlab.apps.AppBase
         UIAxes_cpu2                   matlab.ui.control.UIAxes
         UIAxes_cpu3                   matlab.ui.control.UIAxes
         UIAxes_cpu4                   matlab.ui.control.UIAxes
+        EvaluateSystemButton          matlab.ui.control.Button
     end
 
     
     methods (Access = private)
     
-        function results = BruteProgress(app)
-            
-        end
+        
         
     end
 
@@ -56,45 +55,33 @@ classdef userInterface < matlab.apps.AppBase
             app.PasswordHashEditField.Value = '--Type a password--';
             app.PasswordHashEditField.FontAngle = 'italic';
             app.STARTBruteforceButton.Enable = 'off';
-            state = 0;
         end
 
-        % Button pushed function: STARTBruteforceButton
-        function STARTBruteforceButtonPushed(app, event)
-            app.PasswordHashEditField.Value = 'Button pressed!'
+        % Button pushed function: EvaluateSystemButton
+        function EvaluateSystemButtonPushed(app, event)
+            app.LogMonitorTextArea.Value = '0';
         end
 
-        % Value changed function: PasswordHashEditField
-        function PasswordHashEditFieldValueChanged(app, event)
-            undef = 0;
-            initializing = 1;
-            waiting = 2;
-            processing = 3;
-            aborting = 4;
-            state;
+        % Menu selected function: ExitMenu
+        function ExitMenuSelected(app, event)
+            exitBox = questdlg('Do you really want to exit?','Warning');
             
-            switch (state)
-                case undef
-                    pause(2);
-                    state = initializing;
+            switch exitBox
+                case 'Yes'
+                    app.delete;
+                case 'No'
                     
-                case initializing
-                    app.LogMonitorTextArea.Value = 'initializing the application \n'
-                    pause(5);
-                    
-                case waiting
-                    
-                case processing
-            
-                case aborting
+            end
+        end
 
-            end
-            
-            
-            if waitforbuttonpress == 0
-                app.PasswordHashEditField.Value = '';
-            end
-            errordlg('Das Matlab regt mi sooo uf..!');
+        % Menu selected function: AboutMenu
+        function AboutMenuSelected(app, event)
+            msgbox({'Name: Brute-Force Tool' 'Version: 0.0.0' 'Designer: A.Gonzalez / B. Huerzeler'}, 'About...');   
+        end
+
+        % Menu selected function: SaveMenu
+        function SaveMenuSelected(app, event)
+
         end
     end
 
@@ -116,11 +103,13 @@ classdef userInterface < matlab.apps.AppBase
 
             % Create SaveMenu
             app.SaveMenu = uimenu(app.FileMenu);
+            app.SaveMenu.MenuSelectedFcn = createCallbackFcn(app, @SaveMenuSelected, true);
             app.SaveMenu.Accelerator = 'S';
             app.SaveMenu.Text = 'Save';
 
             % Create ExitMenu
             app.ExitMenu = uimenu(app.FileMenu);
+            app.ExitMenu.MenuSelectedFcn = createCallbackFcn(app, @ExitMenuSelected, true);
             app.ExitMenu.Text = 'Exit';
 
             % Create Menu_4
@@ -129,6 +118,7 @@ classdef userInterface < matlab.apps.AppBase
 
             % Create AboutMenu
             app.AboutMenu = uimenu(app.Menu_4);
+            app.AboutMenu.MenuSelectedFcn = createCallbackFcn(app, @AboutMenuSelected, true);
             app.AboutMenu.Text = 'About...';
 
             % Create Menu2_3
@@ -150,7 +140,6 @@ classdef userInterface < matlab.apps.AppBase
 
             % Create PasswordHashEditField
             app.PasswordHashEditField = uieditfield(app.MainUIFigure, 'text');
-            app.PasswordHashEditField.ValueChangedFcn = createCallbackFcn(app, @PasswordHashEditFieldValueChanged, true);
             app.PasswordHashEditField.Position = [154 773 199 22];
 
             % Create UIAxes_gpu
@@ -168,7 +157,6 @@ classdef userInterface < matlab.apps.AppBase
 
             % Create STARTBruteforceButton
             app.STARTBruteforceButton = uibutton(app.MainUIFigure, 'push');
-            app.STARTBruteforceButton.ButtonPushedFcn = createCallbackFcn(app, @STARTBruteforceButtonPushed, true);
             app.STARTBruteforceButton.Position = [1111 903 116 22];
             app.STARTBruteforceButton.Text = 'START Brute force';
 
@@ -338,6 +326,12 @@ classdef userInterface < matlab.apps.AppBase
             app.UIAxes_cpu4.XGrid = 'on';
             app.UIAxes_cpu4.YGrid = 'on';
             app.UIAxes_cpu4.Position = [391 255 320 170];
+
+            % Create EvaluateSystemButton
+            app.EvaluateSystemButton = uibutton(app.MainUIFigure, 'push');
+            app.EvaluateSystemButton.ButtonPushedFcn = createCallbackFcn(app, @EvaluateSystemButtonPushed, true);
+            app.EvaluateSystemButton.Position = [430 844 106 22];
+            app.EvaluateSystemButton.Text = 'Evaluate System';
         end
     end
 
