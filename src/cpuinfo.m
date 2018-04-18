@@ -1,19 +1,29 @@
-function info = cpuinfo()
-%CPUINFO  read CPU configuration
+%**************************************************************************
+%Project:           Brute-Force Tool
 %
-%   info = CPUINFO() returns a structure containing various bits of
-%   information about the CPU and operating system as provided by /proc/cpu
-%   (Unix), sysctl (Mac) or WMIC (Windows). This information includes:
-%     * CPU name
-%     * CPU clock speed
-%     * CPU Cache size (L2)
-%     * Number of physical CPU cores
-%     * Operating system name & version
+%Authors /          B. Hürzeler
+%Editors            A. Gonzalez
 %
-%   See also: COMPUTER, ISUNIX, ISMAC
+%Name:              cpuinfo
+%
+%Description:       Our encryption system requires information of the
+%                   system which is running the encryption. This function
+%                   provides the information for different types and version 
+%                   of operating systems.
+%
+%Input:             No Input
+%
+%Output:            cpuinfo returns a struct with fields.
+%
+%Example:           A = cpuinfo();
+%
+%Copyright:         Author: Ben Tordoff
+%                   Copyright 2011 The MathWorks, Inc.
+%
+%************************************************************************** 
 
-%   Author: Ben Tordoff
-%   Copyright 2011 The MathWorks, Inc.
+
+function info = cpuinfo()
 
 if isunix
     if ismac
