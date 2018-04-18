@@ -15,9 +15,11 @@
 %                   contains only integers as well. This procedure will be
 %                   repeated until a matrix with this conditions is found.
 %
-%Preconditions:     Nan
+%Input:             No input
 %
-%Postconditions:    
+%Output:            createKey returns a valid 3x3 matrix of doubles.
+%
+%Example:           Key= createKey();
 %
 %Copyright:         for further algorythmic information visit: 
 %                   http://www.4er.org/LinearAlgebra/CASES/3.%20ea1code.pdf

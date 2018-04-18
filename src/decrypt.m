@@ -12,9 +12,11 @@
 %                   multiplications while providing that each char is an
 %                   ascii-char.
 %
-%Preconditions:     
+%Input:             No input
 %
-%Postconditions:
+%Output:            decrypt returns a 1xn char array.
+%
+%Example:           DecrPw= decrypt(EncrPw,Key);
 %
 %Copyright:         for further information visit: 
 %                   http://www.4er.org/LinearAlgebra/CASES/3.%20ea1code.pdf
