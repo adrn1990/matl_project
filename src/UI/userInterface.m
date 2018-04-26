@@ -44,10 +44,24 @@ classdef userInterface < matlab.apps.AppBase
         UIAxes_gpu                    matlab.ui.control.UIAxes
     end
 
-    
+
+    properties (Access = private)
+        Property % Description
+        %cnt = 1;
+    end
+ 
     methods (Access = private)
-    
         
+
+        
+        function fWriteMessageBuffer(app,message)
+
+                messageBuffer{cnt} = message;
+                app.LogMonitorTextArea.Value = messageBuffer; 
+                cnt = cnt + 1;
+        end
+        
+
         
     end
 
@@ -63,17 +77,10 @@ classdef userInterface < matlab.apps.AppBase
 
         % Button pushed function: EvaluateSystemButton
         function EvaluateSystemButtonPushed(app, event)
-            app.LogMonitorTextArea.Value = '0';
-            
-            for index=1:10
-                message = strcat('Test ',num2str(index));
-                message = message + newline;
-%                 message = 'Test %d\n';
-%                 message = fprintf(message,index);
-                 app.LogMonitorTextArea.Value = message;
-            end
-            
-            
+          fWriteMessageBuffer(app, 'Test message');
+          fWriteMessageBuffer(app, 'Test message 2');
+          fWriteMessageBuffer(app, 'Test message 3');
+
             
         end
 
