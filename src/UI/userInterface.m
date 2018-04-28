@@ -5,6 +5,7 @@ classdef userInterface < matlab.apps.AppBase
         MainUIFigure                  matlab.ui.Figure
         FileMenu                      matlab.ui.container.Menu
         SaveMenu                      matlab.ui.container.Menu
+        ExporttocsvMenu               matlab.ui.container.Menu
         ExitMenu                      matlab.ui.container.Menu
         Menu_4                        matlab.ui.container.Menu
         AboutMenu                     matlab.ui.container.Menu
@@ -12,7 +13,6 @@ classdef userInterface < matlab.apps.AppBase
         BruteforceToolLabel           matlab.ui.control.Label
         PasswordHashEditFieldLabel    matlab.ui.control.Label
         PasswordHashEditField         matlab.ui.control.EditField
-        UIAxes_gpu                    matlab.ui.control.UIAxes
         STARTBruteforceButton         matlab.ui.control.Button
         LogMonitorTextAreaLabel       matlab.ui.control.Label
         LogMonitorTextArea            matlab.ui.control.TextArea
@@ -33,17 +33,35 @@ classdef userInterface < matlab.apps.AppBase
         CPUCoresDropDownLabel         matlab.ui.control.Label
         CPUCoresDropDown              matlab.ui.control.DropDown
         AdvancedsettingsLabel         matlab.ui.control.Label
+        EvaluateSystemButton          matlab.ui.control.Button
+        TabGroup                      matlab.ui.container.TabGroup
+        CPUTab                        matlab.ui.container.Tab
         UIAxes_cpu1                   matlab.ui.control.UIAxes
         UIAxes_cpu2                   matlab.ui.control.UIAxes
         UIAxes_cpu3                   matlab.ui.control.UIAxes
         UIAxes_cpu4                   matlab.ui.control.UIAxes
-        EvaluateSystemButton          matlab.ui.control.Button
+        GPUTab                        matlab.ui.container.Tab
+        UIAxes_gpu                    matlab.ui.control.UIAxes
     end
 
-    
+
+    properties (Access = private)
+        Property % Description
+        %cnt = 1;
+    end
+ 
     methods (Access = private)
-    
         
+
+        
+        function fWriteMessageBuffer(app,message)
+
+                messageBuffer{cnt} = message;
+                app.LogMonitorTextArea.Value = messageBuffer; 
+                cnt = cnt + 1;
+        end
+        
+
         
     end
 
@@ -59,17 +77,10 @@ classdef userInterface < matlab.apps.AppBase
 
         % Button pushed function: EvaluateSystemButton
         function EvaluateSystemButtonPushed(app, event)
-            app.LogMonitorTextArea.Value = '0';
-            
-            for index=1:10
-                message = strcat('Test ',num2str(index));
-                message = message + newline;
-%                 message = 'Test %d\n';
-%                 message = fprintf(message,index);
-                 app.LogMonitorTextArea.Value = message;
-            end
-            
-            
+          fWriteMessageBuffer(app, 'Test message');
+          fWriteMessageBuffer(app, 'Test message 2');
+          fWriteMessageBuffer(app, 'Test message 3');
+
             
         end
 
@@ -104,7 +115,7 @@ classdef userInterface < matlab.apps.AppBase
 
             % Create MainUIFigure
             app.MainUIFigure = uifigure;
-            app.MainUIFigure.Color = [0.8 0.8 0.8];
+            app.MainUIFigure.Color = [0.9412 0.9412 0.9412];
             app.MainUIFigure.Position = [100 100 1284 974];
             app.MainUIFigure.Name = 'Main';
 
@@ -117,6 +128,10 @@ classdef userInterface < matlab.apps.AppBase
             app.SaveMenu.MenuSelectedFcn = createCallbackFcn(app, @SaveMenuSelected, true);
             app.SaveMenu.Accelerator = 'S';
             app.SaveMenu.Text = 'Save';
+
+            % Create ExporttocsvMenu
+            app.ExporttocsvMenu = uimenu(app.FileMenu);
+            app.ExporttocsvMenu.Text = 'Export to csv...';
 
             % Create ExitMenu
             app.ExitMenu = uimenu(app.FileMenu);
@@ -146,117 +161,109 @@ classdef userInterface < matlab.apps.AppBase
             % Create PasswordHashEditFieldLabel
             app.PasswordHashEditFieldLabel = uilabel(app.MainUIFigure);
             app.PasswordHashEditFieldLabel.HorizontalAlignment = 'right';
-            app.PasswordHashEditFieldLabel.Position = [43 777 96 15];
+            app.PasswordHashEditFieldLabel.Position = [66 707 96 15];
             app.PasswordHashEditFieldLabel.Text = 'Password / Hash';
 
             % Create PasswordHashEditField
             app.PasswordHashEditField = uieditfield(app.MainUIFigure, 'text');
-            app.PasswordHashEditField.Position = [154 773 199 22];
-
-            % Create UIAxes_gpu
-            app.UIAxes_gpu = uiaxes(app.MainUIFigure);
-            title(app.UIAxes_gpu, 'GPU')
-            ylabel(app.UIAxes_gpu, 'Y')
-            app.UIAxes_gpu.XLim = [0 Inf];
-            app.UIAxes_gpu.YLim = [0 100];
-            app.UIAxes_gpu.Box = 'on';
-            app.UIAxes_gpu.XTickLabel = {'0'; '0.2'; '0.4'; '0.6'; '0.8'; '1'};
-            app.UIAxes_gpu.YTick = [0 10 20 30 40 50 60 70 80 90 100];
-            app.UIAxes_gpu.XGrid = 'on';
-            app.UIAxes_gpu.YGrid = 'on';
-            app.UIAxes_gpu.Position = [751 245 450 210];
+            app.PasswordHashEditField.Position = [332 703 128 22];
 
             % Create STARTBruteforceButton
             app.STARTBruteforceButton = uibutton(app.MainUIFigure, 'push');
-            app.STARTBruteforceButton.Position = [1111 903 116 22];
+            app.STARTBruteforceButton.BackgroundColor = [0.302 0.749 0.9294];
+            app.STARTBruteforceButton.FontName = 'Arial';
+            app.STARTBruteforceButton.FontSize = 20;
+            app.STARTBruteforceButton.FontWeight = 'bold';
+            app.STARTBruteforceButton.Position = [65 325 431 54];
             app.STARTBruteforceButton.Text = 'START Brute force';
 
             % Create LogMonitorTextAreaLabel
             app.LogMonitorTextAreaLabel = uilabel(app.MainUIFigure);
-            app.LogMonitorTextAreaLabel.BackgroundColor = [0.8 0.8 0.8];
-            app.LogMonitorTextAreaLabel.Position = [34 190 70 15];
+            app.LogMonitorTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
+            app.LogMonitorTextAreaLabel.Position = [34 250 70 15];
             app.LogMonitorTextAreaLabel.Text = 'Log-Monitor';
 
             % Create LogMonitorTextArea
             app.LogMonitorTextArea = uitextarea(app.MainUIFigure);
             app.LogMonitorTextArea.Editable = 'off';
-            app.LogMonitorTextArea.BackgroundColor = [0.8 0.8 0.8];
-            app.LogMonitorTextArea.Position = [31 21 570 164];
+            app.LogMonitorTextArea.BackgroundColor = [0.9412 0.9412 0.9412];
+            app.LogMonitorTextArea.Position = [31 21 570 224];
 
             % Create TodecryptDropDownLabel
             app.TodecryptDropDownLabel = uilabel(app.MainUIFigure);
             app.TodecryptDropDownLabel.HorizontalAlignment = 'right';
-            app.TodecryptDropDownLabel.Position = [66 817 61 15];
+            app.TodecryptDropDownLabel.Position = [66 747 61 15];
             app.TodecryptDropDownLabel.Text = 'To decrypt';
 
             % Create TodecryptDropDown
             app.TodecryptDropDown = uidropdown(app.MainUIFigure);
             app.TodecryptDropDown.Items = {'Passwort', 'Hash'};
-            app.TodecryptDropDown.Position = [142 813 213 22];
+            app.TodecryptDropDown.Position = [332 743 128 22];
             app.TodecryptDropDown.Value = 'Passwort';
 
             % Create EncryptionDropDownLabel
             app.EncryptionDropDownLabel = uilabel(app.MainUIFigure);
             app.EncryptionDropDownLabel.HorizontalAlignment = 'right';
-            app.EncryptionDropDownLabel.Position = [851 827 62 15];
+            app.EncryptionDropDownLabel.Position = [66 578 62 15];
             app.EncryptionDropDownLabel.Text = 'Encryption';
 
             % Create EncryptionDropDown
             app.EncryptionDropDown = uidropdown(app.MainUIFigure);
             app.EncryptionDropDown.Items = {'RSA', 'SHA', 'Option 3', 'Option 4'};
-            app.EncryptionDropDown.Position = [928 823 203 22];
+            app.EncryptionDropDown.Position = [332 574 128 22];
             app.EncryptionDropDown.Value = 'RSA';
 
             % Create RainbowtableDropDownLabel
             app.RainbowtableDropDownLabel = uilabel(app.MainUIFigure);
             app.RainbowtableDropDownLabel.HorizontalAlignment = 'right';
-            app.RainbowtableDropDownLabel.Position = [841 777 78 15];
+            app.RainbowtableDropDownLabel.Position = [66 525 78 15];
             app.RainbowtableDropDownLabel.Text = 'Rainbowtable';
 
             % Create RainbowtableDropDown
             app.RainbowtableDropDown = uidropdown(app.MainUIFigure);
             app.RainbowtableDropDown.Items = {'Yes', 'No'};
-            app.RainbowtableDropDown.Position = [934 773 197 22];
+            app.RainbowtableDropDown.Position = [332 521 128 22];
             app.RainbowtableDropDown.Value = 'Yes';
 
             % Create ChooseRessourceDropDownLabel
             app.ChooseRessourceDropDownLabel = uilabel(app.MainUIFigure);
             app.ChooseRessourceDropDownLabel.HorizontalAlignment = 'right';
-            app.ChooseRessourceDropDownLabel.Position = [801 727 108 15];
+            app.ChooseRessourceDropDownLabel.Position = [66 465 108 15];
             app.ChooseRessourceDropDownLabel.Text = 'Choose Ressource';
 
             % Create ChooseRessourceDropDown
             app.ChooseRessourceDropDown = uidropdown(app.MainUIFigure);
             app.ChooseRessourceDropDown.Items = {'CPU', 'GPU', 'Option 3', 'Option 4'};
-            app.ChooseRessourceDropDown.Position = [924 723 100 22];
+            app.ChooseRessourceDropDown.Position = [221 461 76 22];
             app.ChooseRessourceDropDown.Value = 'CPU';
 
             % Create CPUGPUTempCTextAreaLabel
             app.CPUGPUTempCTextAreaLabel = uilabel(app.MainUIFigure);
             app.CPUGPUTempCTextAreaLabel.HorizontalAlignment = 'right';
-            app.CPUGPUTempCTextAreaLabel.Position = [908 598 126 15];
+            app.CPUGPUTempCTextAreaLabel.Position = [963 349 126 15];
             app.CPUGPUTempCTextAreaLabel.Text = 'CPU / GPU Temp. [°C]';
 
             % Create CPUGPUTempCTextArea
             app.CPUGPUTempCTextArea = uitextarea(app.MainUIFigure);
             app.CPUGPUTempCTextArea.Editable = 'off';
-            app.CPUGPUTempCTextArea.Position = [1049 587 55 28];
+            app.CPUGPUTempCTextArea.Position = [1127 338 92 28];
 
             % Create FanspeedrpmTextAreaLabel
             app.FanspeedrpmTextAreaLabel = uilabel(app.MainUIFigure);
             app.FanspeedrpmTextAreaLabel.HorizontalAlignment = 'right';
-            app.FanspeedrpmTextAreaLabel.Position = [941 628 93 15];
+            app.FanspeedrpmTextAreaLabel.Position = [568 349 93 15];
             app.FanspeedrpmTextAreaLabel.Text = 'Fan speed [rpm]';
 
             % Create FanspeedrpmTextArea
             app.FanspeedrpmTextArea = uitextarea(app.MainUIFigure);
             app.FanspeedrpmTextArea.Editable = 'off';
-            app.FanspeedrpmTextArea.Position = [1049 617 56 28];
+            app.FanspeedrpmTextArea.Position = [731 338 92 28];
 
             % Create ResultTextAreaLabel
             app.ResultTextAreaLabel = uilabel(app.MainUIFigure);
+            app.ResultTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
             app.ResultTextAreaLabel.HorizontalAlignment = 'right';
-            app.ResultTextAreaLabel.Position = [744 110 40 15];
+            app.ResultTextAreaLabel.Position = [645 250 40 15];
             app.ResultTextAreaLabel.Text = 'Result';
 
             % Create ResultTextArea
@@ -264,30 +271,47 @@ classdef userInterface < matlab.apps.AppBase
             app.ResultTextArea.Editable = 'off';
             app.ResultTextArea.HorizontalAlignment = 'center';
             app.ResultTextArea.FontSize = 48;
-            app.ResultTextArea.BackgroundColor = [0.8 0.8 0.8];
-            app.ResultTextArea.Position = [749 45 464 60];
+            app.ResultTextArea.BackgroundColor = [0.9412 0.9412 0.9412];
+            app.ResultTextArea.Position = [650 185 583 60];
             app.ResultTextArea.Value = {'01234567'};
 
             % Create CPUCoresDropDownLabel
             app.CPUCoresDropDownLabel = uilabel(app.MainUIFigure);
             app.CPUCoresDropDownLabel.HorizontalAlignment = 'right';
-            app.CPUCoresDropDownLabel.Position = [1061 737 66 15];
+            app.CPUCoresDropDownLabel.Position = [334 465 66 15];
             app.CPUCoresDropDownLabel.Text = 'CPU Cores';
 
             % Create CPUCoresDropDown
             app.CPUCoresDropDown = uidropdown(app.MainUIFigure);
             app.CPUCoresDropDown.Items = {'1', '2', '3', '4'};
-            app.CPUCoresDropDown.Position = [1141 733 46 22];
+            app.CPUCoresDropDown.Position = [414 461 46 22];
             app.CPUCoresDropDown.Value = '1';
 
             % Create AdvancedsettingsLabel
             app.AdvancedsettingsLabel = uilabel(app.MainUIFigure);
             app.AdvancedsettingsLabel.VerticalAlignment = 'center';
-            app.AdvancedsettingsLabel.Position = [761 895 190 20];
+            app.AdvancedsettingsLabel.FontSize = 14;
+            app.AdvancedsettingsLabel.FontAngle = 'italic';
+            app.AdvancedsettingsLabel.Position = [65 631 338 20];
             app.AdvancedsettingsLabel.Text = 'Advanced settings';
 
+            % Create EvaluateSystemButton
+            app.EvaluateSystemButton = uibutton(app.MainUIFigure, 'push');
+            app.EvaluateSystemButton.ButtonPushedFcn = createCallbackFcn(app, @EvaluateSystemButtonPushed, true);
+            app.EvaluateSystemButton.Position = [73 816 330 45];
+            app.EvaluateSystemButton.Text = 'Evaluate System';
+
+            % Create TabGroup
+            app.TabGroup = uitabgroup(app.MainUIFigure);
+            app.TabGroup.Position = [567 431 700 430];
+
+            % Create CPUTab
+            app.CPUTab = uitab(app.TabGroup);
+            app.CPUTab.Title = 'CPU';
+            app.CPUTab.BackgroundColor = [0.9412 0.9412 0.9412];
+
             % Create UIAxes_cpu1
-            app.UIAxes_cpu1 = uiaxes(app.MainUIFigure);
+            app.UIAxes_cpu1 = uiaxes(app.CPUTab);
             title(app.UIAxes_cpu1, 'CPU 1')
             ylabel(app.UIAxes_cpu1, 'Y')
             app.UIAxes_cpu1.XLim = [0 Inf];
@@ -297,10 +321,10 @@ classdef userInterface < matlab.apps.AppBase
             app.UIAxes_cpu1.YTick = [0 10 20 30 40 50 60 70 80 90 100];
             app.UIAxes_cpu1.XGrid = 'on';
             app.UIAxes_cpu1.YGrid = 'on';
-            app.UIAxes_cpu1.Position = [31 455 320 170];
+            app.UIAxes_cpu1.Position = [27 222 320 170];
 
             % Create UIAxes_cpu2
-            app.UIAxes_cpu2 = uiaxes(app.MainUIFigure);
+            app.UIAxes_cpu2 = uiaxes(app.CPUTab);
             title(app.UIAxes_cpu2, 'CPU 2')
             ylabel(app.UIAxes_cpu2, 'Y')
             app.UIAxes_cpu2.XLim = [0 Inf];
@@ -310,10 +334,10 @@ classdef userInterface < matlab.apps.AppBase
             app.UIAxes_cpu2.YTick = [0 10 20 30 40 50 60 70 80 90 100];
             app.UIAxes_cpu2.XGrid = 'on';
             app.UIAxes_cpu2.YGrid = 'on';
-            app.UIAxes_cpu2.Position = [31 255 320 170];
+            app.UIAxes_cpu2.Position = [346 222 320 170];
 
             % Create UIAxes_cpu3
-            app.UIAxes_cpu3 = uiaxes(app.MainUIFigure);
+            app.UIAxes_cpu3 = uiaxes(app.CPUTab);
             title(app.UIAxes_cpu3, 'CPU 3')
             ylabel(app.UIAxes_cpu3, 'Y')
             app.UIAxes_cpu3.XLim = [0 Inf];
@@ -323,10 +347,10 @@ classdef userInterface < matlab.apps.AppBase
             app.UIAxes_cpu3.YTick = [0 10 20 30 40 50 60 70 80 90 100];
             app.UIAxes_cpu3.XGrid = 'on';
             app.UIAxes_cpu3.YGrid = 'on';
-            app.UIAxes_cpu3.Position = [391 455 320 170];
+            app.UIAxes_cpu3.Position = [27 25 320 170];
 
             % Create UIAxes_cpu4
-            app.UIAxes_cpu4 = uiaxes(app.MainUIFigure);
+            app.UIAxes_cpu4 = uiaxes(app.CPUTab);
             title(app.UIAxes_cpu4, 'CPU 4')
             ylabel(app.UIAxes_cpu4, 'Y')
             app.UIAxes_cpu4.XLim = [0 Inf];
@@ -336,13 +360,25 @@ classdef userInterface < matlab.apps.AppBase
             app.UIAxes_cpu4.YTick = [0 10 20 30 40 50 60 70 80 90 100];
             app.UIAxes_cpu4.XGrid = 'on';
             app.UIAxes_cpu4.YGrid = 'on';
-            app.UIAxes_cpu4.Position = [391 255 320 170];
+            app.UIAxes_cpu4.Position = [346 25 320 170];
 
-            % Create EvaluateSystemButton
-            app.EvaluateSystemButton = uibutton(app.MainUIFigure, 'push');
-            app.EvaluateSystemButton.ButtonPushedFcn = createCallbackFcn(app, @EvaluateSystemButtonPushed, true);
-            app.EvaluateSystemButton.Position = [430 844 106 22];
-            app.EvaluateSystemButton.Text = 'Evaluate System';
+            % Create GPUTab
+            app.GPUTab = uitab(app.TabGroup);
+            app.GPUTab.Title = 'GPU';
+            app.GPUTab.BackgroundColor = [0.9412 0.9412 0.9412];
+
+            % Create UIAxes_gpu
+            app.UIAxes_gpu = uiaxes(app.GPUTab);
+            title(app.UIAxes_gpu, 'GPU')
+            ylabel(app.UIAxes_gpu, 'Y')
+            app.UIAxes_gpu.XLim = [0 Inf];
+            app.UIAxes_gpu.YLim = [0 100];
+            app.UIAxes_gpu.Box = 'on';
+            app.UIAxes_gpu.XTickLabel = {'0'; '0.2'; '0.4'; '0.6'; '0.8'; '1'};
+            app.UIAxes_gpu.YTick = [0 10 20 30 40 50 60 70 80 90 100];
+            app.UIAxes_gpu.XGrid = 'on';
+            app.UIAxes_gpu.YGrid = 'on';
+            app.UIAxes_gpu.Position = [24 30 642 341];
         end
     end
 
