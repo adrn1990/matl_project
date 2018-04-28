@@ -47,22 +47,18 @@ classdef userInterface < matlab.apps.AppBase
 
     properties (Access = private)
         Property % Description
-        %cnt = 1;
+        messageBuffer = {128};
+        cnt = 1;
     end
  
     methods (Access = private)
-        
-
-        
+        %Message Buffer
         function fWriteMessageBuffer(app,message)
-
-                messageBuffer{cnt} = message;
-                app.LogMonitorTextArea.Value = messageBuffer; 
-                cnt = cnt + 1;
+                app.messageBuffer{app.cnt} = message;
+                app.LogMonitorTextArea.Value = app.messageBuffer; 
+                app.cnt = app.cnt + 1;
         end
-        
-
-        
+                
     end
 
 
@@ -77,9 +73,40 @@ classdef userInterface < matlab.apps.AppBase
 
         % Button pushed function: EvaluateSystemButton
         function EvaluateSystemButtonPushed(app, event)
-          fWriteMessageBuffer(app, 'Test message');
-          fWriteMessageBuffer(app, 'Test message 2');
-          fWriteMessageBuffer(app, 'Test message 3');
+        %Start system evaluation
+        fWriteMessageBuffer(app, 'System evaluation started...');
+        
+        %Get CPU information
+        fWriteMessageBuffer(app, 'Get CPU information: ');
+        fWriteMessageBuffer(app, '---------------------------------------');
+         
+        cpuInfo = cpuinfo();
+        
+        cpuMessage = sprintf('Name: \t \t \t %s' , cpuInfo.Name); 
+        fWriteMessageBuffer(app, cpuMessage);
+        
+        cpuCores = num2str(cpuInfo.NumProcessors);
+        cpuMessage = sprintf('Number of cores: \t %s', cpuCores);
+        fWriteMessageBuffer(app, cpuMessage);
+        
+        cpuMessage = sprintf('Clock: \t \t \t %s', cpuInfo.Clock);
+        fWriteMessageBuffer(app, cpuMessage);
+        
+        cpuMessage = sprintf('OS Type: \t \t %s (%s)', cpuInfo.OSType, cpuInfo.OSVersion);
+        fWriteMessageBuffer(app, cpuMessage);
+        fWriteMessageBuffer(app, '---------------------------------------');
+        
+        %Set value for "CPU cores" DropDown
+        switch cpuInfo.NumProcessors
+            case 1
+                app.CPUCoresDropDown.Items = {'1'};
+            case 2
+                app.CPUCoresDropDown.Items = {'1', '2'};
+            case 3
+                app.CPUCoresDropDown.Items = {'1', '2', '3'};
+            case 4
+                app.CPUCoresDropDown.Items = {'1', '2', '3', '4'};
+        end
 
             
         end
@@ -103,7 +130,18 @@ classdef userInterface < matlab.apps.AppBase
 
         % Menu selected function: SaveMenu
         function SaveMenuSelected(app, event)
+        
+        end
 
+        % Value changed function: ChooseRessourceDropDown
+        function ChooseRessourceDropDownValueChanged(app, event)
+            value = app.ChooseRessourceDropDown.Value;
+            if value == 'CPU'
+                app.CPUCoresDropDown.Enable = 'on';
+            else
+                app.CPUCoresDropDown.Items = {'1'};
+                app.CPUCoresDropDown.Enable = 'off';
+            end
         end
     end
 
@@ -197,9 +235,9 @@ classdef userInterface < matlab.apps.AppBase
 
             % Create TodecryptDropDown
             app.TodecryptDropDown = uidropdown(app.MainUIFigure);
-            app.TodecryptDropDown.Items = {'Passwort', 'Hash'};
+            app.TodecryptDropDown.Items = {'Select...', 'Password', 'Hash'};
             app.TodecryptDropDown.Position = [332 743 128 22];
-            app.TodecryptDropDown.Value = 'Passwort';
+            app.TodecryptDropDown.Value = 'Select...';
 
             % Create EncryptionDropDownLabel
             app.EncryptionDropDownLabel = uilabel(app.MainUIFigure);
@@ -209,7 +247,7 @@ classdef userInterface < matlab.apps.AppBase
 
             % Create EncryptionDropDown
             app.EncryptionDropDown = uidropdown(app.MainUIFigure);
-            app.EncryptionDropDown.Items = {'RSA', 'SHA', 'Option 3', 'Option 4'};
+            app.EncryptionDropDown.Items = {'Select...', 'RSA', 'SHA'};
             app.EncryptionDropDown.Position = [332 574 128 22];
             app.EncryptionDropDown.Value = 'RSA';
 
@@ -221,7 +259,7 @@ classdef userInterface < matlab.apps.AppBase
 
             % Create RainbowtableDropDown
             app.RainbowtableDropDown = uidropdown(app.MainUIFigure);
-            app.RainbowtableDropDown.Items = {'Yes', 'No'};
+            app.RainbowtableDropDown.Items = {'Select...', 'Yes', 'No'};
             app.RainbowtableDropDown.Position = [332 521 128 22];
             app.RainbowtableDropDown.Value = 'Yes';
 
@@ -234,6 +272,7 @@ classdef userInterface < matlab.apps.AppBase
             % Create ChooseRessourceDropDown
             app.ChooseRessourceDropDown = uidropdown(app.MainUIFigure);
             app.ChooseRessourceDropDown.Items = {'CPU', 'GPU', 'Option 3', 'Option 4'};
+            app.ChooseRessourceDropDown.ValueChangedFcn = createCallbackFcn(app, @ChooseRessourceDropDownValueChanged, true);
             app.ChooseRessourceDropDown.Position = [221 461 76 22];
             app.ChooseRessourceDropDown.Value = 'CPU';
 
@@ -283,9 +322,9 @@ classdef userInterface < matlab.apps.AppBase
 
             % Create CPUCoresDropDown
             app.CPUCoresDropDown = uidropdown(app.MainUIFigure);
-            app.CPUCoresDropDown.Items = {'1', '2', '3', '4'};
+            app.CPUCoresDropDown.Items = {};
             app.CPUCoresDropDown.Position = [414 461 46 22];
-            app.CPUCoresDropDown.Value = '1';
+            app.CPUCoresDropDown.Value = {};
 
             % Create AdvancedsettingsLabel
             app.AdvancedsettingsLabel = uilabel(app.MainUIFigure);
