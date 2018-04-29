@@ -2,8 +2,9 @@ classdef userInterface < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
-        MainUIFigure                  matlab.ui.Figure
+        BruteForceToolUIFigure        matlab.ui.Figure
         FileMenu                      matlab.ui.container.Menu
+        NewrunMenu                    matlab.ui.container.Menu
         SaveMenu                      matlab.ui.container.Menu
         ExporttocsvMenu               matlab.ui.container.Menu
         ExitMenu                      matlab.ui.container.Menu
@@ -48,16 +49,20 @@ classdef userInterface < matlab.apps.AppBase
     properties (Access = private)
         Property % Description
         messageBuffer = {128};
+        evaluateDone = false;
         cnt = 1;
     end
  
     methods (Access = private)
         %Message Buffer
         function fWriteMessageBuffer(app,message)
-                app.messageBuffer{app.cnt} = message;
-                app.LogMonitorTextArea.Value = app.messageBuffer; 
-                app.cnt = app.cnt + 1;
+            app.messageBuffer{app.cnt} = message;
+            app.LogMonitorTextArea.Value = app.messageBuffer; 
+            app.cnt = app.cnt + 1;
         end
+        
+
+        
                 
     end
 
@@ -73,41 +78,45 @@ classdef userInterface < matlab.apps.AppBase
 
         % Button pushed function: EvaluateSystemButton
         function EvaluateSystemButtonPushed(app, event)
-        %Start system evaluation
-        fWriteMessageBuffer(app, 'System evaluation started...');
         
-        %Get CPU information
-        fWriteMessageBuffer(app, 'Get CPU information: ');
-        fWriteMessageBuffer(app, '---------------------------------------');
-         
-        cpuInfo = cpuinfo();
-        
-        cpuMessage = sprintf('Name: \t \t \t %s' , cpuInfo.Name); 
-        fWriteMessageBuffer(app, cpuMessage);
-        
-        cpuCores = num2str(cpuInfo.NumProcessors);
-        cpuMessage = sprintf('Number of cores: \t %s', cpuCores);
-        fWriteMessageBuffer(app, cpuMessage);
-        
-        cpuMessage = sprintf('Clock: \t \t \t %s', cpuInfo.Clock);
-        fWriteMessageBuffer(app, cpuMessage);
-        
-        cpuMessage = sprintf('OS Type: \t \t %s (%s)', cpuInfo.OSType, cpuInfo.OSVersion);
-        fWriteMessageBuffer(app, cpuMessage);
-        fWriteMessageBuffer(app, '---------------------------------------');
-        
-        %Set value for "CPU cores" DropDown
-        switch cpuInfo.NumProcessors
-            case 1
-                app.CPUCoresDropDown.Items = {'1'};
-            case 2
-                app.CPUCoresDropDown.Items = {'1', '2'};
-            case 3
-                app.CPUCoresDropDown.Items = {'1', '2', '3'};
-            case 4
-                app.CPUCoresDropDown.Items = {'1', '2', '3', '4'};
+        if ~app.evaluateDone      
+            %Start system evaluation
+            fWriteMessageBuffer(app, 'System evaluation started...');
+            
+            %Get CPU information
+            fWriteMessageBuffer(app, 'Get CPU information: ');
+            fWriteMessageBuffer(app, '---------------------------------------');
+             
+            cpuInfo = cpuinfo();
+            
+            cpuMessage = sprintf('Name: \t \t \t %s' , cpuInfo.Name); 
+            fWriteMessageBuffer(app, cpuMessage);
+            
+            cpuCores = num2str(cpuInfo.NumProcessors);
+            cpuMessage = sprintf('Number of cores: \t %s', cpuCores);
+            fWriteMessageBuffer(app, cpuMessage);
+            
+            cpuMessage = sprintf('Clock: \t \t \t %s', cpuInfo.Clock);
+            fWriteMessageBuffer(app, cpuMessage);
+            
+            cpuMessage = sprintf('OS Type: \t \t %s (%s)', cpuInfo.OSType, cpuInfo.OSVersion);
+            fWriteMessageBuffer(app, cpuMessage);
+            fWriteMessageBuffer(app, '---------------------------------------');
+            
+            %Set value for "CPU cores" DropDown
+            switch cpuInfo.NumProcessors
+                case 1
+                    app.CPUCoresDropDown.Items = {'1'};
+                case 2
+                    app.CPUCoresDropDown.Items = {'1', '2'};
+                case 3
+                    app.CPUCoresDropDown.Items = {'1', '2', '3'};
+                case 4
+                    app.CPUCoresDropDown.Items = {'1', '2', '3', '4'};
+            end     
+            app.evaluateDone = true;
+            app.EvaluateSystemButton.Enable = 'off';
         end
-
             
         end
 
@@ -143,6 +152,21 @@ classdef userInterface < matlab.apps.AppBase
                 app.CPUCoresDropDown.Enable = 'off';
             end
         end
+
+        % Value changing function: PasswordHashEditField
+        function PasswordHashEditFieldValueChanging(app, event)
+
+            
+        end
+
+        % Menu selected function: NewrunMenu
+        function NewrunMenuSelected(app, event)
+            app.EvaluateSystemButton.Enable = 'on';
+            app.evaluateDone = false;
+            app.messageBuffer(:,1) = [];
+            app.LogMonitorTextArea.Value = '';
+            app.cnt = 1;
+        end
     end
 
     % App initialization and construction
@@ -151,15 +175,21 @@ classdef userInterface < matlab.apps.AppBase
         % Create UIFigure and components
         function createComponents(app)
 
-            % Create MainUIFigure
-            app.MainUIFigure = uifigure;
-            app.MainUIFigure.Color = [0.9412 0.9412 0.9412];
-            app.MainUIFigure.Position = [100 100 1284 974];
-            app.MainUIFigure.Name = 'Main';
+            % Create BruteForceToolUIFigure
+            app.BruteForceToolUIFigure = uifigure;
+            app.BruteForceToolUIFigure.Color = [0.9412 0.9412 0.9412];
+            app.BruteForceToolUIFigure.Position = [100 100 1284 974];
+            app.BruteForceToolUIFigure.Name = 'Brute-Force Tool';
 
             % Create FileMenu
-            app.FileMenu = uimenu(app.MainUIFigure);
+            app.FileMenu = uimenu(app.BruteForceToolUIFigure);
             app.FileMenu.Text = 'File';
+
+            % Create NewrunMenu
+            app.NewrunMenu = uimenu(app.FileMenu);
+            app.NewrunMenu.MenuSelectedFcn = createCallbackFcn(app, @NewrunMenuSelected, true);
+            app.NewrunMenu.Accelerator = 'N';
+            app.NewrunMenu.Text = 'New run';
 
             % Create SaveMenu
             app.SaveMenu = uimenu(app.FileMenu);
@@ -177,7 +207,7 @@ classdef userInterface < matlab.apps.AppBase
             app.ExitMenu.Text = 'Exit';
 
             % Create Menu_4
-            app.Menu_4 = uimenu(app.MainUIFigure);
+            app.Menu_4 = uimenu(app.BruteForceToolUIFigure);
             app.Menu_4.Text = '?';
 
             % Create AboutMenu
@@ -190,24 +220,25 @@ classdef userInterface < matlab.apps.AppBase
             app.Menu2_3.Text = 'Menu2';
 
             % Create BruteforceToolLabel
-            app.BruteforceToolLabel = uilabel(app.MainUIFigure);
+            app.BruteforceToolLabel = uilabel(app.BruteForceToolUIFigure);
             app.BruteforceToolLabel.FontSize = 20;
             app.BruteforceToolLabel.FontWeight = 'bold';
             app.BruteforceToolLabel.Position = [41 926 158 26];
             app.BruteforceToolLabel.Text = 'Brute force Tool';
 
             % Create PasswordHashEditFieldLabel
-            app.PasswordHashEditFieldLabel = uilabel(app.MainUIFigure);
+            app.PasswordHashEditFieldLabel = uilabel(app.BruteForceToolUIFigure);
             app.PasswordHashEditFieldLabel.HorizontalAlignment = 'right';
             app.PasswordHashEditFieldLabel.Position = [66 707 96 15];
             app.PasswordHashEditFieldLabel.Text = 'Password / Hash';
 
             % Create PasswordHashEditField
-            app.PasswordHashEditField = uieditfield(app.MainUIFigure, 'text');
+            app.PasswordHashEditField = uieditfield(app.BruteForceToolUIFigure, 'text');
+            app.PasswordHashEditField.ValueChangingFcn = createCallbackFcn(app, @PasswordHashEditFieldValueChanging, true);
             app.PasswordHashEditField.Position = [332 703 128 22];
 
             % Create STARTBruteforceButton
-            app.STARTBruteforceButton = uibutton(app.MainUIFigure, 'push');
+            app.STARTBruteforceButton = uibutton(app.BruteForceToolUIFigure, 'push');
             app.STARTBruteforceButton.BackgroundColor = [0.302 0.749 0.9294];
             app.STARTBruteforceButton.FontName = 'Arial';
             app.STARTBruteforceButton.FontSize = 20;
@@ -216,97 +247,97 @@ classdef userInterface < matlab.apps.AppBase
             app.STARTBruteforceButton.Text = 'START Brute force';
 
             % Create LogMonitorTextAreaLabel
-            app.LogMonitorTextAreaLabel = uilabel(app.MainUIFigure);
+            app.LogMonitorTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
             app.LogMonitorTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
             app.LogMonitorTextAreaLabel.Position = [34 250 70 15];
             app.LogMonitorTextAreaLabel.Text = 'Log-Monitor';
 
             % Create LogMonitorTextArea
-            app.LogMonitorTextArea = uitextarea(app.MainUIFigure);
+            app.LogMonitorTextArea = uitextarea(app.BruteForceToolUIFigure);
             app.LogMonitorTextArea.Editable = 'off';
             app.LogMonitorTextArea.BackgroundColor = [0.9412 0.9412 0.9412];
             app.LogMonitorTextArea.Position = [31 21 570 224];
 
             % Create TodecryptDropDownLabel
-            app.TodecryptDropDownLabel = uilabel(app.MainUIFigure);
+            app.TodecryptDropDownLabel = uilabel(app.BruteForceToolUIFigure);
             app.TodecryptDropDownLabel.HorizontalAlignment = 'right';
             app.TodecryptDropDownLabel.Position = [66 747 61 15];
             app.TodecryptDropDownLabel.Text = 'To decrypt';
 
             % Create TodecryptDropDown
-            app.TodecryptDropDown = uidropdown(app.MainUIFigure);
+            app.TodecryptDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.TodecryptDropDown.Items = {'Select...', 'Password', 'Hash'};
             app.TodecryptDropDown.Position = [332 743 128 22];
             app.TodecryptDropDown.Value = 'Select...';
 
             % Create EncryptionDropDownLabel
-            app.EncryptionDropDownLabel = uilabel(app.MainUIFigure);
+            app.EncryptionDropDownLabel = uilabel(app.BruteForceToolUIFigure);
             app.EncryptionDropDownLabel.HorizontalAlignment = 'right';
             app.EncryptionDropDownLabel.Position = [66 578 62 15];
             app.EncryptionDropDownLabel.Text = 'Encryption';
 
             % Create EncryptionDropDown
-            app.EncryptionDropDown = uidropdown(app.MainUIFigure);
+            app.EncryptionDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.EncryptionDropDown.Items = {'Select...', 'RSA', 'SHA'};
             app.EncryptionDropDown.Position = [332 574 128 22];
-            app.EncryptionDropDown.Value = 'RSA';
+            app.EncryptionDropDown.Value = 'Select...';
 
             % Create RainbowtableDropDownLabel
-            app.RainbowtableDropDownLabel = uilabel(app.MainUIFigure);
+            app.RainbowtableDropDownLabel = uilabel(app.BruteForceToolUIFigure);
             app.RainbowtableDropDownLabel.HorizontalAlignment = 'right';
             app.RainbowtableDropDownLabel.Position = [66 525 78 15];
             app.RainbowtableDropDownLabel.Text = 'Rainbowtable';
 
             % Create RainbowtableDropDown
-            app.RainbowtableDropDown = uidropdown(app.MainUIFigure);
+            app.RainbowtableDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.RainbowtableDropDown.Items = {'Select...', 'Yes', 'No'};
             app.RainbowtableDropDown.Position = [332 521 128 22];
-            app.RainbowtableDropDown.Value = 'Yes';
+            app.RainbowtableDropDown.Value = 'Select...';
 
             % Create ChooseRessourceDropDownLabel
-            app.ChooseRessourceDropDownLabel = uilabel(app.MainUIFigure);
+            app.ChooseRessourceDropDownLabel = uilabel(app.BruteForceToolUIFigure);
             app.ChooseRessourceDropDownLabel.HorizontalAlignment = 'right';
             app.ChooseRessourceDropDownLabel.Position = [66 465 108 15];
             app.ChooseRessourceDropDownLabel.Text = 'Choose Ressource';
 
             % Create ChooseRessourceDropDown
-            app.ChooseRessourceDropDown = uidropdown(app.MainUIFigure);
-            app.ChooseRessourceDropDown.Items = {'CPU', 'GPU', 'Option 3', 'Option 4'};
+            app.ChooseRessourceDropDown = uidropdown(app.BruteForceToolUIFigure);
+            app.ChooseRessourceDropDown.Items = {'CPU', 'GPU'};
             app.ChooseRessourceDropDown.ValueChangedFcn = createCallbackFcn(app, @ChooseRessourceDropDownValueChanged, true);
             app.ChooseRessourceDropDown.Position = [221 461 76 22];
             app.ChooseRessourceDropDown.Value = 'CPU';
 
             % Create CPUGPUTempCTextAreaLabel
-            app.CPUGPUTempCTextAreaLabel = uilabel(app.MainUIFigure);
+            app.CPUGPUTempCTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
             app.CPUGPUTempCTextAreaLabel.HorizontalAlignment = 'right';
             app.CPUGPUTempCTextAreaLabel.Position = [963 349 126 15];
             app.CPUGPUTempCTextAreaLabel.Text = 'CPU / GPU Temp. [°C]';
 
             % Create CPUGPUTempCTextArea
-            app.CPUGPUTempCTextArea = uitextarea(app.MainUIFigure);
+            app.CPUGPUTempCTextArea = uitextarea(app.BruteForceToolUIFigure);
             app.CPUGPUTempCTextArea.Editable = 'off';
             app.CPUGPUTempCTextArea.Position = [1127 338 92 28];
 
             % Create FanspeedrpmTextAreaLabel
-            app.FanspeedrpmTextAreaLabel = uilabel(app.MainUIFigure);
+            app.FanspeedrpmTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
             app.FanspeedrpmTextAreaLabel.HorizontalAlignment = 'right';
             app.FanspeedrpmTextAreaLabel.Position = [568 349 93 15];
             app.FanspeedrpmTextAreaLabel.Text = 'Fan speed [rpm]';
 
             % Create FanspeedrpmTextArea
-            app.FanspeedrpmTextArea = uitextarea(app.MainUIFigure);
+            app.FanspeedrpmTextArea = uitextarea(app.BruteForceToolUIFigure);
             app.FanspeedrpmTextArea.Editable = 'off';
             app.FanspeedrpmTextArea.Position = [731 338 92 28];
 
             % Create ResultTextAreaLabel
-            app.ResultTextAreaLabel = uilabel(app.MainUIFigure);
+            app.ResultTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
             app.ResultTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
             app.ResultTextAreaLabel.HorizontalAlignment = 'right';
             app.ResultTextAreaLabel.Position = [645 250 40 15];
             app.ResultTextAreaLabel.Text = 'Result';
 
             % Create ResultTextArea
-            app.ResultTextArea = uitextarea(app.MainUIFigure);
+            app.ResultTextArea = uitextarea(app.BruteForceToolUIFigure);
             app.ResultTextArea.Editable = 'off';
             app.ResultTextArea.HorizontalAlignment = 'center';
             app.ResultTextArea.FontSize = 48;
@@ -315,19 +346,19 @@ classdef userInterface < matlab.apps.AppBase
             app.ResultTextArea.Value = {'01234567'};
 
             % Create CPUCoresDropDownLabel
-            app.CPUCoresDropDownLabel = uilabel(app.MainUIFigure);
+            app.CPUCoresDropDownLabel = uilabel(app.BruteForceToolUIFigure);
             app.CPUCoresDropDownLabel.HorizontalAlignment = 'right';
             app.CPUCoresDropDownLabel.Position = [334 465 66 15];
             app.CPUCoresDropDownLabel.Text = 'CPU Cores';
 
             % Create CPUCoresDropDown
-            app.CPUCoresDropDown = uidropdown(app.MainUIFigure);
+            app.CPUCoresDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.CPUCoresDropDown.Items = {};
             app.CPUCoresDropDown.Position = [414 461 46 22];
             app.CPUCoresDropDown.Value = {};
 
             % Create AdvancedsettingsLabel
-            app.AdvancedsettingsLabel = uilabel(app.MainUIFigure);
+            app.AdvancedsettingsLabel = uilabel(app.BruteForceToolUIFigure);
             app.AdvancedsettingsLabel.VerticalAlignment = 'center';
             app.AdvancedsettingsLabel.FontSize = 14;
             app.AdvancedsettingsLabel.FontAngle = 'italic';
@@ -335,13 +366,13 @@ classdef userInterface < matlab.apps.AppBase
             app.AdvancedsettingsLabel.Text = 'Advanced settings';
 
             % Create EvaluateSystemButton
-            app.EvaluateSystemButton = uibutton(app.MainUIFigure, 'push');
+            app.EvaluateSystemButton = uibutton(app.BruteForceToolUIFigure, 'push');
             app.EvaluateSystemButton.ButtonPushedFcn = createCallbackFcn(app, @EvaluateSystemButtonPushed, true);
             app.EvaluateSystemButton.Position = [73 816 330 45];
             app.EvaluateSystemButton.Text = 'Evaluate System';
 
             % Create TabGroup
-            app.TabGroup = uitabgroup(app.MainUIFigure);
+            app.TabGroup = uitabgroup(app.BruteForceToolUIFigure);
             app.TabGroup.Position = [567 431 700 430];
 
             % Create CPUTab
@@ -430,7 +461,7 @@ classdef userInterface < matlab.apps.AppBase
             createComponents(app)
 
             % Register the app with App Designer
-            registerApp(app, app.MainUIFigure)
+            registerApp(app, app.BruteForceToolUIFigure)
 
             % Execute the startup function
             runStartupFcn(app, @startupFcn)
@@ -444,7 +475,7 @@ classdef userInterface < matlab.apps.AppBase
         function delete(app)
 
             % Delete UIFigure when app is deleted
-            delete(app.MainUIFigure)
+            delete(app.BruteForceToolUIFigure)
         end
     end
 end
