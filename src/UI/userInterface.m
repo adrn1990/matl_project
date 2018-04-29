@@ -45,11 +45,11 @@ classdef userInterface < matlab.apps.AppBase
         UIAxes_gpu                    matlab.ui.control.UIAxes
     end
 
-
     properties (Access = private)
         Property % Description
         messageBuffer = {128};
         evaluateDone = false;
+        cpuInfo;
         cnt = 1;
     end
  
@@ -59,13 +59,8 @@ classdef userInterface < matlab.apps.AppBase
             app.messageBuffer{app.cnt} = message;
             app.LogMonitorTextArea.Value = app.messageBuffer; 
             app.cnt = app.cnt + 1;
-        end
-        
-
-        
-                
+        end          
     end
-
 
     methods (Access = private)
 
@@ -87,24 +82,24 @@ classdef userInterface < matlab.apps.AppBase
             fWriteMessageBuffer(app, 'Get CPU information: ');
             fWriteMessageBuffer(app, '---------------------------------------');
              
-            cpuInfo = cpuinfo();
+            app.cpuInfo = cpuinfo();
             
-            cpuMessage = sprintf('Name: \t \t \t %s' , cpuInfo.Name); 
+            cpuMessage = sprintf('Name: \t \t \t %s' , app.cpuInfo.Name); 
             fWriteMessageBuffer(app, cpuMessage);
             
-            cpuCores = num2str(cpuInfo.NumProcessors);
+            cpuCores = num2str(app.cpuInfo.NumProcessors);
             cpuMessage = sprintf('Number of cores: \t %s', cpuCores);
             fWriteMessageBuffer(app, cpuMessage);
             
-            cpuMessage = sprintf('Clock: \t \t \t %s', cpuInfo.Clock);
+            cpuMessage = sprintf('Clock: \t \t \t %s', app.cpuInfo.Clock);
             fWriteMessageBuffer(app, cpuMessage);
             
-            cpuMessage = sprintf('OS Type: \t \t %s (%s)', cpuInfo.OSType, cpuInfo.OSVersion);
+            cpuMessage = sprintf('OS Type: \t \t %s (%s)', app.cpuInfo.OSType, app.cpuInfo.OSVersion);
             fWriteMessageBuffer(app, cpuMessage);
             fWriteMessageBuffer(app, '---------------------------------------');
             
             %Set value for "CPU cores" DropDown
-            switch cpuInfo.NumProcessors
+            switch app.cpuInfo.NumProcessors
                 case 1
                     app.CPUCoresDropDown.Items = {'1'};
                 case 2
@@ -146,10 +141,26 @@ classdef userInterface < matlab.apps.AppBase
         function ChooseRessourceDropDownValueChanged(app, event)
             value = app.ChooseRessourceDropDown.Value;
             if value == 'CPU'
+                switch app.cpuInfo.NumProcessors
+                    case 1
+                        app.CPUCoresDropDown.Items = {'1'};
+                    case 2
+                        app.CPUCoresDropDown.Items = {'1', '2'};
+                    case 3
+                        app.CPUCoresDropDown.Items = {'1', '2', '3'};
+                    case 4
+                        app.CPUCoresDropDown.Items = {'1', '2', '3', '4'};
+                end 
                 app.CPUCoresDropDown.Enable = 'on';
+                app.UIAxes_gpu.Visible = 'off';
             else
                 app.CPUCoresDropDown.Items = {'1'};
                 app.CPUCoresDropDown.Enable = 'off';
+                app.UIAxes_gpu.Visible = 'on';
+                app.UIAxes_cpu1.Visible = 'off';
+                app.UIAxes_cpu2.Visible = 'off';
+                app.UIAxes_cpu3.Visible = 'off';
+                app.UIAxes_cpu4.Visible = 'off';
             end
         end
 
@@ -166,6 +177,34 @@ classdef userInterface < matlab.apps.AppBase
             app.messageBuffer(:,1) = [];
             app.LogMonitorTextArea.Value = '';
             app.cnt = 1;
+        end
+
+        % Value changed function: CPUCoresDropDown
+        function CPUCoresDropDownValueChanged(app, event)
+            value = app.CPUCoresDropDown.Value;
+            switch value
+                case '1'
+                    app.UIAxes_cpu1.Visible = 'on';
+                    app.UIAxes_cpu2.Visible = 'off';
+                    app.UIAxes_cpu3.Visible = 'off';
+                    app.UIAxes_cpu4.Visible = 'off';
+                case '2'
+                    app.UIAxes_cpu1.Visible = 'on';
+                    app.UIAxes_cpu2.Visible = 'on';
+                    app.UIAxes_cpu3.Visible = 'off';
+                    app.UIAxes_cpu4.Visible = 'off';
+                case '3'
+                    app.UIAxes_cpu1.Visible = 'on';
+                    app.UIAxes_cpu2.Visible = 'on';
+                    app.UIAxes_cpu3.Visible = 'on';
+                    app.UIAxes_cpu4.Visible = 'off';
+                case '4'
+                    app.UIAxes_cpu1.Visible = 'on';
+                    app.UIAxes_cpu2.Visible = 'on';
+                    app.UIAxes_cpu3.Visible = 'on';
+                    app.UIAxes_cpu4.Visible = 'on';
+            end
+            
         end
     end
 
@@ -302,10 +341,10 @@ classdef userInterface < matlab.apps.AppBase
 
             % Create ChooseRessourceDropDown
             app.ChooseRessourceDropDown = uidropdown(app.BruteForceToolUIFigure);
-            app.ChooseRessourceDropDown.Items = {'CPU', 'GPU'};
+            app.ChooseRessourceDropDown.Items = {'Select...', 'CPU', 'GPU'};
             app.ChooseRessourceDropDown.ValueChangedFcn = createCallbackFcn(app, @ChooseRessourceDropDownValueChanged, true);
             app.ChooseRessourceDropDown.Position = [221 461 76 22];
-            app.ChooseRessourceDropDown.Value = 'CPU';
+            app.ChooseRessourceDropDown.Value = 'Select...';
 
             % Create CPUGPUTempCTextAreaLabel
             app.CPUGPUTempCTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
@@ -354,6 +393,7 @@ classdef userInterface < matlab.apps.AppBase
             % Create CPUCoresDropDown
             app.CPUCoresDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.CPUCoresDropDown.Items = {};
+            app.CPUCoresDropDown.ValueChangedFcn = createCallbackFcn(app, @CPUCoresDropDownValueChanged, true);
             app.CPUCoresDropDown.Position = [414 461 46 22];
             app.CPUCoresDropDown.Value = {};
 
