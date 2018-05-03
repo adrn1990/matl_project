@@ -47,19 +47,17 @@ classdef userInterface < matlab.apps.AppBase
 
     properties (Access = private)
         Property % Description
-        messageBuffer = {128};
+        messageBuffer = {''};
         evaluateDone = false;
         cpuInfo;
-        cnt = 1;
     end
- 
+    
     methods (Access = private)
         %Message Buffer
         function fWriteMessageBuffer(app,message)
-            app.messageBuffer{app.cnt} = message;
-            app.LogMonitorTextArea.Value = app.messageBuffer; 
-            app.cnt = app.cnt + 1;
-        end          
+            app.messageBuffer{end + 1} = message;
+            app.LogMonitorTextArea.Value = app.messageBuffer;
+        end
     end
 
     methods (Access = private)
@@ -74,46 +72,46 @@ classdef userInterface < matlab.apps.AppBase
 
         % Button pushed function: EvaluateSystemButton
         function EvaluateSystemButtonPushed(app, event)
-        
-        if ~app.evaluateDone      
-            %Start system evaluation
-            fWriteMessageBuffer(app, 'System evaluation started...');
             
-            %Get CPU information
-            fWriteMessageBuffer(app, 'Get CPU information: ');
-            fWriteMessageBuffer(app, '---------------------------------------');
-             
-            app.cpuInfo = cpuinfo();
-            
-            cpuMessage = sprintf('Name: \t \t \t %s' , app.cpuInfo.Name); 
-            fWriteMessageBuffer(app, cpuMessage);
-            
-            cpuCores = num2str(app.cpuInfo.NumProcessors);
-            cpuMessage = sprintf('Number of cores: \t %s', cpuCores);
-            fWriteMessageBuffer(app, cpuMessage);
-            
-            cpuMessage = sprintf('Clock: \t \t \t %s', app.cpuInfo.Clock);
-            fWriteMessageBuffer(app, cpuMessage);
-            
-            cpuMessage = sprintf('OS Type: \t \t %s (%s)', app.cpuInfo.OSType, app.cpuInfo.OSVersion);
-            fWriteMessageBuffer(app, cpuMessage);
-            fWriteMessageBuffer(app, '---------------------------------------');
-            
-            %Set value for "CPU cores" DropDown
-            switch app.cpuInfo.NumProcessors
-                case 1
-                    app.CPUCoresDropDown.Items = {'1'};
-                case 2
-                    app.CPUCoresDropDown.Items = {'1', '2'};
-                case 3
-                    app.CPUCoresDropDown.Items = {'1', '2', '3'};
-                case 4
-                    app.CPUCoresDropDown.Items = {'1', '2', '3', '4'};
-            end     
-            app.evaluateDone = true;
-            app.NewrunMenu.Enable = 'on';
-            app.EvaluateSystemButton.Enable = 'off';
-        end
+            if ~app.evaluateDone
+                %Start system evaluation
+                fWriteMessageBuffer(app, 'System evaluation started...');
+                
+                %Get CPU information
+                fWriteMessageBuffer(app, 'Get CPU information: ');
+                fWriteMessageBuffer(app, '---------------------------------------');
+                
+                app.cpuInfo = cpuinfo();
+                
+                cpuMessage = sprintf('Name: \t \t \t %s' , app.cpuInfo.Name);
+                fWriteMessageBuffer(app, cpuMessage);
+                
+                cpuCores = num2str(app.cpuInfo.NumProcessors);
+                cpuMessage = sprintf('Number of cores: \t %s', cpuCores);
+                fWriteMessageBuffer(app, cpuMessage);
+                
+                cpuMessage = sprintf('Clock: \t \t \t %s', app.cpuInfo.Clock);
+                fWriteMessageBuffer(app, cpuMessage);
+                
+                cpuMessage = sprintf('OS Type: \t \t %s (%s)', app.cpuInfo.OSType, app.cpuInfo.OSVersion);
+                fWriteMessageBuffer(app, cpuMessage);
+                fWriteMessageBuffer(app, '---------------------------------------');
+                
+                %Set value for "CPU cores" DropDown
+                switch app.cpuInfo.NumProcessors
+                    case 1
+                        app.CPUCoresDropDown.Items = {'1'};
+                    case 2
+                        app.CPUCoresDropDown.Items = {'1', '2'};
+                    case 3
+                        app.CPUCoresDropDown.Items = {'1', '2', '3'};
+                    case 4
+                        app.CPUCoresDropDown.Items = {'1', '2', '3', '4'};
+                end
+                app.evaluateDone = true;
+                app.NewrunMenu.Enable = 'on';
+                app.EvaluateSystemButton.Enable = 'off';
+            end
             
         end
 
@@ -131,12 +129,12 @@ classdef userInterface < matlab.apps.AppBase
 
         % Menu selected function: AboutMenu
         function AboutMenuSelected(app, event)
-            msgbox({'Name: Brute-Force Tool' 'Version: 0.0.0' 'Designer: A.Gonzalez / B. Huerzeler'}, 'About...');   
+            msgbox({'Name: Brute-Force Tool' 'Version: 0.0.0' 'Designer: A.Gonzalez / B. Huerzeler'}, 'About...');
         end
 
         % Menu selected function: SaveMenu
         function SaveMenuSelected(app, event)
-        
+            
         end
 
         % Value changed function: ChooseRessourceDropDown
@@ -152,7 +150,7 @@ classdef userInterface < matlab.apps.AppBase
                         app.CPUCoresDropDown.Items = {'1', '2', '3'};
                     case 4
                         app.CPUCoresDropDown.Items = {'1', '2', '3', '4'};
-                end 
+                end
                 app.CPUCoresDropDown.Enable = 'on';
                 app.UIAxes_gpu.Visible = 'off';
             else
@@ -168,14 +166,14 @@ classdef userInterface < matlab.apps.AppBase
 
         % Value changing function: PasswordHashEditField
         function PasswordHashEditFieldValueChanging(app, event)
-
+            
             
         end
 
         % Menu selected function: NewrunMenu
         function NewrunMenuSelected(app, event)
             exitBox = questdlg('Do you want to save all data?','Warning');
-
+            
             switch exitBox
                 case 'Yes'
                     filename = 'test.csv';
@@ -183,16 +181,16 @@ classdef userInterface < matlab.apps.AppBase
                     app.EvaluateSystemButton.Enable = 'on';
                     app.evaluateDone = false;
                     app.NewrunMenu.Enable = 'off';
-                    app.messageBuffer(:,1) = [];
+                    app.messageBuffer = {''};
                     app.LogMonitorTextArea.Value = '';
-                    app.cnt = 1;
+%                     app.cnt = 1;
                 case 'No'
                     app.EvaluateSystemButton.Enable = 'on';
                     app.evaluateDone = false;
                     app.NewrunMenu.Enable = 'off';
-                    app.messageBuffer(:,1) = [];
+                    app.messageBuffer = {''};
                     app.LogMonitorTextArea.Value = '';
-                    app.cnt = 1;
+%                     app.cnt = 1;
             end
         end
 
