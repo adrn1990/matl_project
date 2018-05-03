@@ -43,6 +43,8 @@ classdef userInterface < matlab.apps.AppBase
         UIAxes_cpu4                   matlab.ui.control.UIAxes
         GPUTab                        matlab.ui.container.Tab
         UIAxes_gpu                    matlab.ui.control.UIAxes
+        StatusTextAreaLabel           matlab.ui.control.Label
+        StatusTextArea                matlab.ui.control.TextArea
     end
 
     properties (Access = private)
@@ -297,7 +299,7 @@ classdef userInterface < matlab.apps.AppBase
             app.STARTBruteforceButton.FontName = 'Arial';
             app.STARTBruteforceButton.FontSize = 20;
             app.STARTBruteforceButton.FontWeight = 'bold';
-            app.STARTBruteforceButton.Position = [65 325 431 54];
+            app.STARTBruteforceButton.Position = [65 353 431 54];
             app.STARTBruteforceButton.Text = 'START Brute force';
 
             % Create LogMonitorTextAreaLabel
@@ -504,6 +506,18 @@ classdef userInterface < matlab.apps.AppBase
             app.UIAxes_gpu.XGrid = 'on';
             app.UIAxes_gpu.YGrid = 'on';
             app.UIAxes_gpu.Position = [24 30 642 341];
+
+            % Create StatusTextAreaLabel
+            app.StatusTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
+            app.StatusTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
+            app.StatusTextAreaLabel.Position = [34 310 40 15];
+            app.StatusTextAreaLabel.Text = 'Status';
+
+            % Create StatusTextArea
+            app.StatusTextArea = uitextarea(app.BruteForceToolUIFigure);
+            app.StatusTextArea.Editable = 'off';
+            app.StatusTextArea.BackgroundColor = [0.9412 0.9412 0.9412];
+            app.StatusTextArea.Position = [31 276 570 29];
         end
     end
 
