@@ -69,6 +69,7 @@ classdef userInterface < matlab.apps.AppBase
             app.PasswordHashEditField.Value = '--Type a password--';
             app.PasswordHashEditField.FontAngle = 'italic';
             app.STARTBruteforceButton.Enable = 'off';
+            app.NewrunMenu.Enable = 'off';
         end
 
         % Button pushed function: EvaluateSystemButton
@@ -110,6 +111,7 @@ classdef userInterface < matlab.apps.AppBase
                     app.CPUCoresDropDown.Items = {'1', '2', '3', '4'};
             end     
             app.evaluateDone = true;
+            app.NewrunMenu.Enable = 'on';
             app.EvaluateSystemButton.Enable = 'off';
         end
             
@@ -172,11 +174,26 @@ classdef userInterface < matlab.apps.AppBase
 
         % Menu selected function: NewrunMenu
         function NewrunMenuSelected(app, event)
-            app.EvaluateSystemButton.Enable = 'on';
-            app.evaluateDone = false;
-            app.messageBuffer(:,1) = [];
-            app.LogMonitorTextArea.Value = '';
-            app.cnt = 1;
+            exitBox = questdlg('Do you want to save all data?','Warning');
+
+            switch exitBox
+                case 'Yes'
+                    filename = 'test.csv';
+                    cell2csv(filename,app.messageBuffer);
+                    app.EvaluateSystemButton.Enable = 'on';
+                    app.evaluateDone = false;
+                    app.NewrunMenu.Enable = 'off';
+                    app.messageBuffer(:,1) = [];
+                    app.LogMonitorTextArea.Value = '';
+                    app.cnt = 1;
+                case 'No'
+                    app.EvaluateSystemButton.Enable = 'on';
+                    app.evaluateDone = false;
+                    app.NewrunMenu.Enable = 'off';
+                    app.messageBuffer(:,1) = [];
+                    app.LogMonitorTextArea.Value = '';
+                    app.cnt = 1;
+            end
         end
 
         % Value changed function: CPUCoresDropDown
@@ -228,7 +245,7 @@ classdef userInterface < matlab.apps.AppBase
             app.NewrunMenu = uimenu(app.FileMenu);
             app.NewrunMenu.MenuSelectedFcn = createCallbackFcn(app, @NewrunMenuSelected, true);
             app.NewrunMenu.Accelerator = 'N';
-            app.NewrunMenu.Text = 'New run';
+            app.NewrunMenu.Text = 'New run...';
 
             % Create SaveMenu
             app.SaveMenu = uimenu(app.FileMenu);
