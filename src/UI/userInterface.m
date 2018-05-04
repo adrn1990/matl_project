@@ -10,7 +10,6 @@ classdef userInterface < matlab.apps.AppBase
         ExitMenu                      matlab.ui.container.Menu
         Menu_4                        matlab.ui.container.Menu
         AboutMenu                     matlab.ui.container.Menu
-        Menu2_3                       matlab.ui.container.Menu
         BruteforceToolLabel           matlab.ui.control.Label
         PasswordHashEditFieldLabel    matlab.ui.control.Label
         PasswordHashEditField         matlab.ui.control.EditField
@@ -52,6 +51,7 @@ classdef userInterface < matlab.apps.AppBase
         messageBuffer = {''};
         evaluateDone = false;
         cpuInfo;
+        gpuInfo;
     end
     
     methods (Access = private)
@@ -60,16 +60,19 @@ classdef userInterface < matlab.apps.AppBase
             app.messageBuffer{end + 1} = message;
             app.LogMonitorTextArea.Value = app.messageBuffer;
         end
+        
+        
     end
 
     methods (Access = private)
 
         % Code that executes after component creation
         function startupFcn(app)
-            app.PasswordHashEditField.Value = '--Type a password--';
             app.PasswordHashEditField.FontAngle = 'italic';
             app.STARTBruteforceButton.Enable = 'off';
             app.NewrunMenu.Enable = 'off';
+            app.ChooseRessourceDropDown.Enable = 'off';
+            app.CPUCoresDropDown.Enable = 'off';
         end
 
         % Button pushed function: EvaluateSystemButton
@@ -97,7 +100,41 @@ classdef userInterface < matlab.apps.AppBase
                 
                 cpuMessage = sprintf('OS Type: \t \t %s (%s)', app.cpuInfo.OSType, app.cpuInfo.OSVersion);
                 fWriteMessageBuffer(app, cpuMessage);
+                fWriteMessageBuffer(app, 'Getting CPU information done...');
                 fWriteMessageBuffer(app, '---------------------------------------');
+                
+                try
+                    
+                    if gpuDeviceCount > 0
+                        fWriteMessageBuffer(app, 'Compatible GPU detected...');
+                        
+                        % Get GPU information
+                        fWriteMessageBuffer(app, 'Get GPUinformation: ');
+                        fWriteMessageBuffer(app, '---------------------------------------');
+                        
+                        app.gpuInfo = gpuDevice;
+                        
+                        gpuMessage = sprintf('Name: \t \t \t \t %s' , app.gpuInfo.Name);
+                        fWriteMessageBuffer(app, gpuMessage);
+                        
+                        gpuMessage = sprintf('Compute Capability: \t %s', app.gpuInfo.ComputeCapability);
+                        fWriteMessageBuffer(app, gpuMessage);
+                        
+                        gpuThreads = num2str(app.gpuInfo.MaxThreadsPerBlock);
+                        gpuMessage = sprintf('Max Threads per block: \t %s', gpuThreads);
+                        fWriteMessageBuffer(app, gpuMessage);
+                        
+                        gpuClock = num2str(app.gpuInfo.ClockRateKHz);
+                        gpuMessage = sprintf('Clock rate [kHz]: \t \t %s', gpuClock);
+                        fWriteMessageBuffer(app, gpuMessage);
+                        
+                        fWriteMessageBuffer(app, 'Getting GPU information done...');
+                        fWriteMessageBuffer(app, '---------------------------------------');
+                    end
+                catch
+                    app.StatusTextArea.Value = 'Existing GPU is not compatible!';
+                end
+                
                 
                 %Set value for "CPU cores" DropDown
                 switch app.cpuInfo.NumProcessors
@@ -112,9 +149,10 @@ classdef userInterface < matlab.apps.AppBase
                 end
                 app.evaluateDone = true;
                 app.NewrunMenu.Enable = 'on';
+                app.ChooseRessourceDropDown.Enable = 'on';
+                app.CPUCoresDropDown.Enable = 'on';
                 app.EvaluateSystemButton.Enable = 'off';
             end
-            
         end
 
         % Menu selected function: ExitMenu
@@ -136,12 +174,17 @@ classdef userInterface < matlab.apps.AppBase
 
         % Menu selected function: SaveMenu
         function SaveMenuSelected(app, event)
-            
+
         end
 
         % Value changed function: ChooseRessourceDropDown
         function ChooseRessourceDropDownValueChanged(app, event)
             value = app.ChooseRessourceDropDown.Value;
+            
+            %Set items for Dropdown menu without select...
+            app.ChooseRessourceDropDown.Items = {'CPU', 'GPU'};
+            
+            %Set items dynamically
             if value == 'CPU'
                 switch app.cpuInfo.NumProcessors
                     case 1
@@ -168,8 +211,7 @@ classdef userInterface < matlab.apps.AppBase
 
         % Value changing function: PasswordHashEditField
         function PasswordHashEditFieldValueChanging(app, event)
-            
-            
+
         end
 
         % Menu selected function: NewrunMenu
@@ -185,14 +227,12 @@ classdef userInterface < matlab.apps.AppBase
                     app.NewrunMenu.Enable = 'off';
                     app.messageBuffer = {''};
                     app.LogMonitorTextArea.Value = '';
-%                     app.cnt = 1;
                 case 'No'
                     app.EvaluateSystemButton.Enable = 'on';
                     app.evaluateDone = false;
                     app.NewrunMenu.Enable = 'off';
                     app.messageBuffer = {''};
                     app.LogMonitorTextArea.Value = '';
-%                     app.cnt = 1;
             end
         end
 
@@ -221,7 +261,59 @@ classdef userInterface < matlab.apps.AppBase
                     app.UIAxes_cpu3.Visible = 'on';
                     app.UIAxes_cpu4.Visible = 'on';
             end
+
+        end
+
+        % Value changed function: EncryptionDropDown
+        function EncryptionDropDownValueChanged(app, event)
+            value = app.EncryptionDropDown.Value;
             
+            %Set items for Dropdown menu without select...
+            app.EncryptionDropDown.Items = {'SHA-1', 'SHA-256', 'SHA-512', 'MD5', 'AES-256'};
+            
+            switch value
+                case 'SHA-1'
+                    
+                case 'SHA-256'
+                    
+                case 'SHA-512'
+                    
+                case 'MD5'
+                    
+                case 'AES-256'
+            end
+
+
+        end
+
+        % Value changed function: RainbowtableDropDown
+        function RainbowtableDropDownValueChanged(app, event)
+            value = app.RainbowtableDropDown.Value;
+            
+            %Set items for Dropdown menu without select...
+            app.RainbowtableDropDown.Items = {'Yes', 'No'};
+            
+            switch value
+                case 'Yes'
+                    
+                case 'No'
+                    
+            end
+        end
+
+        % Value changed function: TodecryptDropDown
+        function TodecryptDropDownValueChanged(app, event)
+            value = app.TodecryptDropDown.Value;
+            
+            %Set items for Dropdown menu without select...
+            app.TodecryptDropDown.Items = {'Password', 'Hash'};
+
+        end
+
+        % Button pushed function: STARTBruteforceButton
+        function STARTBruteforceButtonPushed(app, event)
+
+
         end
     end
 
@@ -271,10 +363,6 @@ classdef userInterface < matlab.apps.AppBase
             app.AboutMenu.MenuSelectedFcn = createCallbackFcn(app, @AboutMenuSelected, true);
             app.AboutMenu.Text = 'About...';
 
-            % Create Menu2_3
-            app.Menu2_3 = uimenu(app.Menu_4);
-            app.Menu2_3.Text = 'Menu2';
-
             % Create BruteforceToolLabel
             app.BruteforceToolLabel = uilabel(app.BruteForceToolUIFigure);
             app.BruteforceToolLabel.FontSize = 20;
@@ -291,10 +379,11 @@ classdef userInterface < matlab.apps.AppBase
             % Create PasswordHashEditField
             app.PasswordHashEditField = uieditfield(app.BruteForceToolUIFigure, 'text');
             app.PasswordHashEditField.ValueChangingFcn = createCallbackFcn(app, @PasswordHashEditFieldValueChanging, true);
-            app.PasswordHashEditField.Position = [332 703 128 22];
+            app.PasswordHashEditField.Position = [332 703 164 22];
 
             % Create STARTBruteforceButton
             app.STARTBruteforceButton = uibutton(app.BruteForceToolUIFigure, 'push');
+            app.STARTBruteforceButton.ButtonPushedFcn = createCallbackFcn(app, @STARTBruteforceButtonPushed, true);
             app.STARTBruteforceButton.BackgroundColor = [0.302 0.749 0.9294];
             app.STARTBruteforceButton.FontName = 'Arial';
             app.STARTBruteforceButton.FontSize = 20;
@@ -323,7 +412,8 @@ classdef userInterface < matlab.apps.AppBase
             % Create TodecryptDropDown
             app.TodecryptDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.TodecryptDropDown.Items = {'Select...', 'Password', 'Hash'};
-            app.TodecryptDropDown.Position = [332 743 128 22];
+            app.TodecryptDropDown.ValueChangedFcn = createCallbackFcn(app, @TodecryptDropDownValueChanged, true);
+            app.TodecryptDropDown.Position = [332 743 164 22];
             app.TodecryptDropDown.Value = 'Select...';
 
             % Create EncryptionDropDownLabel
@@ -334,8 +424,9 @@ classdef userInterface < matlab.apps.AppBase
 
             % Create EncryptionDropDown
             app.EncryptionDropDown = uidropdown(app.BruteForceToolUIFigure);
-            app.EncryptionDropDown.Items = {'Select...', 'RSA', 'SHA'};
-            app.EncryptionDropDown.Position = [332 574 128 22];
+            app.EncryptionDropDown.Items = {'Select...', 'SHA-1', 'SHA-256', 'SHA-512', 'MD5', 'AES-256'};
+            app.EncryptionDropDown.ValueChangedFcn = createCallbackFcn(app, @EncryptionDropDownValueChanged, true);
+            app.EncryptionDropDown.Position = [332 574 164 22];
             app.EncryptionDropDown.Value = 'Select...';
 
             % Create RainbowtableDropDownLabel
@@ -347,7 +438,8 @@ classdef userInterface < matlab.apps.AppBase
             % Create RainbowtableDropDown
             app.RainbowtableDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.RainbowtableDropDown.Items = {'Select...', 'Yes', 'No'};
-            app.RainbowtableDropDown.Position = [332 521 128 22];
+            app.RainbowtableDropDown.ValueChangedFcn = createCallbackFcn(app, @RainbowtableDropDownValueChanged, true);
+            app.RainbowtableDropDown.Position = [332 521 164 22];
             app.RainbowtableDropDown.Value = 'Select...';
 
             % Create ChooseRessourceDropDownLabel
@@ -404,14 +496,14 @@ classdef userInterface < matlab.apps.AppBase
             % Create CPUCoresDropDownLabel
             app.CPUCoresDropDownLabel = uilabel(app.BruteForceToolUIFigure);
             app.CPUCoresDropDownLabel.HorizontalAlignment = 'right';
-            app.CPUCoresDropDownLabel.Position = [334 465 66 15];
+            app.CPUCoresDropDownLabel.Position = [332 465 66 15];
             app.CPUCoresDropDownLabel.Text = 'CPU Cores';
 
             % Create CPUCoresDropDown
             app.CPUCoresDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.CPUCoresDropDown.Items = {};
             app.CPUCoresDropDown.ValueChangedFcn = createCallbackFcn(app, @CPUCoresDropDownValueChanged, true);
-            app.CPUCoresDropDown.Position = [414 461 46 22];
+            app.CPUCoresDropDown.Position = [412 461 84 22];
             app.CPUCoresDropDown.Value = {};
 
             % Create AdvancedsettingsLabel
@@ -425,7 +517,10 @@ classdef userInterface < matlab.apps.AppBase
             % Create EvaluateSystemButton
             app.EvaluateSystemButton = uibutton(app.BruteForceToolUIFigure, 'push');
             app.EvaluateSystemButton.ButtonPushedFcn = createCallbackFcn(app, @EvaluateSystemButtonPushed, true);
-            app.EvaluateSystemButton.Position = [73 816 330 45];
+            app.EvaluateSystemButton.BackgroundColor = [1 0.9255 0.5451];
+            app.EvaluateSystemButton.FontSize = 14;
+            app.EvaluateSystemButton.FontWeight = 'bold';
+            app.EvaluateSystemButton.Position = [73 816 423 45];
             app.EvaluateSystemButton.Text = 'Evaluate System';
 
             % Create TabGroup
