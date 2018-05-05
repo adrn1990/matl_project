@@ -44,6 +44,7 @@ classdef userInterface < matlab.apps.AppBase
         UIAxes_gpu                    matlab.ui.control.UIAxes
         StatusTextAreaLabel           matlab.ui.control.Label
         StatusTextArea                matlab.ui.control.TextArea
+        PasswordCheck                 matlab.ui.control.TextArea
     end
 
     properties (Access = private)
@@ -73,6 +74,7 @@ classdef userInterface < matlab.apps.AppBase
             app.NewrunMenu.Enable = 'off';
             app.ChooseRessourceDropDown.Enable = 'off';
             app.CPUCoresDropDown.Enable = 'off';
+            app.PasswordCheck.Visible = 'off';
         end
 
         % Button pushed function: EvaluateSystemButton
@@ -211,7 +213,15 @@ classdef userInterface < matlab.apps.AppBase
 
         % Value changing function: PasswordHashEditField
         function PasswordHashEditFieldValueChanging(app, event)
-
+            value = app.PasswordHashEditField.Value;
+            pwLength = size(value);
+            
+            if pwLength > 8
+                app.PasswordCheck.Visible = 'on';
+            else
+                app.PasswordCheck.Visible = 'off';
+            end
+            
         end
 
         % Menu selected function: NewrunMenu
@@ -613,6 +623,15 @@ classdef userInterface < matlab.apps.AppBase
             app.StatusTextArea.Editable = 'off';
             app.StatusTextArea.BackgroundColor = [0.9412 0.9412 0.9412];
             app.StatusTextArea.Position = [31 276 570 29];
+
+            % Create PasswordCheck
+            app.PasswordCheck = uitextarea(app.BruteForceToolUIFigure);
+            app.PasswordCheck.Editable = 'off';
+            app.PasswordCheck.FontSize = 9;
+            app.PasswordCheck.FontColor = [1 0 0];
+            app.PasswordCheck.BackgroundColor = [0.9412 0.9412 0.9412];
+            app.PasswordCheck.Position = [332 669 164 35];
+            app.PasswordCheck.Value = {'Password length  is limited to 8 and chars ''0-9'', ''A-Z'', ''a-z'' are allowed'};
         end
     end
 
