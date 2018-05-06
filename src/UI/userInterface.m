@@ -63,6 +63,16 @@ classdef userInterface < matlab.apps.AppBase
         end
         
         
+        function results = getCpuTemp(app)
+            command = 'wmic /namespace:\\root\wmi PATH MSAcpi_ThermalZoneTemperature get CurrentTemperature';
+            [status, cpuTemp] = system(command);
+        end
+        
+        function results = getCpuLoad(app)
+            command = 'wmic cpu get loadpercentage /format:value';
+            [status,loadPercentage] = system(command);
+        end
+        
     end
 
     methods (Access = private)
@@ -214,9 +224,10 @@ classdef userInterface < matlab.apps.AppBase
         % Value changing function: PasswordHashEditField
         function PasswordHashEditFieldValueChanging(app, event)
             value = app.PasswordHashEditField.Value;
-            pwLength = size(value);
+            strVal = convertCharsToStrings(value);
+            valLenth = strlength(strVal);
             
-            if pwLength > 8
+            if valLenth > 8
                 app.PasswordCheck.Visible = 'on';
             else
                 app.PasswordCheck.Visible = 'off';
