@@ -6,8 +6,8 @@
 %
 %Name:              runApp
 %
-%Description:       This script runs the applikation, adds the necessary 
-%                   paths and provides information to the user if the 
+%Description:       This script runs the applikation, adds the necessary
+%                   paths and provides information to the user if the
 %                   computer is not a pc and doesn't run the operating
 %                   system "Windows 10".
 %
@@ -23,6 +23,7 @@
 
 %Specify the subfolder with functions here.
 Folders= {'UI';
+    'BruteForce';
     };
 
 %Check if the user's computer is a pc or mac/linux
