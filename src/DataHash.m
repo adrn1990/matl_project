@@ -13,35 +13,35 @@
 %                   different hash values. Nested STRUCTs and CELLs are parsed
 %                   recursively.
 %
-%Input:         Data: Array of these built-in types:
-%                   (U)INT8/16/32/64, SINGLE, DOUBLE, (real/complex, full/sparse)
-%                   CHAR, LOGICAL, CELL (nested), STRUCT (scalar or array, nested),
-%                   function_handle.
-%               Opt:  Struct to specify the hashing algorithm and the output format.
-%                   Opt and all its fields are optional.
+%Input:             Data: Array of these built-in types:
+%                       (U)INT8/16/32/64, SINGLE, DOUBLE, (real/complex, full/sparse)
+%                       CHAR, LOGICAL, CELL (nested), STRUCT (scalar or array, nested),
+%                       function_handle.
+%                   Opt:  Struct to specify the hashing algorithm and the output format.
+%                       Opt and all its fields are optional.
 %                   Opt.Method: String, known methods for Java 1.6 (Matlab 2011b):
-%                   'SHA-1', 'SHA-256', 'SHA-384', 'SHA-512', 'MD2', 'MD5'.
-%                   Call DataHash without inputs to get a list of available methods.
-%                   Default: 'MD5'.
-%               Opt.Format: String specifying the output format:
-%                   'hex', 'HEX':      Lower/uppercase hexadecimal string.
-%                   'double', 'uint8': Numerical vector.
-%                   'base64':          Base64 encoded string, only printable ASCII
-%                   characters, shorter than 'hex', no padding.
-%                   Default: 'hex'.
-%               Opt.Input: Type of the input as string, not case-sensitive:
-%                   'array': The contents, type and size of the input [Data] are
-%                    considered  for the creation of the hash. Nested CELLs
-%                    and STRUCT arrays are parsed recursively. Empty arrays of
-%                    different type reply different hashs.
-%            'file':  [Data] is treated as file name and the hash is calculated
-%                     for the files contents.
-%            'bin':   [Data] is a numerical, LOGICAL or CHAR array. Only the
-%                     binary contents of the array is considered, such that
-%                     e.g. empty arrays of different type reply the same hash.
-%            'ascii': Same as 'bin', but only the 8-bit ASCII part of the 16-bit
-%                     Matlab CHARs is considered.
-%            Default: 'array'.
+%                       'SHA-1', 'SHA-256', 'SHA-384', 'SHA-512', 'MD2', 'MD5'.
+%                       Call DataHash without inputs to get a list of available methods.
+%                       Default: 'MD5'.
+%                   Opt.Format: String specifying the output format:
+%                       'hex', 'HEX':      Lower/uppercase hexadecimal string.
+%                       'double', 'uint8': Numerical vector.
+%                       'base64':          Base64 encoded string, only printable ASCII
+%                       characters, shorter than 'hex', no padding.
+%                       Default: 'hex'.
+%                   Opt.Input: Type of the input as string, not case-sensitive:
+%                       'array': The contents, type and size of the input [Data] are
+%                       considered  for the creation of the hash. Nested CELLs
+%                       and STRUCT arrays are parsed recursively. Empty arrays of
+%                       different type reply different hashs.
+%                   'file':  [Data] is treated as file name and the hash is calculated
+%                       for the files contents.
+%                   'bin':   [Data] is a numerical, LOGICAL or CHAR array. Only the
+%                       binary contents of the array is considered, such that
+%                       e.g. empty arrays of different type reply the same hash.
+%                   'ascii': Same as 'bin', but only the 8-bit ASCII part of the 16-bit
+%                       Matlab CHARs is considered.
+%                   Default: 'array'.
 %
 %Output:            Hash: String, DOUBLE or UINT8 vector. The length depends
 %                   on the hashing method.
