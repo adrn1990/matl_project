@@ -10,16 +10,6 @@
 %
 %Input:             Object Obj of the Class userInterface
 %
-%                   Struct S with fields:
-%
-%                   S.Type
-%                       char array.
-%                   S.Entry
-%                   S.EncrytAlgo
-%                       char array.
-%                   S.RainbowStrat
-%                   S.Cluster
-%
 %Output:            TODO:
 %
 %Example:           Struct= struct('Type','Password','Entry','myPassword',...
@@ -29,16 +19,28 @@
 %
 %**************************************************************************
 
-function [CrackedPw] = initBruteForce(Obj,Struct)
+function [Obj] = initBruteForce(Obj)
 
+%Struct for DataHash function
+Opt= Obj.HashStruct;
 
-if(strcmp(Struct.Type,'Password'))
-    Opt= struct('Method',Struct.EncryptAlgo,'Format','HEX','Input','ascii');
-    Data= Struct.Entry;
+%ToDecrypt contains the information if its a password or a hash to force.
+ToDecrypt= Obj.TodecryptDropDown.Value;
+
+%If ToDecrypt is 'Password', hash the field containing the char array with 
+%the password. 
+if(strcmp(ToDecrypt,'Password'))
+    Data= Obj.PasswordHashEditField.Value;
     Hash = DataHash(Data, Opt);
 else
-    Hash= Struct.Entry;
+    Hash= Obj.TodecryptDropDown.Value;
 end
 
-CrackedPw= doBruteForce(Obj,Hash,Struct.RainbowStrat,Struct.Cluster);
+%Handover the hash to the object.
+Obj.Hash= Hash;
+
+%execute the function to do the brute force
+Obj= doBruteForce(Obj);
+
+return
 end

@@ -18,13 +18,15 @@
 %Copyright:
 %
 %**************************************************************************
-function [CrackedPw] = doBruteForce(Obj,Hash,RainbowStrat,Cluster)
+function [Obj] = doBruteForce(Obj)
 
 %TODO: load Cluster
 
-%TODO: edit the maximum with fields of the object.
-NbrOfChars= 64; %App.get
-MaxPwLength= 8; %App.get
+NbrOfChars= Obj.NbrOfChars;
+MaxPwLength= Obj.MaxPwLength;
+
+
+RainbowStrat= strcmp(Obj.RainbowtableDropDown.Value,'Yes');
 
 %To generate the following cell-array as specified us the commented part in 
 %the command window.
@@ -34,21 +36,22 @@ MaxPwLength= 8; %App.get
 Array= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
 %Options for function DataHash
-Opt= struct('Method',Struct.EncryptAlgo,'Format','HEX','Input','ascii');
+Opt= Obj.HashStruct;
 
 if RainbowStrat
     
 else %No usage of rainbowtables
     
-    parfor Increment=1:NbrOfChars^PwLength
-        if strcmp(Hash,DataHash(createString(Increment),Opt))
-            
-        end
-        %TODO: Update UI
-    end
+%     parfor Increment=1:NbrOfChars^MaxPwLength
+%         if strcmp(Hash,DataHash(createString(Increment),Opt))
+%             
+%         end
+%         %TODO: Update UI
+%     end
     
 end
 
+return
 
 end
 
