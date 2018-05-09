@@ -8,46 +8,56 @@ Pw= cell(1,8);
 %
 persistent Index;
 
-Inc= uint64(Inc);
+%Inc= uint64(Inc);
 
-if double(Inc/(Chars^0)) > 0
-    Index= mod(double(Inc),Chars^1)+1;
+I1= Inc;
+I2= floor(Inc/(Chars^1));
+I3= floor(Inc/(Chars^2));
+I4= floor(Inc/(Chars^3));
+I5= floor(Inc/(Chars^4));
+I6= floor(Inc/(Chars^5));
+I7= floor(Inc/(Chars^6));
+I8= floor(Inc/(Chars^7));
+
+
+
+
+%digit 1
+if Inc > 0
+    if I1 > Chars && mod(I1,Chars^1) ~= 0
+        Index= mod(I1,Chars^1);
+    elseif I1 > Chars && mod(I1,Chars^1) == 0
+        Index= Chars;
+    else
+        Index= I1;
+    end
     Pw{1}= Array(Index);
 end
 
-if double(Inc/(Chars^1)) > 0
-    Index= mod(double(Inc),Chars^1)+1;
+%digit 2
+%check if the digit 2 should be used
+if Inc > Chars^1
+    if I2 > Chars && mod(I2,Chars^1) ~= 0
+        Index= mod(I2,Chars^1);
+    elseif I2 > Chars && mod(I2,Chars^1) == 0
+        Index= Chars;
+    else
+        Index= I2;
+    end
     Pw{2}= Array(Index);
 end
 
-if double(Inc/(Chars^2)) > 0
-    Index= mod(double(Inc),Chars^2)+1;
+%digit 3
+%check if the digit 3 should be used
+if Inc > Chars^2
+    if I3 > Chars && mod(I3,Chars^1) ~= 0
+        Index= mod(I3,Chars^1);
+    elseif I3 > Chars && mod(I3,Chars^1) == 0
+        Index= Chars;
+    else
+        Index= I3;
+    end
     Pw{3}= Array(Index);
-end
-
-if double(Inc/(Chars^3)) > 0
-    Index= mod(double(Inc),Chars^3)+1;
-    Pw{4}= Array(Index);
-end
-
-if double(Inc/(Chars^4)) > 0
-    Index= mod(double(Inc),Chars^4)+1;
-    Pw{5}= Array(Index);
-end
-
-if double(Inc/(Chars^5)) > 0
-    Index= mod(double(Inc),Chars^5)+1;
-    Pw{6}= Array(Index);
-end
-
-if double(Inc/(Chars^6)) > 0
-    Index= mod(double(Inc),Chars^6)+1;
-    Pw{7}= Array(Index);
-end
-
-if double(Inc/(Chars^7)) > 0
-    Index= mod(double(Inc),Chars^7)+1;
-    Pw{8}= Array(Index);
 end
 
 Str= horzcat(Pw{:});
