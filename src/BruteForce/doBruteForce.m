@@ -38,9 +38,15 @@ Array= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 %Options for function DataHash
 Opt= Obj.HashStruct;
 
+%if there is the usage of rainbowtables, the following will be executed.
 if RainbowStrat
-    
-else %No usage of rainbowtables
+
+%If there is NO usage of rainbowtables, the following will be executed.
+%Bruteforce thru each possibility of the password while using a random
+%generated index. Compare the hashes with the provided hash from the UI.
+%If the comparsion of the hashes is true, throw an exception to exit the
+%parfor-loop and assign the 
+else
     
     tic
     try
@@ -48,7 +54,7 @@ else %No usage of rainbowtables
             Inc= randi(NbrOfChars^3+NbrOfChars^2+NbrOfChars);
             if strcmp(Hash,DataHash(createString(Inc,Array),Opt))
                 Pw= createString(Inc,Array);
-                msgID = 'MYFUN:BadIndex';
+                msgID = '';
                 msg = Pw;
                 baseException = MException(msgID,msg);
                 throw(baseException);
@@ -61,6 +67,7 @@ else %No usage of rainbowtables
         
     catch ME
         disp(ME.message);
+        Obj.ResultOutput.Value= ME.message;
     end
     toc
     
