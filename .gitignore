@@ -1,2 +1,8 @@
 
 doc/UML\.asta\.lock
+
+src/createKey\.m
+
+src/encrypt\.m
+
+src/test_dll\.m
