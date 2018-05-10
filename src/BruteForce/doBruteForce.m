@@ -68,6 +68,12 @@ else
                 msg = Pw;
                 baseException = MException(msgID,msg);
                 throw(baseException);
+            elseif strcmp(Hash,DataHash(createString(Increment,Array),Opt))
+                Pw= createString(Increment,Array);
+                msgID = '';
+                msg = Pw;
+                baseException = MException(msgID,msg);
+                throw(baseException);                
             end
             %TODO: Update UI
             if mod(Increment,10000) == 0
