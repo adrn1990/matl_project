@@ -57,6 +57,9 @@ if ~isstudent
         'Operating System Warning','warn'));
 end
 
+%FIXME: Warn user if not run MATLAB with Admin rights that some functions
+%wont work!
+
 %Add specified folders to the path
 for Increment=1:length(Folders)
     addpath([pwd,Slash,Folders{Increment}]);
