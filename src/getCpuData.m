@@ -21,12 +21,12 @@
 %Version:           1.0
 
 function info = getCpuData
-[~,cpuTermalZones] = system('powershell -inputformat none -file C:\Users\bruno\Documents\WindowsPowerShell\modules\get-temperature\get-temperature-TZ0.ps1');
+[~,cpuTermalZones] = system('powershell -inputformat none -file C:\DATA\FHNW\8_Semester\matl\matlProject\src\Scripts\get-temperature-TZ0.ps1');
 cpuTermalZones = regexp(cpuTermalZones,'\d*','match');
 cpuTempKelvin = str2double(horzcat(cpuTermalZones{:}));
 dblTempCelsius = (cpuTempKelvin / 10) - 273.15;
 info.currCpuTemp = {num2str(dblTempCelsius)};
 
-[~,cpuAvgLoad] = system('powershell -inputformat none -file C:\Users\bruno\Documents\WindowsPowerShell\modules\get-temperature\get-cpu-load.ps1');
+[~,cpuAvgLoad] = system('powershell -inputformat none -file C:\DATA\FHNW\8_Semester\matl\matlProject\src\Scripts\get-cpu-load.ps1');
 info.avgCpuLoad = regexp(cpuAvgLoad,'\d*','match');
 return 
