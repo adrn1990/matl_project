@@ -149,17 +149,14 @@ classdef userInterface_script < matlab.apps.AppBase
                     fWriteMessageBuffer(app, app.delemiter);
                 end
                 
-                if ispc
-                    %Get CPU data
-                    fWriteMessageBuffer(app, 'Destract CPU data...');
-                    app.cpuData = getCpuData;
-                    app.TemperatureOutput.Value = app.cpuData.currCpuTemp;
-                    app.LoadOutput.Value = app.cpuData.avgCpuLoad;
-                    fWriteMessageBuffer(app, 'CPU temperature write successfull');
-                    fWriteMessageBuffer(app, 'CPU average load write successfull');
-                    fWriteMessageBuffer(app, app.delemiter);
-                end
-                
+                %Get CPU data
+                fWriteMessageBuffer(app, 'Destract CPU data...');
+                app.cpuData = getCpuData;
+                app.TemperatureOutput.Value = app.cpuData.currCpuTemp;
+                app.LoadOutput.Value = app.cpuData.avgCpuLoad;
+                fWriteMessageBuffer(app, 'CPU temperature write successfull');
+                fWriteMessageBuffer(app, 'CPU average load write successfull');
+                fWriteMessageBuffer(app, app.delemiter);              
                 
                 %Set maximum cores (for better graph visuality)
                 if app.cpuInfo.NumProcessors > 4
@@ -182,6 +179,33 @@ classdef userInterface_script < matlab.apps.AppBase
                 app.CoresDropDown.Enable = 'on';
                 app.EvaluateButton.Enable = 'off';
                 app.StartButton.Enable = 'on'; %FIXME: warning, this is only for testing
+                
+                %Setting up parallel processing
+                try
+                    fWriteMessageBuffer(app, 'Starting up parallel processing...');
+                    pool =parpool('local');
+                    
+                    if pool.Connected == true
+                        fWriteMessageBuffer(app, 'Parallel processing ready');
+                        parWorkers = num2str(pool.NumWorkers);
+                        strParWorkers = sprintf('NumWorkers: \t \t \t \t %s' , parWorkers);
+                        fWriteMessageBuffer(app, strParWorkers);
+                                                
+                        clusterProfile = sprintf('Cluster profile: \t \t \t %s' , pool.Cluster.Profile);
+                        fWriteMessageBuffer(app, clusterProfile);
+                        fWriteMessageBuffer(app, app.delemiter);
+                    else %TODO exeption handling
+                        fWriteMessageBuffer(app, 'Something went wroooooong!');
+                        fWriteMessageBuffer(app, app.delemiter);
+                    end
+                catch
+                    fWriteMessageBuffer(app, 'No Parallel Toolbox found or a active session is running!');
+                                
+                end
+                
+                
+                
+                
             end
         end
 
@@ -197,7 +221,7 @@ classdef userInterface_script < matlab.apps.AppBase
             end
         end
 
-        % Callback function: AboutMenu
+        % Menu selected function: AboutMenu
         function AboutMenuSelected(app, event)
             msgbox({'Name: Brute-Force Tool' 'Version: 0.0.0' 'Designer: A.Gonzalez / B. Huerzeler'}, 'About...');
         end
@@ -317,8 +341,8 @@ classdef userInterface_script < matlab.apps.AppBase
 
         % Button pushed function: StartButton
         function StartButtonPushed(app, event)
-            initBruteForce(app);
-            app.ResultOutput.Value = {''};
+            app.ResultOutput.Value = '';
+            initBruteForce(app);        
         end
     end
 
