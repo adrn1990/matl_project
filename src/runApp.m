@@ -62,6 +62,10 @@ for Increment=1:length(Folders)
     addpath([pwd,Slash,Folders{Increment}]);
 end
 
+%FIXME: Update GUI out of Parallel
+% poolobj = gcp;
+% addAttachedFiles(poolobj,{'doBruteForce.m','createString.m','DataHash.m','initBruteForce.m'});
+
 %==============================Calling the GUI=============================
 App= userInterface_script;
 %==========================================================================

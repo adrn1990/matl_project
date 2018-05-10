@@ -40,6 +40,14 @@ Array= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 %Options for function DataHash
 Opt= Obj.HashStruct;
 
+%FIXME: Generate random numbers with guarantee
+%myStream=RandStream('mcg16807');
+%tallrng('shr3cong');
+
+%FIXME: Update GUI out of Parallel
+% D = parallel.pool.DataQueue;
+% D.afterEach(@(x) Obj.fWriteMessageBuffer(sprintf('%d',x)));
+
 %if there is the usage of rainbowtables, the following will be executed.
 if RainbowStrat
 
@@ -53,7 +61,7 @@ else
     tic
     try
         parfor Increment=1:NbrOfChars^3+NbrOfChars^2+NbrOfChars
-            Inc= randi(NbrOfChars^3+NbrOfChars^2+NbrOfChars);
+            Inc= randi(myStream,NbrOfChars^3+NbrOfChars^2+NbrOfChars);
             if strcmp(Hash,DataHash(createString(Inc,Array),Opt))
                 Pw= createString(Inc,Array);
                 msgID = '';
@@ -63,8 +71,10 @@ else
             end
             %TODO: Update UI
             if mod(Increment,10000) == 0
-                disp(Increment);
+                %disp(Increment);
                 %Obj.fWriteMessageBuffer(sprintf('The current index is: %d',Increment));
+                %FIXME: Update GUI out of Parallel
+                %send(D, Increment);
             end
         end
         
