@@ -1,4 +1,4 @@
-classdef userInterface < matlab.apps.AppBase
+classdef userInterface_script < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
@@ -149,15 +149,16 @@ classdef userInterface < matlab.apps.AppBase
                     fWriteMessageBuffer(app, app.delemiter);
                 end
                 
-                %Get CPU data
-                fWriteMessageBuffer(app, 'Destract CPU data...');
-                app.cpuData = getCpuData;
-                app.TemperatureOutput.Value = app.cpuData.currCpuTemp;
-                app.LoadOutput.Value = app.cpuData.avgCpuLoad;
-                fWriteMessageBuffer(app, 'CPU temperature write successfull');
-                fWriteMessageBuffer(app, 'CPU average load write successfull');
-                fWriteMessageBuffer(app, app.delemiter);
-                
+                if ispc
+                    %Get CPU data
+                    fWriteMessageBuffer(app, 'Destract CPU data...');
+                    app.cpuData = getCpuData;
+                    app.TemperatureOutput.Value = app.cpuData.currCpuTemp;
+                    app.LoadOutput.Value = app.cpuData.avgCpuLoad;
+                    fWriteMessageBuffer(app, 'CPU temperature write successfull');
+                    fWriteMessageBuffer(app, 'CPU average load write successfull');
+                    fWriteMessageBuffer(app, app.delemiter);
+                end
                 
                 
                 %Set maximum cores (for better graph visuality)
@@ -317,7 +318,7 @@ classdef userInterface < matlab.apps.AppBase
         % Button pushed function: StartButton
         function StartButtonPushed(app, event)
             initBruteForce(app);
-            app.ResultOutput.Value = '';
+            app.ResultOutput.Value = {''};
         end
     end
 
@@ -596,7 +597,7 @@ classdef userInterface < matlab.apps.AppBase
     methods (Access = public)
 
         % Construct app
-        function app = userInterface
+        function app = userInterface_script
 
             % Create and configure components
             createComponents(app)

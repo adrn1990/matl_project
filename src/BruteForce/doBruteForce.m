@@ -49,7 +49,7 @@ if RainbowStrat
 %If the comparsion of the hashes is true, throw an exception to exit the
 %parfor-loop and assign the 
 else
-    Obj.fWriteMessageBuffer('BruteForcing initalized...');
+    Obj.fWriteMessageBuffer('BruteForcing in progress...');
     tic
     try
         parfor Increment=1:NbrOfChars^3+NbrOfChars^2+NbrOfChars
@@ -75,10 +75,10 @@ else
         Obj.ResultOutput.Value= {ME.message};
     end
     
-    if (isempty(Obj.ResultOutput.Value))
+    if (~isempty(Obj.ResultOutput.Value{1}))
         Obj.fWriteMessageBuffer('The BruteForcing was successfull!');
-        Obj.fWriteMessageBuffer(sprintf('Your Password is: %s',Obj.ResultOutput.Value));
-        Obj.fWriteMessageBuffer('Elapsed time is %f seconds',toc);
+        Obj.fWriteMessageBuffer(sprintf('Your Password is: %s',Obj.ResultOutput.Value{1}));
+        Obj.fWriteMessageBuffer(sprintf('Elapsed time is %f seconds',toc));
         Obj.fWriteMessageBuffer('---------------------------------------');
     else
         Obj.fWriteMessageBuffer('The BruteForcing was unfortunately not successfull!');
