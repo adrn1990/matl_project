@@ -150,13 +150,15 @@ classdef userInterface_script < matlab.apps.AppBase
                 end
                 
                 %Get CPU data
-                fWriteMessageBuffer(app, 'Destract CPU data...');
-                app.cpuData = getCpuData;
-                app.TemperatureOutput.Value = app.cpuData.currCpuTemp;
-                app.LoadOutput.Value = app.cpuData.avgCpuLoad;
-                fWriteMessageBuffer(app, 'CPU temperature write successfull');
-                fWriteMessageBuffer(app, 'CPU average load write successfull');
-                fWriteMessageBuffer(app, app.delemiter);              
+                if ispc
+                    fWriteMessageBuffer(app, 'Destract CPU data...');
+                    app.cpuData = getCpuData;
+                    app.TemperatureOutput.Value = app.cpuData.currCpuTemp;
+                    app.LoadOutput.Value = app.cpuData.avgCpuLoad;
+                    fWriteMessageBuffer(app, 'CPU temperature write successfull');
+                    fWriteMessageBuffer(app, 'CPU average load write successfull');
+                    fWriteMessageBuffer(app, app.delemiter);
+                end
                 
                 %Set maximum cores (for better graph visuality)
                 if app.cpuInfo.NumProcessors > 4
@@ -180,28 +182,28 @@ classdef userInterface_script < matlab.apps.AppBase
                 app.EvaluateButton.Enable = 'off';
                 app.StartButton.Enable = 'on'; %FIXME: warning, this is only for testing
                 
-                %Setting up parallel processing
-                try
-                    fWriteMessageBuffer(app, 'Starting up parallel processing...');
-                    pool =parpool('local');
-                    
-                    if pool.Connected == true
-                        fWriteMessageBuffer(app, 'Parallel processing ready');
-                        parWorkers = num2str(pool.NumWorkers);
-                        strParWorkers = sprintf('NumWorkers: \t \t \t \t %s' , parWorkers);
-                        fWriteMessageBuffer(app, strParWorkers);
-                                                
-                        clusterProfile = sprintf('Cluster profile: \t \t \t %s' , pool.Cluster.Profile);
-                        fWriteMessageBuffer(app, clusterProfile);
-                        fWriteMessageBuffer(app, app.delemiter);
-                    else %TODO exeption handling
-                        fWriteMessageBuffer(app, 'Something went wroooooong!');
-                        fWriteMessageBuffer(app, app.delemiter);
-                    end
-                catch
-                    fWriteMessageBuffer(app, 'No Parallel Toolbox found or a active session is running!');
-                                
-                end
+%                 %Setting up parallel processing
+%                 try
+%                     fWriteMessageBuffer(app, 'Starting up parallel processing...');
+%                     pool =parpool('local');
+%                     
+%                     if pool.Connected == true
+%                         fWriteMessageBuffer(app, 'Parallel processing ready');
+%                         parWorkers = num2str(pool.NumWorkers);
+%                         strParWorkers = sprintf('NumWorkers: \t \t \t \t %s' , parWorkers);
+%                         fWriteMessageBuffer(app, strParWorkers);
+%                                                 
+%                         clusterProfile = sprintf('Cluster profile: \t \t \t %s' , pool.Cluster.Profile);
+%                         fWriteMessageBuffer(app, clusterProfile);
+%                         fWriteMessageBuffer(app, app.delemiter);
+%                     else %TODO exeption handling
+%                         fWriteMessageBuffer(app, 'Something went wroooooong!');
+%                         fWriteMessageBuffer(app, app.delemiter);
+%                     end
+%                 catch
+%                     fWriteMessageBuffer(app, 'No Parallel Toolbox found or an active session is running!');
+%                                 
+%                 end
                 
                 
                 
@@ -336,13 +338,13 @@ classdef userInterface_script < matlab.apps.AppBase
         function ModeDropDownValueChanged(app, event)
             %Set items for Dropdown menu without select...
             app.ModeDropDown.Items = {'Password', 'Hash'};
-            app.ModeDropDown.Value
+            app.ModeDropDown.Value;
         end
 
         % Button pushed function: StartButton
         function StartButtonPushed(app, event)
             app.ResultOutput.Value = '';
-            initBruteForce(app);        
+            initBruteForce(app);
         end
     end
 
