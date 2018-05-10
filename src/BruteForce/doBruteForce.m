@@ -26,6 +26,8 @@ NbrOfChars= Obj.NbrOfChars;
 MaxPwLength= Obj.MaxPwLength;
 
 
+Hash= Obj.Hash;
+
 RainbowStrat= strcmp(Obj.RainbowtableDropDown.Value,'Yes');
 
 %To generate the following cell-array as specified us the commented part in
@@ -47,7 +49,7 @@ if RainbowStrat
 %If the comparsion of the hashes is true, throw an exception to exit the
 %parfor-loop and assign the 
 else
-    
+    Obj.fWriteMessageBuffer('BruteForcing initalized...');
     tic
     try
         parfor Increment=1:NbrOfChars^3+NbrOfChars^2+NbrOfChars
@@ -62,14 +64,27 @@ else
             %TODO: Update UI
             if mod(Increment,10000) == 0
                 disp(Increment);
+                %Obj.fWriteMessageBuffer(sprintf('The current index is: %d',Increment));
             end
         end
         
     catch ME
+        Pw= ME.message;
         disp(ME.message);
-        Obj.ResultOutput.Value= ME.message;
+        
+        Obj.ResultOutput.Value= {ME.message};
     end
-    toc
+    
+    if (isempty(Obj.ResultOutput.Value))
+        Obj.fWriteMessageBuffer('The BruteForcing was successfull!');
+        Obj.fWriteMessageBuffer(sprintf('Your Password is: %s',Obj.ResultOutput.Value));
+        Obj.fWriteMessageBuffer('Elapsed time is %f seconds',toc);
+        Obj.fWriteMessageBuffer('---------------------------------------');
+    else
+        Obj.fWriteMessageBuffer('The BruteForcing was unfortunately not successfull!');
+        Obj.fWriteMessageBuffer('Please try again.');
+        Obj.fWriteMessageBuffer('---------------------------------------');
+    end
     
 end
 

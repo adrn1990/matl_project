@@ -25,12 +25,12 @@ function [Obj] = initBruteForce(Obj)
 Opt= Obj.HashStruct;
 
 %ToDecrypt contains the information if its a password or a hash to force.
-ToDecrypt= Obj.TodecryptDropDown.Value;
+ToDecrypt= Obj.ModeDropDown.Value;
 
 %If ToDecrypt is 'Password', hash the field containing the char array with 
 %the password. 
 if(strcmp(ToDecrypt,'Password'))
-    Data= Obj.PasswordHashEditField.Value;
+    Data= Obj.InputEditField.Value;
     Hash = DataHash(Data, Opt);
 else
     Hash= Obj.TodecryptDropDown.Value;
