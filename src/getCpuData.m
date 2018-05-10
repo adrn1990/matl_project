@@ -18,17 +18,15 @@
 %
 %**************************************************************************
 
-%
-%TODO: Actual Temp divide 10 and substract 0°K
-%For PowerShell -> get Temperature zones: get-wmiobject MSAcpi_ThermalZoneTemperature -namespace "root/wmi"
+%Version:           1.0
 
 function info = getCpuData
 [~,cpuTermalZones] = system('powershell -inputformat none -file C:\Users\bruno\Documents\WindowsPowerShell\modules\get-temperature\get-temperature-TZ0.ps1');
 cpuTermalZones = regexp(cpuTermalZones,'\d*','match');
 cpuTempKelvin = str2double(horzcat(cpuTermalZones{:}));
-info.currCpuTemp = (cpuTempKelvin / 10) - 273.15;
+dblTempCelsius = (cpuTempKelvin / 10) - 273.15;
+info.currCpuTemp = {num2str(dblTempCelsius)};
 
 [~,cpuAvgLoad] = system('powershell -inputformat none -file C:\Users\bruno\Documents\WindowsPowerShell\modules\get-temperature\get-cpu-load.ps1');
-cpuAvgLoad = regexp(cpuAvgLoad,'\d*','match');
-info.avgCpuLoad = str2double(horzcat(cpuAvgLoad{:}));
+info.avgCpuLoad = regexp(cpuAvgLoad,'\d*','match');
 return 

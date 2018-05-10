@@ -26,8 +26,8 @@ classdef userInterface < matlab.apps.AppBase
         RessourceDropDown          matlab.ui.control.DropDown
         CPUGPUTempCTextAreaLabel   matlab.ui.control.Label
         TemperatureOutput          matlab.ui.control.TextArea
-        FanspeedrpmTextAreaLabel   matlab.ui.control.Label
-        FanOutput                  matlab.ui.control.TextArea
+        CPUGPULoadLabel            matlab.ui.control.Label
+        LoadOutput                 matlab.ui.control.TextArea
         ResultTextAreaLabel        matlab.ui.control.Label
         ResultOutput               matlab.ui.control.TextArea
         CoresDropDownLabel         matlab.ui.control.Label
@@ -36,10 +36,7 @@ classdef userInterface < matlab.apps.AppBase
         EvaluateButton             matlab.ui.control.Button
         TabGroup                   matlab.ui.container.TabGroup
         CPUTab                     matlab.ui.container.Tab
-        UIAxes_cpu1                matlab.ui.control.UIAxes
-        UIAxes_cpu2                matlab.ui.control.UIAxes
-        UIAxes_cpu3                matlab.ui.control.UIAxes
-        UIAxes_cpu4                matlab.ui.control.UIAxes
+        UIAxes_cpu                 matlab.ui.control.UIAxes
         GPUTab                     matlab.ui.container.Tab
         UIAxes_gpu                 matlab.ui.control.UIAxes
         StatusTextAreaLabel        matlab.ui.control.Label
@@ -49,10 +46,13 @@ classdef userInterface < matlab.apps.AppBase
 
     properties (Access = public)
         Property % Description
+        delemiter = '---------------------------------------------------------------------------------------------------------------';
         messageBuffer = {''};
         evaluateDone = false;
         cpuInfo;
+        cpuData;
         gpuInfo;
+        gpuData;
         
         %
         MaxPwLength= 8;
@@ -68,24 +68,13 @@ classdef userInterface < matlab.apps.AppBase
         HashStruct= struct('Method','','Format','HEX','Input','ascii');
     end
     
-    methods (Access = private)
+    methods (Access = public)
         %Message Buffer
         function fWriteMessageBuffer(app,message)
             app.messageBuffer{end + 1} = message;
             app.LogMonitorOutput.Value = app.messageBuffer;
         end
-        
-        
-        function results = getCpuTemp(app)
-            command = 'wmic /namespace:\\root\wmi PATH MSAcpi_ThermalZoneTemperature get CurrentTemperature';
-            [status, cpuTemp] = system(command);
-        end
-        
-        function results = getCpuLoad(app)
-            command = 'wmic cpu get loadpercentage /format:value';
-            [status,loadPercentage] = system(command);
-        end
-        
+     
     end
 
     methods (Access = private)
@@ -109,7 +98,7 @@ classdef userInterface < matlab.apps.AppBase
                 
                 %Get CPU information
                 fWriteMessageBuffer(app, 'Get CPU information: ');
-                fWriteMessageBuffer(app, '---------------------------------------');
+                fWriteMessageBuffer(app, app.delemiter);
                 
                 app.cpuInfo = cpuinfo();
                 
@@ -126,39 +115,49 @@ classdef userInterface < matlab.apps.AppBase
                 cpuMessage = sprintf('OS Type: \t \t %s (%s)', app.cpuInfo.OSType, app.cpuInfo.OSVersion);
                 fWriteMessageBuffer(app, cpuMessage);
                 fWriteMessageBuffer(app, 'Getting CPU information done...');
-                fWriteMessageBuffer(app, '---------------------------------------');
+                fWriteMessageBuffer(app, app.delemiter);
                 
-                try
+                try                  
+                    app.gpuInfo = gpuDevice;
                     
-                    if gpuDeviceCount > 0
-                        fWriteMessageBuffer(app, 'Compatible GPU detected...');
-                        
-                        % Get GPU information
-                        fWriteMessageBuffer(app, 'Get GPUinformation: ');
-                        fWriteMessageBuffer(app, '---------------------------------------');
-                        
-                        app.gpuInfo = gpuDevice;
-                        
-                        gpuMessage = sprintf('Name: \t \t \t \t %s' , app.gpuInfo.Name);
-                        fWriteMessageBuffer(app, gpuMessage);
-                        
-                        gpuMessage = sprintf('Compute Capability: \t %s', app.gpuInfo.ComputeCapability);
-                        fWriteMessageBuffer(app, gpuMessage);
-                        
-                        gpuThreads = num2str(app.gpuInfo.MaxThreadsPerBlock);
-                        gpuMessage = sprintf('Max Threads per block: \t %s', gpuThreads);
-                        fWriteMessageBuffer(app, gpuMessage);
-                        
-                        gpuClock = num2str(app.gpuInfo.ClockRateKHz);
-                        gpuMessage = sprintf('Clock rate [kHz]: \t \t %s', gpuClock);
-                        fWriteMessageBuffer(app, gpuMessage);
-                        
-                        fWriteMessageBuffer(app, 'Getting GPU information done...');
-                        fWriteMessageBuffer(app, '---------------------------------------');
-                    end
+                    fWriteMessageBuffer(app, 'Compatible GPU detected...');
+                    
+                    % Get GPU information
+                    fWriteMessageBuffer(app, 'Get GPUinformation: ');
+                    fWriteMessageBuffer(app, app.delemiter);                                      
+                    
+                    gpuMessage = sprintf('Name: \t \t \t \t %s' , app.gpuInfo.Name);
+                    fWriteMessageBuffer(app, gpuMessage);
+                    
+                    gpuMessage = sprintf('Compute Capability: \t %s', app.gpuInfo.ComputeCapability);
+                    fWriteMessageBuffer(app, gpuMessage);
+                    
+                    gpuThreads = num2str(app.gpuInfo.MaxThreadsPerBlock);
+                    gpuMessage = sprintf('Max Threads per block: \t %s', gpuThreads);
+                    fWriteMessageBuffer(app, gpuMessage);
+                    
+                    gpuClock = num2str(app.gpuInfo.ClockRateKHz);
+                    gpuMessage = sprintf('Clock rate [kHz]: \t \t %s', gpuClock);
+                    fWriteMessageBuffer(app, gpuMessage);
+                    
+                    fWriteMessageBuffer(app, 'Getting GPU information done...');
+                    fWriteMessageBuffer(app, app.delemiter);
+                    
                 catch
                     app.StatusOutput.Value = 'Existing GPU is not compatible!';
+                    fWriteMessageBuffer(app, 'Compatible GPU = 0');
+                    fWriteMessageBuffer(app, app.delemiter);
                 end
+                
+                %Get CPU data
+                fWriteMessageBuffer(app, 'Destract CPU data...');
+                app.cpuData = getCpuData;
+                app.TemperatureOutput.Value = app.cpuData.currCpuTemp;
+                app.LoadOutput.Value = app.cpuData.avgCpuLoad;
+                fWriteMessageBuffer(app, 'CPU temperature write successfull');
+                fWriteMessageBuffer(app, 'CPU average load write successfull');
+                fWriteMessageBuffer(app, app.delemiter);
+                
                 
                 
                 %Set maximum cores (for better graph visuality)
@@ -188,7 +187,7 @@ classdef userInterface < matlab.apps.AppBase
         % Menu selected function: ExitMenu
         function ExitMenuSelected(app, event)
             exitBox = questdlg('Do you really want to exit?','Warning');
-            
+            %TODO: File saving should be implemented here as well
             switch exitBox
                 case 'Yes'
                     app.delete;
@@ -197,7 +196,7 @@ classdef userInterface < matlab.apps.AppBase
             end
         end
 
-        % Menu selected function: AboutMenu
+        % Callback function: AboutMenu
         function AboutMenuSelected(app, event)
             msgbox({'Name: Brute-Force Tool' 'Version: 0.0.0' 'Designer: A.Gonzalez / B. Huerzeler'}, 'About...');
         end
@@ -228,29 +227,26 @@ classdef userInterface < matlab.apps.AppBase
                 end
                 app.CoresDropDown.Enable = 'on';
                 app.UIAxes_gpu.Visible = 'off';
+                app.UIAxes_cpu.Visible = 'on';
             else
                 app.CoresDropDown.Items = {'1'};
                 app.CoresDropDown.Enable = 'off';
                 app.UIAxes_gpu.Visible = 'on';
-                app.UIAxes_cpu1.Visible = 'off';
-                app.UIAxes_cpu2.Visible = 'off';
-                app.UIAxes_cpu3.Visible = 'off';
-                app.UIAxes_cpu4.Visible = 'off';
+                app.UIAxes_cpu.Visible = 'off';
             end
         end
 
         % Value changing function: InputEditField
         function InputEditFieldValueChanging(app, event)
-            value = app.InputEditField.Value;
+            value = event.Value;         
             strVal = convertCharsToStrings(value);
-            valLenth = strlength(strVal);
-            
+            valLenth = strlength(strVal); 
+            %TODO: check event value for not allowed chars
             if valLenth > app.MaxPwLength
                 app.WarningBox.Visible = 'on';
             else
                 app.WarningBox.Visible = 'off';
             end
-            
         end
 
         % Menu selected function: NewrunMenu
@@ -278,28 +274,6 @@ classdef userInterface < matlab.apps.AppBase
         % Value changed function: CoresDropDown
         function CoresDropDownValueChanged(app, event)
             value = app.CoresDropDown.Value;
-            switch value
-                case '1'
-                    app.UIAxes_cpu1.Visible = 'on';
-                    app.UIAxes_cpu2.Visible = 'off';
-                    app.UIAxes_cpu3.Visible = 'off';
-                    app.UIAxes_cpu4.Visible = 'off';
-                case '2'
-                    app.UIAxes_cpu1.Visible = 'on';
-                    app.UIAxes_cpu2.Visible = 'on';
-                    app.UIAxes_cpu3.Visible = 'off';
-                    app.UIAxes_cpu4.Visible = 'off';
-                case '3'
-                    app.UIAxes_cpu1.Visible = 'on';
-                    app.UIAxes_cpu2.Visible = 'on';
-                    app.UIAxes_cpu3.Visible = 'on';
-                    app.UIAxes_cpu4.Visible = 'off';
-                case '4'
-                    app.UIAxes_cpu1.Visible = 'on';
-                    app.UIAxes_cpu2.Visible = 'on';
-                    app.UIAxes_cpu3.Visible = 'on';
-                    app.UIAxes_cpu4.Visible = 'on';
-            end
             
         end
 
@@ -342,8 +316,8 @@ classdef userInterface < matlab.apps.AppBase
 
         % Button pushed function: StartButton
         function StartButtonPushed(app, event)
-                initBruteForce(app);
-                
+            initBruteForce(app);
+            app.ResultOutput.Value = '';
         end
     end
 
@@ -494,18 +468,22 @@ classdef userInterface < matlab.apps.AppBase
             % Create TemperatureOutput
             app.TemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
             app.TemperatureOutput.Editable = 'off';
+            app.TemperatureOutput.HorizontalAlignment = 'center';
+            app.TemperatureOutput.FontSize = 14;
             app.TemperatureOutput.Position = [1127 338 92 28];
 
-            % Create FanspeedrpmTextAreaLabel
-            app.FanspeedrpmTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
-            app.FanspeedrpmTextAreaLabel.HorizontalAlignment = 'right';
-            app.FanspeedrpmTextAreaLabel.Position = [568 345 93 15];
-            app.FanspeedrpmTextAreaLabel.Text = 'Fan speed [rpm]';
+            % Create CPUGPULoadLabel
+            app.CPUGPULoadLabel = uilabel(app.BruteForceToolUIFigure);
+            app.CPUGPULoadLabel.HorizontalAlignment = 'right';
+            app.CPUGPULoadLabel.Position = [567 345 118 15];
+            app.CPUGPULoadLabel.Text = 'CPU / GPU Load [%]';
 
-            % Create FanOutput
-            app.FanOutput = uitextarea(app.BruteForceToolUIFigure);
-            app.FanOutput.Editable = 'off';
-            app.FanOutput.Position = [731 338 92 28];
+            % Create LoadOutput
+            app.LoadOutput = uitextarea(app.BruteForceToolUIFigure);
+            app.LoadOutput.Editable = 'off';
+            app.LoadOutput.HorizontalAlignment = 'center';
+            app.LoadOutput.FontSize = 14;
+            app.LoadOutput.Position = [731 338 92 28];
 
             % Create ResultTextAreaLabel
             app.ResultTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
@@ -521,7 +499,6 @@ classdef userInterface < matlab.apps.AppBase
             app.ResultOutput.FontSize = 48;
             app.ResultOutput.BackgroundColor = [0.9412 0.9412 0.9412];
             app.ResultOutput.Position = [650 185 583 60];
-            app.ResultOutput.Value = {'01234567'};
 
             % Create CoresDropDownLabel
             app.CoresDropDownLabel = uilabel(app.BruteForceToolUIFigure);
@@ -562,57 +539,18 @@ classdef userInterface < matlab.apps.AppBase
             app.CPUTab.Title = 'CPU';
             app.CPUTab.BackgroundColor = [0.9412 0.9412 0.9412];
 
-            % Create UIAxes_cpu1
-            app.UIAxes_cpu1 = uiaxes(app.CPUTab);
-            title(app.UIAxes_cpu1, 'CPU 1')
-            ylabel(app.UIAxes_cpu1, 'Y')
-            app.UIAxes_cpu1.XLim = [0 Inf];
-            app.UIAxes_cpu1.YLim = [0 100];
-            app.UIAxes_cpu1.Box = 'on';
-            app.UIAxes_cpu1.XTickLabel = {'0'; '0.2'; '0.4'; '0.6'; '0.8'; '1'};
-            app.UIAxes_cpu1.YTick = [0 10 20 30 40 50 60 70 80 90 100];
-            app.UIAxes_cpu1.XGrid = 'on';
-            app.UIAxes_cpu1.YGrid = 'on';
-            app.UIAxes_cpu1.Position = [27 222 320 170];
-
-            % Create UIAxes_cpu2
-            app.UIAxes_cpu2 = uiaxes(app.CPUTab);
-            title(app.UIAxes_cpu2, 'CPU 2')
-            ylabel(app.UIAxes_cpu2, 'Y')
-            app.UIAxes_cpu2.XLim = [0 Inf];
-            app.UIAxes_cpu2.YLim = [0 100];
-            app.UIAxes_cpu2.Box = 'on';
-            app.UIAxes_cpu2.XTickLabel = {'0'; '0.2'; '0.4'; '0.6'; '0.8'; '1'};
-            app.UIAxes_cpu2.YTick = [0 10 20 30 40 50 60 70 80 90 100];
-            app.UIAxes_cpu2.XGrid = 'on';
-            app.UIAxes_cpu2.YGrid = 'on';
-            app.UIAxes_cpu2.Position = [346 222 320 170];
-
-            % Create UIAxes_cpu3
-            app.UIAxes_cpu3 = uiaxes(app.CPUTab);
-            title(app.UIAxes_cpu3, 'CPU 3')
-            ylabel(app.UIAxes_cpu3, 'Y')
-            app.UIAxes_cpu3.XLim = [0 Inf];
-            app.UIAxes_cpu3.YLim = [0 100];
-            app.UIAxes_cpu3.Box = 'on';
-            app.UIAxes_cpu3.XTickLabel = {'0'; '0.2'; '0.4'; '0.6'; '0.8'; '1'};
-            app.UIAxes_cpu3.YTick = [0 10 20 30 40 50 60 70 80 90 100];
-            app.UIAxes_cpu3.XGrid = 'on';
-            app.UIAxes_cpu3.YGrid = 'on';
-            app.UIAxes_cpu3.Position = [27 25 320 170];
-
-            % Create UIAxes_cpu4
-            app.UIAxes_cpu4 = uiaxes(app.CPUTab);
-            title(app.UIAxes_cpu4, 'CPU 4')
-            ylabel(app.UIAxes_cpu4, 'Y')
-            app.UIAxes_cpu4.XLim = [0 Inf];
-            app.UIAxes_cpu4.YLim = [0 100];
-            app.UIAxes_cpu4.Box = 'on';
-            app.UIAxes_cpu4.XTickLabel = {'0'; '0.2'; '0.4'; '0.6'; '0.8'; '1'};
-            app.UIAxes_cpu4.YTick = [0 10 20 30 40 50 60 70 80 90 100];
-            app.UIAxes_cpu4.XGrid = 'on';
-            app.UIAxes_cpu4.YGrid = 'on';
-            app.UIAxes_cpu4.Position = [346 25 320 170];
+            % Create UIAxes_cpu
+            app.UIAxes_cpu = uiaxes(app.CPUTab);
+            title(app.UIAxes_cpu, 'CPU ')
+            ylabel(app.UIAxes_cpu, 'Y')
+            app.UIAxes_cpu.XLim = [0 Inf];
+            app.UIAxes_cpu.YLim = [0 100];
+            app.UIAxes_cpu.Box = 'on';
+            app.UIAxes_cpu.XTickLabel = {'0'; '0.2'; '0.4'; '0.6'; '0.8'; '1'};
+            app.UIAxes_cpu.YTick = [0 10 20 30 40 50 60 70 80 90 100];
+            app.UIAxes_cpu.XGrid = 'on';
+            app.UIAxes_cpu.YGrid = 'on';
+            app.UIAxes_cpu.Position = [27 30 639 346];
 
             % Create GPUTab
             app.GPUTab = uitab(app.TabGroup);
