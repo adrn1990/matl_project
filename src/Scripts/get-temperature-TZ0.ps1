@@ -1,0 +1,1 @@
+﻿Get-WmiObject MSAcpi_ThermalZoneTemperature -Namespace "root/wmi" | where-object {$_.InstanceName -eq "ACPI\ThermalZone\TZ00_0"} | Select-object -Property CurrentTemperature
