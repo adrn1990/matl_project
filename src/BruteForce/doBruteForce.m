@@ -42,12 +42,27 @@ if RainbowStrat
     
 else %No usage of rainbowtables
     
-    %     parfor Increment=1:NbrOfChars^MaxPwLength
-    %         if strcmp(Hash,DataHash(createString(Increment),Opt))
-    %
-    %         end
-    %         %TODO: Update UI
-    %     end
+    tic
+    try
+        parfor Increment=1:NbrOfChars^3+NbrOfChars^2+NbrOfChars
+            Inc= randi(NbrOfChars^3+NbrOfChars^2+NbrOfChars);
+            if strcmp(Hash,DataHash(createString(Inc,Array),Opt))
+                Pw= createString(Inc,Array);
+                msgID = 'MYFUN:BadIndex';
+                msg = Pw;
+                baseException = MException(msgID,msg);
+                throw(baseException);
+            end
+            %TODO: Update UI
+            if mod(Increment,10000) == 0
+                disp(Increment);
+            end
+        end
+        
+    catch ME
+        disp(ME.message);
+    end
+    toc
     
 end
 
