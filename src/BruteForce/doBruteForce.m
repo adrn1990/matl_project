@@ -40,10 +40,6 @@ Array= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 %Options for function DataHash
 Opt= Obj.HashStruct;
 
-%FIXME: Generate random numbers with guarantee
-%myStream=RandStream('mcg16807');
-%tallrng('shr3cong');
-
 %FIXME: Update GUI out of Parallel
 % D = parallel.pool.DataQueue;
 % D.afterEach(@(x) Obj.fWriteMessageBuffer(sprintf('%d',x)));
