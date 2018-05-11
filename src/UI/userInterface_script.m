@@ -1,4 +1,4 @@
-classdef userInterface_script < matlab.apps.AppBase
+classdef userInterface < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
@@ -54,9 +54,6 @@ classdef userInterface_script < matlab.apps.AppBase
         gpuInfo;
         gpuData;
         
-        %This property safes the allready found Passwords.
-        FoundPw;
-        
         %This property safes the allready found Hashes.
         FoundHash;
         
@@ -86,7 +83,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.messageBuffer{end + 1} = message;
             app.LogMonitorOutput.Value = app.messageBuffer;
         end
-     
+        
     end
 
     methods (Access = private)
@@ -129,14 +126,14 @@ classdef userInterface_script < matlab.apps.AppBase
                 fWriteMessageBuffer(app, 'Getting CPU information done...');
                 fWriteMessageBuffer(app, app.delemiter);
                 
-                try                  
+                try
                     app.gpuInfo = gpuDevice;
                     
                     fWriteMessageBuffer(app, 'Compatible GPU detected...');
                     
                     % Get GPU information
                     fWriteMessageBuffer(app, 'Get GPUinformation: ');
-                    fWriteMessageBuffer(app, app.delemiter);                                      
+                    fWriteMessageBuffer(app, app.delemiter);
                     
                     gpuMessage = sprintf('Name: \t \t \t \t %s' , app.gpuInfo.Name);
                     fWriteMessageBuffer(app, gpuMessage);
@@ -162,21 +159,26 @@ classdef userInterface_script < matlab.apps.AppBase
                 end
                 
                 %Get CPU data
+                %FIXME: Write cpu data struct if RessourceDropDown = cpu
                 if ispc
-                    fWriteMessageBuffer(app, 'Destract CPU data...');
+                    fWriteMessageBuffer(app, 'Getting CPU data...');
                     app.cpuData = getCpuData;
-                    app.TemperatureOutput.Value = app.cpuData.currCpuTemp;
-                    app.LoadOutput.Value = app.cpuData.avgCpuLoad;
-                    fWriteMessageBuffer(app, 'CPU temperature write successfull');
-                    fWriteMessageBuffer(app, 'CPU average load write successfull');
+                    fWriteMessageBuffer(app, 'CPU data recieved');
                     fWriteMessageBuffer(app, app.delemiter);
+                    
+                    if gpuDeviceCount > 0
+                        fWriteMessageBuffer(app, 'Getting GPU data...');
+                        app.gpuData = getGpuData;
+                        fWriteMessageBuffer(app, 'GPU data recieved');
+                        fWriteMessageBuffer(app, app.delemiter);
+                    end
                 end
                 
                 %Set maximum cores (for better graph visuality)
                 if app.cpuInfo.NumProcessors > 4
                     app.cpuInfo.NumProcessors = 4;
                 end
-                %Set value for "CPU cores" DropDown 
+                %Set value for "CPU cores" DropDown
                 switch app.cpuInfo.NumProcessors
                     case 1
                         app.CoresDropDown.Items = {'1'};
@@ -204,17 +206,17 @@ classdef userInterface_script < matlab.apps.AppBase
                         parWorkers = num2str(pool.NumWorkers);
                         strParWorkers = sprintf('NumWorkers: \t \t \t \t %s' , parWorkers);
                         fWriteMessageBuffer(app, strParWorkers);
-                                                
+                        
                         clusterProfile = sprintf('Cluster profile: \t \t \t %s' , pool.Cluster.Profile);
                         fWriteMessageBuffer(app, clusterProfile);
                         fWriteMessageBuffer(app, app.delemiter);
-                    else %TODO exeption handling
+                    else %TODO exception handling
                         fWriteMessageBuffer(app, 'Something went wroooooong!');
                         fWriteMessageBuffer(app, app.delemiter);
                     end
                 catch
                     fWriteMessageBuffer(app, 'No Parallel Toolbox found or an active session is running!');
-                                
+                    
                 end
                 
                 
@@ -267,19 +269,22 @@ classdef userInterface_script < matlab.apps.AppBase
                 app.CoresDropDown.Enable = 'on';
                 app.UIAxes_gpu.Visible = 'off';
                 app.UIAxes_cpu.Visible = 'on';
+                app.TemperatureOutput.Value = app.cpuData.currCpuTemp;
+                app.LoadOutput.Value = app.cpuData.avgCpuLoad;
             else
                 app.CoresDropDown.Items = {'1'};
                 app.CoresDropDown.Enable = 'off';
                 app.UIAxes_gpu.Visible = 'on';
                 app.UIAxes_cpu.Visible = 'off';
+                app.TemperatureOutput.Value = app.gpuData.currGpuTemp;
             end
         end
 
         % Value changing function: InputEditField
         function InputEditFieldValueChanging(app, event)
-            value = event.Value;         
+            value = event.Value;
             strVal = convertCharsToStrings(value);
-            valLenth = strlength(strVal); 
+            valLenth = strlength(strVal);
             %TODO: check event value for not allowed chars
             if valLenth > app.MaxPwLength
                 app.WarningBox.Visible = 'on';
@@ -343,7 +348,7 @@ classdef userInterface_script < matlab.apps.AppBase
         function RainbowtableDropDownValueChanged(app, event)
             %Set items for Dropdown menu without select...
             app.RainbowtableDropDown.Items = {'Yes', 'No'};
-
+            
         end
 
         % Value changed function: ModeDropDown
@@ -635,11 +640,8 @@ classdef userInterface_script < matlab.apps.AppBase
     methods (Access = public)
 
         % Construct app
-        function app = userInterface_script
-            
-            % Do initialization of the app.
-            app= initApp(app);
-            
+        function app = userInterface
+
             % Create and configure components
             createComponents(app)
 
@@ -656,8 +658,7 @@ classdef userInterface_script < matlab.apps.AppBase
 
         % Code that executes before app deletion
         function delete(app)
-            
-            deleteApp(app);
+
             % Delete UIFigure when app is deleted
             delete(app.BruteForceToolUIFigure)
         end
