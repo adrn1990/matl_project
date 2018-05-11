@@ -61,7 +61,7 @@ else
     tic
     try
         parfor Increment=1:NbrOfChars^3+NbrOfChars^2+NbrOfChars
-            Inc= randi(myStream,NbrOfChars^3+NbrOfChars^2+NbrOfChars);
+            Inc= randi(NbrOfChars^3+NbrOfChars^2+NbrOfChars);
             if strcmp(Hash,DataHash(createString(Inc,Array),Opt))
                 Pw= createString(Inc,Array);
                 msgID = '';
@@ -74,10 +74,10 @@ else
                 msg = Pw;
                 baseException = MException(msgID,msg);
                 throw(baseException);                
-            end
+             end
             %TODO: Update UI
             if mod(Increment,10000) == 0
-                %disp(Increment);
+                disp(Increment);
                 %Obj.fWriteMessageBuffer(sprintf('The current index is: %d',Increment));
                 %FIXME: Update GUI out of Parallel
                 %send(D, Increment);
@@ -95,11 +95,11 @@ else
         Obj.fWriteMessageBuffer('The BruteForcing was successfull!');
         Obj.fWriteMessageBuffer(sprintf('Your Password is: %s',Obj.ResultOutput.Value{1}));
         Obj.fWriteMessageBuffer(sprintf('Elapsed time is %f seconds',toc));
-        Obj.fWriteMessageBuffer('---------------------------------------');
+        Obj.fWriteMessageBuffer(Obj.delemiter);
     else
         Obj.fWriteMessageBuffer('The BruteForcing was unfortunately not successfull!');
         Obj.fWriteMessageBuffer('Please try again.');
-        Obj.fWriteMessageBuffer('---------------------------------------');
+        Obj.fWriteMessageBuffer(Obj.delemiter);
     end
     
 end
