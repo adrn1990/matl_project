@@ -6,10 +6,7 @@
 %
 %Name:              runApp
 %
-%Description:       This script runs the applikation, adds the necessary
-%                   paths and provides information to the user if the
-%                   computer is not a pc and doesn't run the operating
-%                   system "Windows 10".
+%Description:       TODO:
 %
 %Input:             No input
 %
@@ -20,12 +17,6 @@
 %Copyright:
 %
 %**************************************************************************
-
-%Specify the subfolder with functions here.
-Folders= {'UI';
-    'BruteForce';
-    'Scripts';
-    };
 
 %Check if the user's computer is a pc
 if ispc
@@ -44,18 +35,22 @@ if ispc
             'Operating System Version Warning','warn'));
     end
     
+    clear Version
+    
     %check if MATLAB is running on admin rights.
     if ~isWindowsAdmin
         uiwait(msgbox(sprintf(['Your MATLAB is not executed as admin!','\n'...
             ,'Some functions may not work properly.']),...
             'MATLAB not on admin rights Warning','warn'));
     end
+    
     Slash= '\';
     
 else %isunix or unknown
     %UI to inform about not supported operating systems.
     uiwait(msgbox(['This application may not work properly because your ',...
         'operating system is not "Windows".'],'Operating System Warning','warn'));
+    
     Slash= '/';
 end
 
@@ -65,18 +60,12 @@ if ~isstudent
         'Operating System Warning','warn'));
 end
 
-%Add specified folders to the path
-for Increment=1:length(Folders)
-    addpath([pwd,Slash,Folders{Increment}]);
-end
+addpath([pwd,Slash,'UI']);
+clear Slash
 
 %==============================Calling the GUI=============================
 userInterface_script;
 %==========================================================================
-
-clear Folders Increment Slash;
-
-%TODO: Appkill function like rmpath
 
 %% local function
 
