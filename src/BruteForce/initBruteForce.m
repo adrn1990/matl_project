@@ -33,7 +33,7 @@ if(strcmp(ToDecrypt,'Password'))
     Data= Obj.InputEditField.Value;
     Hash = DataHash(Data, Opt);
 else
-    Hash= Obj.TodecryptDropDown.Value;
+    Hash= Obj.ModeDropDown.Value;
 end
 
 %Handover the hash to the object.
