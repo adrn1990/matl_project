@@ -24,6 +24,7 @@
 %Specify the subfolder with functions here.
 Folders= {'UI';
     'BruteForce';
+    'Scripts';
     };
 
 %Check if the user's computer is a pc
