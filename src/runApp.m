@@ -43,6 +43,13 @@ if ispc
             ,'or higher.','\n','This application may not work properly.']),...
             'Operating System Version Warning','warn'));
     end
+    
+    %check if MATLAB is running on admin rights.
+    if ~isWindowsAdmin
+        uiwait(msgbox(sprintf(['Your MATLAB is not executed as admin'...
+            ,'Some functions may not work properly']),...
+            'MATLAB not on admin rights Warning','warn'));
+    end
     Slash= '\';
     
 else %isunix or unknown
@@ -58,20 +65,26 @@ if ~isstudent
         'Operating System Warning','warn'));
 end
 
-%FIXME: Warn user if not run MATLAB with Admin rights that some functions
-%wont work!
-
 %Add specified folders to the path
 for Increment=1:length(Folders)
     addpath([pwd,Slash,Folders{Increment}]);
 end
 
-%FIXME: Update GUI out of Parallel
-% poolobj = gcp;
-% addAttachedFiles(poolobj,{'doBruteForce.m','createString.m','DataHash.m','initBruteForce.m'});
-
 %==============================Calling the GUI=============================
-App= userInterface_script;
+userInterface_script;
 %==========================================================================
 
-%TODO: Appkill function like rmpath and rm Vars
+clear Folders Increment Slash;
+
+%TODO: Appkill function like rmpath
+
+%% local function
+
+%Local function to evaluate if the user is running MATLAB with admin rights
+%returns logical true if it is running on admin rights.
+function out = isWindowsAdmin()
+wi = System.Security.Principal.WindowsIdentity.GetCurrent();
+wp = System.Security.Principal.WindowsPrincipal(wi);
+out = wp.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+end
+
