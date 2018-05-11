@@ -54,6 +54,18 @@ classdef userInterface_script < matlab.apps.AppBase
         gpuInfo;
         gpuData;
         
+        %This property safes the allready found Passwords.
+        FoundPw;
+        
+        %This property safes the allready found Hashes.
+        FoundHash;
+        
+        %This property safes all folders of the path
+        Folders;
+        
+        %This property safes the char slash/backslash
+        Slash;
+        
         %
         MaxPwLength= 8;
         
@@ -624,7 +636,10 @@ classdef userInterface_script < matlab.apps.AppBase
 
         % Construct app
         function app = userInterface_script
-
+            
+            % Do initialization of the app.
+            app= initApp(app);
+            
             % Create and configure components
             createComponents(app)
 
@@ -641,7 +656,8 @@ classdef userInterface_script < matlab.apps.AppBase
 
         % Code that executes before app deletion
         function delete(app)
-
+            
+            deleteApp(app);
             % Delete UIFigure when app is deleted
             delete(app.BruteForceToolUIFigure)
         end
