@@ -72,7 +72,14 @@ classdef userInterface_script < matlab.apps.AppBase
         
         %This property safes the number of chars for the password
         %0-9, A-Z, a-z
-        NbrOfChars= 62;
+        NbrOfChars= 62;      
+        
+        %This property is to calculate the progress
+        AmountOfCalls;
+        
+        %This property saves the amount of iterations the parfor loop has
+        %to do
+        Iterations;
         
         %This property safes the Hash of the given data
         Hash;
@@ -90,6 +97,14 @@ classdef userInterface_script < matlab.apps.AppBase
         
     end
 
+    methods (Access = public)
+        
+        function fWriteStatus(app,message)
+            app.StatusOutput.Value= message;
+        end
+        
+    end
+    
     methods (Access = private)
 
         % Code that executes after component creation
@@ -378,6 +393,7 @@ classdef userInterface_script < matlab.apps.AppBase
         % Button pushed function: StartButton
         function StartButtonPushed(app, event)
             app.ResultOutput.Value = '';
+            app.StatusOutput.Value = 'Your current progress in BruteForcing is: 0%';
             initBruteForce(app);
         end
 

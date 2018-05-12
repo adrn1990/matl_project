@@ -25,12 +25,17 @@ function [Obj] = doBruteForce(Obj)
 NbrOfChars= Obj.NbrOfChars;
 MaxPwLength= Obj.MaxPwLength;
 
+Obj.AmountOfCalls= 1;
 
 Hash= Obj.Hash;
 Improvements= Obj.Improvements;
 [Length,~]= size(Improvements);
 FoundByImprovement= false;
 Method= Obj.HashStruct.Method;
+
+%The number of iterations to find a password is now for 1 to 3 digits
+Obj.Iterations = NbrOfChars^3+NbrOfChars^2+NbrOfChars;
+Iterations= Obj.Iterations;
 
 RainbowStrat= strcmp(Obj.RainbowtableDropDown.Value,'Yes');
 
@@ -47,9 +52,10 @@ Opt= Obj.HashStruct;
 
 
 
-%FIXME: Update GUI out of Parallel
-% D = parallel.pool.DataQueue;
-% D.afterEach(@(x) Obj.fWriteMessageBuffer(sprintf('%d',x)));
+%Preparation for UI update
+D = parallel.pool.DataQueue;
+D.afterEach(@(x) updateParFor(x,Obj));
+%D.afterEach(@(x) updateParFor(x,AmountOfCalls));
 
 %if there is the usage of rainbowtables, the following will be executed.
 if RainbowStrat
@@ -77,8 +83,8 @@ else
             end
         end
         
-        parfor Increment=1:NbrOfChars^3+NbrOfChars^2+NbrOfChars
-            Inc= randi(NbrOfChars^3+NbrOfChars^2+NbrOfChars);
+        parfor Increment=1:Iterations
+            Inc= randi(Iterations);
             if strcmp(Hash,DataHash(createString(Inc,Array),Opt))
                 Pw= createString(Inc,Array);
                 msgID = '';
@@ -92,18 +98,14 @@ else
                 baseException = MException(msgID,msg);
                 throw(baseException);                
              end
-            %TODO: Update UI
-            if mod(Increment,10000) == 0
-                disp(Increment);
-                %Obj.fWriteMessageBuffer(sprintf('The current index is: %d',Increment));
-                %FIXME: Update GUI out of Parallel
-                %send(D, Increment);
+            %Update UI
+            if mod(Increment,1000) == 0                
+                send(D, Increment);
             end
         end
         
     catch ME
         Pw= ME.message;
-        disp(Pw);
         if ~FoundByImprovement
             Improvements{end+1,1}= Pw;
             Improvements{end,2}= DataHash(Pw,Opt);
@@ -115,11 +117,13 @@ else
     end
     
     if (~isempty(Obj.ResultOutput.Value{1}))
+        Obj.fWriteStatus('Your current progress in BruteForcing is: 100%');
         Obj.fWriteMessageBuffer('The BruteForcing was successfull!');
         Obj.fWriteMessageBuffer(sprintf('Your Password is: %s',Obj.ResultOutput.Value{1}));
         Obj.fWriteMessageBuffer(sprintf('Elapsed time is %f seconds',toc));
         Obj.fWriteMessageBuffer(Obj.delemiter);
     else
+        Obj.fWriteStatus('Your current progress in BruteForcing is: 0%');
         Obj.fWriteMessageBuffer('The BruteForcing was unfortunately not successfull!');
         Obj.fWriteMessageBuffer('Please try again.');
         Obj.fWriteMessageBuffer(Obj.delemiter);
@@ -127,6 +131,13 @@ else
     
 end
 
-return
+end
 
+%% local functions
+
+
+function updateParFor(x,Obj)
+X= 100*Obj.AmountOfCalls*1000/Obj.Iterations;
+Obj.fWriteStatus([sprintf('Your current progress in BruteForcing is: %0.4f',X),'%']);
+Obj.AmountOfCalls= Obj.AmountOfCalls+1;
 end
