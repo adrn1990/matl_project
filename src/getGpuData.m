@@ -39,6 +39,7 @@ gpuTempKelvin = str2double(horzcat(gpuTermalZones{:}));
 dblTempCelsius = gpuTempKelvin - 273.15;
 info.currGpuTemp = {num2str(dblTempCelsius)};
 
-% [~,cpuAvgLoad] = system(sprintf('powershell -inputformat none -file %sget-cpu-load.ps1',UserPath));
+%FIXME: Path does not work
+%[~,gpuAvgLoad] = system(sprintf('powershell -inputformat none -file %sget-gpu-load.ps1',UserPath));
 % info.avgCpuLoad = regexp(cpuAvgLoad,'\d*','match');
 return 
