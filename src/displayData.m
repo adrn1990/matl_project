@@ -1,16 +1,15 @@
 function info = displayData
-time = 1:60;
-value = zeros(1,60);
-figure(1);
+time = 1:0.1:60;
+value = 3*time+5;
 
-
+obj= figure;
+plot(time ,value);
+obj.Children.YAxis.Limits = [0 5000];
+obj.Children.YAxis.LimitsMode = 'manual';
 data = [time;value];
 
 for index = 1:60
-    data(2:index) = index+2;
-    xlim([0 60]);
-    plot(data(1,index),data(2,index));
-    set(gca,'XDir','reverse');
+    obj.Children.Children.YData= value+index^2; 
     pause(0.5)
 end
 
