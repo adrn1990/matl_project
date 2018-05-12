@@ -6,18 +6,22 @@
 %
 %Name:              initBruteForce
 %
-%Description:       TODO:
+%Description:       This function initialize the Bruteforceing by hashing
+%                   the password of the user (if necessary).
 %
 %Input:             Object Obj of the Class userInterface
 %
-%Output:            TODO:
+%Output:            Object Obj of the Class userInterface
 %
-%Example:           Struct= struct('Type','Password','Entry','myPassword',...
-%                       'EncryptAlgo','SHA1','RainbowStrat',false,'Cluster','Default')
+%Example:           Obj = initBruteForce(Obj);
 %
 %Copyright:
 %
 %**************************************************************************
+
+%==========================================================================
+%<Version 1.0> - 12.05.2018 - First version of the function.
+%==========================================================================
 
 function [Obj] = initBruteForce(Obj)
 

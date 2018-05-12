@@ -54,8 +54,11 @@ classdef userInterface_script < matlab.apps.AppBase
         gpuInfo;
         gpuData;
         
-        %This property safes the allready found Hashes.
-        FoundHash;
+        %This property safes the allready found passwords and hashes.
+        Improvements;
+        
+        %This property safes the name of the file with the allready found passwords and hashes
+        FileName;
         
         %This property safes all folders of the path
         Folders;
@@ -90,6 +93,9 @@ classdef userInterface_script < matlab.apps.AppBase
 
         % Code that executes after component creation
         function startupFcn(app)
+            %initialize the app
+            app= initApp(app);
+            
             app.InputEditField.FontAngle = 'italic';
             app.StartButton.Enable = 'off';
             app.NewrunMenu.Enable = 'off';
@@ -199,6 +205,7 @@ classdef userInterface_script < matlab.apps.AppBase
                 %Setting up parallel processing
                 try
                     fWriteMessageBuffer(app, 'Starting up parallel processing...');
+                    %TODO: choose a cluster from dropdown.
                     pool =parpool('local');
                     
                     if pool.Connected == true
@@ -363,6 +370,12 @@ classdef userInterface_script < matlab.apps.AppBase
             app.ResultOutput.Value = '';
             initBruteForce(app);
         end
+
+        % Close request function: BruteForceToolUIFigure
+        function CloseRequest(app, event)
+            deleteApp(app)
+            delete(app)
+        end
     end
 
     % App initialization and construction
@@ -376,6 +389,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.BruteForceToolUIFigure.Color = [0.9412 0.9412 0.9412];
             app.BruteForceToolUIFigure.Position = [100 100 1284 974];
             app.BruteForceToolUIFigure.Name = 'Brute-Force Tool';
+            app.BruteForceToolUIFigure.CloseRequestFcn = createCallbackFcn(app, @CloseRequest, true);
 
             % Create FileMenu
             app.FileMenu = uimenu(app.BruteForceToolUIFigure);
