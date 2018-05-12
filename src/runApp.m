@@ -6,7 +6,11 @@
 %
 %Name:              runApp
 %
-%Description:       TODO:
+%Description:       This function should be executed to run the
+%                   BruteForce-Application. This function checks if MATLAB
+%                   is running as admin, if Windows is running on Win 10 or
+%                   higher, it the current pc is running a Mac-OS or Linux
+%                   and if MATLAB is using a student licence.
 %
 %Input:             No input
 %
@@ -17,6 +21,10 @@
 %Copyright:
 %
 %**************************************************************************
+
+%==========================================================================
+%<Version 1.0> - 13.05.2018 - First version of the script.
+%==========================================================================
 
 %Check if the user's computer is a pc
 if ispc
