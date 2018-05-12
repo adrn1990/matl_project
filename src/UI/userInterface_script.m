@@ -53,6 +53,7 @@ classdef userInterface_script < matlab.apps.AppBase
         cpuData;
         gpuInfo;
         gpuData;
+        PrevTime = 0;
         
         %This property safes the allready found Hashes.
         FoundHash;
@@ -271,6 +272,13 @@ classdef userInterface_script < matlab.apps.AppBase
                 app.UIAxes_cpu.Visible = 'on';
                 app.TemperatureOutput.Value = app.cpuData.currCpuTemp;
                 app.LoadOutput.Value = app.cpuData.avgCpuLoad;
+                
+                %FIXME: Test for data visualisation-------------------------
+                
+                %displayData(app);
+                
+                
+                
             else
                 app.CoresDropDown.Items = {'1'};
                 app.CoresDropDown.Enable = 'off';

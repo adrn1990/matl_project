@@ -23,33 +23,28 @@
 %==========================================================================
 
 function [Obj] = displayData(Obj)
-%FIXME: prevTime should be declarated in public in app object
-prevTime = 0;
-time = 1 + prevTime;
+time = 1 + Obj.PrevTime;
 value = 0;
-
-
-% fig= figure;
-% plot(time ,value,'LineWidth',1.5,'Color','red');
+uiaxes(Obj.UIAxes_cpu);
 
 area(value, 'LineWidth', 1,...
     'FaceColor', 'red',...
     'FaceAlpha', 0.7,...
     'AlignVertexCenters', 'on');
 
-value(end+1) = Obj.cpuData.avgCpuLoad;
+value(end+1) = str2double(Obj.cpuData.avgCpuLoad);
 time(end+1) = time(end)+1;
    
 %Write data in axis object
-Obj.UIAxes_cpu.YData = value;
-Obj.UIAxes_cpu.XData = time;
+Obj.UIAxes_cpu.YAxis = value;
+Obj.UIAxes_cpu.XAxis= time;
 
 %Set old value
-prevTime = time(end+1);
+Obj.PrevTime = time(end+1);
 
 %Set Timer to first element
 if time(end) == 61
-    prevTimer = 0;
+    Obj.PrevTime = 0;
 end
 
 
