@@ -12,3 +12,5 @@ src/test_dll\.m
 *.mat
 
 *.asv
+
+src/Files/FoundHashes\.mat
