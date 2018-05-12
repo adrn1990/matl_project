@@ -599,13 +599,14 @@ classdef userInterface_script < matlab.apps.AppBase
 
             % Create UIAxes_cpu
             app.UIAxes_cpu = uiaxes(app.CPUTab);
-            title(app.UIAxes_cpu, 'CPU ')
-            ylabel(app.UIAxes_cpu, 'Y')
-            app.UIAxes_cpu.XLim = [0 Inf];
+            title(app.UIAxes_cpu, 'CPU Average Load')
+            ylabel(app.UIAxes_cpu, '%')
+            app.UIAxes_cpu.XLim = [0 60];
             app.UIAxes_cpu.YLim = [0 100];
+            app.UIAxes_cpu.XDir = 'reverse';
             app.UIAxes_cpu.Box = 'on';
-            app.UIAxes_cpu.XTickLabel = {'0'; '0.2'; '0.4'; '0.6'; '0.8'; '1'};
-            app.UIAxes_cpu.YTick = [0 10 20 30 40 50 60 70 80 90 100];
+            app.UIAxes_cpu.XTick = [0 20 40 60];
+            app.UIAxes_cpu.YTick = [0 25 50 75 100];
             app.UIAxes_cpu.XGrid = 'on';
             app.UIAxes_cpu.YGrid = 'on';
             app.UIAxes_cpu.Position = [27 30 639 346];
@@ -617,13 +618,14 @@ classdef userInterface_script < matlab.apps.AppBase
 
             % Create UIAxes_gpu
             app.UIAxes_gpu = uiaxes(app.GPUTab);
-            title(app.UIAxes_gpu, 'GPU')
-            ylabel(app.UIAxes_gpu, 'Y')
-            app.UIAxes_gpu.XLim = [0 Inf];
+            title(app.UIAxes_gpu, 'GPU Average Load')
+            ylabel(app.UIAxes_gpu, '%')
+            app.UIAxes_gpu.XLim = [0 60];
             app.UIAxes_gpu.YLim = [0 100];
+            app.UIAxes_gpu.XDir = 'reverse';
             app.UIAxes_gpu.Box = 'on';
-            app.UIAxes_gpu.XTickLabel = {'0'; '0.2'; '0.4'; '0.6'; '0.8'; '1'};
-            app.UIAxes_gpu.YTick = [0 10 20 30 40 50 60 70 80 90 100];
+            app.UIAxes_gpu.XTick = [0 20 40 60];
+            app.UIAxes_gpu.YTick = [0 25 50 75 100];
             app.UIAxes_gpu.XGrid = 'on';
             app.UIAxes_gpu.YGrid = 'on';
             app.UIAxes_gpu.Position = [24 30 642 341];

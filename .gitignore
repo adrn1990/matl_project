@@ -10,3 +10,5 @@ src/encrypt\.m
 src/test_dll\.m
 
 *.mat
+
+*.asv
