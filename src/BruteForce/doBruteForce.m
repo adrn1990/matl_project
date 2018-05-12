@@ -27,6 +27,10 @@ MaxPwLength= Obj.MaxPwLength;
 
 
 Hash= Obj.Hash;
+Improvements= Obj.Improvements;
+[Length,~]= size(Improvements);
+FoundByImprovement= false;
+Method= Obj.HashStruct.Method;
 
 RainbowStrat= strcmp(Obj.RainbowtableDropDown.Value,'Yes');
 
@@ -40,17 +44,7 @@ Array= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 %Options for function DataHash
 Opt= Obj.HashStruct;
 
-%try allready used passwords and hashses first
-Improvements= Obj.Improvements;
 
-for Increment=1:length(Improvements)
-    if Hash == Improvements{Improvements,2}
-        msgID = '';
-        msg = Improvements{Improvements,1};
-        baseException = MException(msgID,msg);
-        throw(baseException);
-    end
-end
 
 
 %FIXME: Update GUI out of Parallel
@@ -70,16 +64,31 @@ else
     Obj.fWriteMessageBuffer('BruteForcing in progress...');
     tic
     try
+        %try allready used passwords and hashses first
+        
+        for Increment=1:Length
+            if strcmp(Hash,Improvements{Increment,2}) && ...
+                    strcmp(Method,Improvements{Increment,3})
+                FoundByImprovement= true;
+                msgID = '';
+                msg = Improvements{Increment,1};
+                baseException = MException(msgID,msg);
+                throw(baseException);
+            end
+        end
+        
         parfor Increment=1:NbrOfChars^3+NbrOfChars^2+NbrOfChars
             Inc= randi(NbrOfChars^3+NbrOfChars^2+NbrOfChars);
             if strcmp(Hash,DataHash(createString(Inc,Array),Opt))
+                Pw= createString(Inc,Array);
                 msgID = '';
-                msg = Inc;
+                msg = Pw;
                 baseException = MException(msgID,msg);
                 throw(baseException);
             elseif strcmp(Hash,DataHash(createString(Increment,Array),Opt))
+                Pw= createString(Increment,Array);
                 msgID = '';
-                msg = Increment;
+                msg = Pw;
                 baseException = MException(msgID,msg);
                 throw(baseException);                
              end
@@ -93,12 +102,16 @@ else
         end
         
     catch ME
-        Pw= createString(ME.message,Array);
+        Pw= ME.message;
         disp(Pw);
+        if ~FoundByImprovement
+            Improvements{end+1,1}= Pw;
+            Improvements{end,2}= DataHash(Pw,Opt);
+            Improvements{end,3}= Method;
+            Obj.Improvements= Improvements;            
+        end
         
-        Improvements{end+1,1}= Pw;
-        
-        Obj.ResultOutput.Value= {ME.message};
+        Obj.ResultOutput.Value= {Pw};
     end
     
     if (~isempty(Obj.ResultOutput.Value{1}))
