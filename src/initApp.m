@@ -6,7 +6,8 @@
 %
 %Name:              initApp
 %
-%Description:       TODO:
+%Description:       This function adds the subfolders of the app to the
+%                   path and loads the allready found passwords and hashes.
 %
 %Input:             Object Obj of the class userInterface
 %
@@ -17,6 +18,10 @@
 %Copyright:
 %
 %**************************************************************************
+
+%==========================================================================
+%<Version 1.0> - 12.05.2018 - First version of the function.
+%==========================================================================
 
 function Obj = initApp(Obj)
 
@@ -39,9 +44,12 @@ for Increment=1:length(Obj.Folders)
     addpath([pwd,Obj.Slash,Obj.Folders{Increment}]);
 end
 
+%load the file with the allready found passwords and hashes.
+Obj.FileName= 'Improvements.mat';
 CurrPath= pwd;
 cd([CurrPath,Obj.Slash,'Files']);
-Obj.FoundHash= importdata('FoundHashes.mat');
+Obj.Improvements= importdata(Obj.FileName);
 cd(CurrPath);
+clear CurrPath
 
 end
