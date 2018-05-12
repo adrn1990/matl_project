@@ -40,6 +40,19 @@ Array= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 %Options for function DataHash
 Opt= Obj.HashStruct;
 
+%try allready used passwords and hashses first
+Improvements= Obj.Improvements;
+
+for Increment=1:length(Improvements)
+    if Hash == Improvements{Improvements,2}
+        msgID = '';
+        msg = Improvements{Improvements,1};
+        baseException = MException(msgID,msg);
+        throw(baseException);
+    end
+end
+
+
 %FIXME: Update GUI out of Parallel
 % D = parallel.pool.DataQueue;
 % D.afterEach(@(x) Obj.fWriteMessageBuffer(sprintf('%d',x)));
@@ -51,7 +64,8 @@ if RainbowStrat
 %Bruteforce thru each possibility of the password while using a random
 %generated index. Compare the hashes with the provided hash from the UI.
 %If the comparsion of the hashes is true, throw an exception to exit the
-%parfor-loop and assign the 
+%parfor-loop and assign the password to the result output to show it on the
+%gui.
 else
     Obj.fWriteMessageBuffer('BruteForcing in progress...');
     tic
@@ -59,15 +73,13 @@ else
         parfor Increment=1:NbrOfChars^3+NbrOfChars^2+NbrOfChars
             Inc= randi(NbrOfChars^3+NbrOfChars^2+NbrOfChars);
             if strcmp(Hash,DataHash(createString(Inc,Array),Opt))
-                Pw= createString(Inc,Array);
                 msgID = '';
-                msg = Pw;
+                msg = Inc;
                 baseException = MException(msgID,msg);
                 throw(baseException);
             elseif strcmp(Hash,DataHash(createString(Increment,Array),Opt))
-                Pw= createString(Increment,Array);
                 msgID = '';
-                msg = Pw;
+                msg = Increment;
                 baseException = MException(msgID,msg);
                 throw(baseException);                
              end
@@ -81,8 +93,10 @@ else
         end
         
     catch ME
-        Pw= ME.message;
-        disp(ME.message);
+        Pw= createString(ME.message,Array);
+        disp(Pw);
+        
+        Improvements{end+1,1}= Pw;
         
         Obj.ResultOutput.Value= {ME.message};
     end
