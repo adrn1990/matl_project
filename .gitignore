@@ -14,3 +14,5 @@ src/test_dll\.m
 *.mat
 
 src/Files/FoundHashes\.mat
+
+src/Files/
