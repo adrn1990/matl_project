@@ -1,15 +1,20 @@
 function info = displayData
-time = 1:0.1:60;
-value = 3*time+5;
+time = 1;
+value = 0;
+
 
 obj= figure;
 plot(time ,value);
-obj.Children.YAxis.Limits = [0 5000];
+obj.Children.YAxis.Limits = [0 100];
+obj.Children.XAxis.Limits = [0 60];
 obj.Children.YAxis.LimitsMode = 'manual';
-data = [time;value];
+obj.Children.XAxis.Direction = 'reverse';
 
 for index = 1:60
-    obj.Children.Children.YData= value+index^2; 
+    value(end+1) = index^1.5;
+    time(end+1) = time(end)+1;
+    obj.Children.Children.YData= value;
+    obj.Children.Children.XData= time;
     pause(0.5)
 end
 
