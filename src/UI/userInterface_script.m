@@ -363,7 +363,7 @@ classdef userInterface_script < matlab.apps.AppBase
                 app.UIAxes_gpu.Visible = 'on';
                 app.UIAxes_cpu.Visible = 'off';
                 app.TemperatureOutput.Value = app.gpuData.currGpuTemp;
-                app.LoadOutput.Value = ''; %FIXME: Load value from gpu have to put in here!
+                app.LoadOutput.Value = app.gpuData.avgGpuLoad; 
             end
         end
 
