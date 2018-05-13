@@ -119,8 +119,42 @@ classdef userInterface_script < matlab.apps.AppBase
             IsValid= isempty(regexp(Char,sprintf('[^%s]',app.AllowedChars), 'once'));
         end
         
-        function results = evalStartBF(app)
-            if app.evaluateDone
+        function results = evalStartBF(app,varargin)
+            %check if varargin is used
+            if isempty(varargin)
+                Input = app.InputEditField.Value;
+            else
+                Input= varargin{1};
+            end
+            
+            %check if the input is between 0 and 9
+            if (0 < length(Input)) &&  (length(Input) < 9)
+                InputValidity= true;
+            else
+                InputValidity= false;
+            end
+            
+            %check if the chars in the inputbox are valid
+            if evalChars(app,Input)
+                CharValidity = true;
+            else
+                CharValidity= false;
+            end
+            
+            %check if an encryption algorithm is set is set
+            EncryptValidity= ~strcmp(app.EncryptionDropDown.Value,'Select...');
+            
+            %check if the mode to decrypt is set
+            ModeValidity= ~strcmp(app.ModeDropDown.Value,'Select...');
+
+            %check if the mode to decrypt is set
+            RainbowValidity= ~strcmp(app.RainbowtableDropDown.Value,'Select...');            
+            
+            %if all checks are true, the StartButton can be enabled. 
+            if app.evaluateDone && InputValidity && ModeValidity && CharValidity && EncryptValidity && RainbowValidity
+                app.StartButton.Enable = 'on';
+            else
+                app.StartButton.Enable = 'off';
             end
         end
         
@@ -234,12 +268,10 @@ classdef userInterface_script < matlab.apps.AppBase
                     case 4
                         app.CoresDropDown.Items = {'1', '2', '3', '4'};
                 end
-                app.evaluateDone = true;
                 app.NewrunMenu.Enable = 'on';
                 app.RessourceDropDown.Enable = 'on';
                 app.CoresDropDown.Enable = 'on';
                 app.EvaluateButton.Enable = 'off';
-                app.StartButton.Enable = 'on'; %FIXME: warning, this is only for testing
                 
                 %Setting up parallel processing
                 try
@@ -265,7 +297,8 @@ classdef userInterface_script < matlab.apps.AppBase
                     
                 end
                 
-                
+                app.evaluateDone = true;
+                evalStartBF(app);
                 
                 
             end
@@ -346,6 +379,7 @@ classdef userInterface_script < matlab.apps.AppBase
                 app.WarningBox.Visible = 'off';
                 app.InputEditField.BackgroundColor= 'white';
             end
+            evalStartBF(app,value);
         end
 
         % Menu selected function: NewrunMenu
@@ -396,7 +430,7 @@ classdef userInterface_script < matlab.apps.AppBase
                     %TODO: this hashfunction has to be implemented.
             end
             
-            
+            evalStartBF(app);
         end
 
         % Value changed function: RainbowtableDropDown
@@ -404,6 +438,7 @@ classdef userInterface_script < matlab.apps.AppBase
             %Set items for Dropdown menu without select...
             app.RainbowtableDropDown.Items = {'Yes', 'No'};
             
+            evalStartBF(app);
         end
 
         % Value changed function: ModeDropDown
@@ -411,6 +446,7 @@ classdef userInterface_script < matlab.apps.AppBase
             %Set items for Dropdown menu without select...
             app.ModeDropDown.Items = {'Password', 'Hash'};
             app.ModeDropDown.Value;
+            evalStartBF(app);
         end
 
         % Button pushed function: StartButton
