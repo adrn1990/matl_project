@@ -136,4 +136,7 @@ function updateParFor(x,Obj)
 X= 100*Obj.AmountOfCalls*1000/Obj.Iterations;
 Obj.fWriteStatus([sprintf('Your current progress in BruteForcing is: %0.4f',X),'%']);
 Obj.AmountOfCalls= Obj.AmountOfCalls+1;
+
+displayData(Obj);
+
 end

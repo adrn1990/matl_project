@@ -23,27 +23,43 @@
 %==========================================================================
 
 function [Obj] = displayData(Obj)
-time = 1 + Obj.PrevTime;
-value = 0;
 
-area(value, 'LineWidth', 1,...
-    'FaceColor', 'red',...
-    'FaceAlpha', 0.7,...
-    'AlignVertexCenters', 'on');
+%Get CPU data
+CpuData = getCpuData;
+% Obj.CpuLoadOutput.Value = Obj.CpuData.avgCpuLoad;
+% Obj.CpuTemperatureOutput.Value = Obj.CpuData.currCpuTemp;
 
-value(end+1) = str2double(Obj.cpuData.avgCpuLoad);
-time(end+1) = time(end)+1;
+%Get GPU data
+% GpuData = getGpuData;
+% Obj.GpuLoadOutput.Value = Obj.GpuData.avgGpuLoad;
+% Obj.GpuTemperatureOutput.Value = Obj.GpuData.currGpuTemp;
+
+%FIXME: area() function does not work
+% area(Obj.UIAxes_cpu.Children.YData, 'LineWidth', 1,...
+%     'FaceColor', 'red',...
+%     'FaceAlpha', 0.7,...
+%     'AlignVertexCenters', 'on');
+
+%Convert values into double and write in array
+Obj.CpuValue(end) = str2double(CpuData.avgCpuLoad);
+% Obj.GpuValue(end+1) = str2double(GpuData.avgGpuLoad);
+
    
-%Write data in axis object
-Obj.UIAxes_cpu.Children.YData = value;
-Obj.UIAxes_cpu.Children.XData= time;
+%Write data in CPUaxis object
+Obj.UIAxes_cpu.Children.YData = Obj.CpuValue;
+Obj.UIAxes_cpu.Children.XData= Obj.time;
 
-%Set old value
-Obj.PrevTime = time(end+1);
+%Write data in GPUaxis object
+% Obj.UIAxes_gpu.Children.YData = Obj.GpuValue;
+% Obj.UIAxes_gpu.Children.XData= Obj.time;
 
+%Prepare next index
+Obj.time(end+1) = Obj.time(end)+1;
+Obj.CpuValue(end+1) = 0;
 %Set Timer to first element
-if time(end) == 61
-    Obj.PrevTime = 0;
+if Obj.time(end) == 61
+    Obj.time(1) = 0; %FIXME: correct statement
+    Obj.CpuValue(1) = 0;
 end
 
 end

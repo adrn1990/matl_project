@@ -56,7 +56,10 @@ classdef userInterface_script < matlab.apps.AppBase
         cpuData;
         gpuInfo;
         gpuData;
-        PrevTime = 0;
+        %For displayData()
+        CpuValue = 0;
+        GpuValue = 0;
+        time = 0;
         
         %This property safes the allready found passwords and hashes.
         Improvements;
