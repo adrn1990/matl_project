@@ -34,14 +34,11 @@ classdef userInterface_script < matlab.apps.AppBase
         CoresDropDown              matlab.ui.control.DropDown
         AdvancedsettingsLabel      matlab.ui.control.Label
         EvaluateButton             matlab.ui.control.Button
-        TabGroup                   matlab.ui.container.TabGroup
-        CPUTab                     matlab.ui.container.Tab
-        UIAxes_cpu                 matlab.ui.control.UIAxes
-        GPUTab                     matlab.ui.container.Tab
-        UIAxes_gpu                 matlab.ui.control.UIAxes
         StatusTextAreaLabel        matlab.ui.control.Label
         StatusOutput               matlab.ui.control.TextArea
         WarningBox                 matlab.ui.control.TextArea
+        UIAxes_cpu                 matlab.ui.control.UIAxes
+        UIAxes_gpu                 matlab.ui.control.UIAxes
     end
 
     properties (Access = public)
@@ -355,7 +352,7 @@ classdef userInterface_script < matlab.apps.AppBase
                 
                 %displayData(app);
                 
-                
+
                 
             else
                 app.CoresDropDown.Items = {'1'};
@@ -677,48 +674,6 @@ classdef userInterface_script < matlab.apps.AppBase
             app.EvaluateButton.Position = [73 816 423 45];
             app.EvaluateButton.Text = 'Evaluate System';
 
-            % Create TabGroup
-            app.TabGroup = uitabgroup(app.BruteForceToolUIFigure);
-            app.TabGroup.Position = [567 431 700 430];
-
-            % Create CPUTab
-            app.CPUTab = uitab(app.TabGroup);
-            app.CPUTab.Title = 'CPU';
-            app.CPUTab.BackgroundColor = [0.9412 0.9412 0.9412];
-
-            % Create UIAxes_cpu
-            app.UIAxes_cpu = uiaxes(app.CPUTab);
-            title(app.UIAxes_cpu, 'CPU Average Load')
-            ylabel(app.UIAxes_cpu, '%')
-            app.UIAxes_cpu.XLim = [0 60];
-            app.UIAxes_cpu.YLim = [0 100];
-            app.UIAxes_cpu.XDir = 'reverse';
-            app.UIAxes_cpu.Box = 'on';
-            app.UIAxes_cpu.XTick = [0 20 40 60];
-            app.UIAxes_cpu.YTick = [0 25 50 75 100];
-            app.UIAxes_cpu.XGrid = 'on';
-            app.UIAxes_cpu.YGrid = 'on';
-            app.UIAxes_cpu.Position = [27 30 639 346];
-
-            % Create GPUTab
-            app.GPUTab = uitab(app.TabGroup);
-            app.GPUTab.Title = 'GPU';
-            app.GPUTab.BackgroundColor = [0.9412 0.9412 0.9412];
-
-            % Create UIAxes_gpu
-            app.UIAxes_gpu = uiaxes(app.GPUTab);
-            title(app.UIAxes_gpu, 'GPU Average Load')
-            ylabel(app.UIAxes_gpu, '%')
-            app.UIAxes_gpu.XLim = [0 60];
-            app.UIAxes_gpu.YLim = [0 100];
-            app.UIAxes_gpu.XDir = 'reverse';
-            app.UIAxes_gpu.Box = 'on';
-            app.UIAxes_gpu.XTick = [0 20 40 60];
-            app.UIAxes_gpu.YTick = [0 25 50 75 100];
-            app.UIAxes_gpu.XGrid = 'on';
-            app.UIAxes_gpu.YGrid = 'on';
-            app.UIAxes_gpu.Position = [24 30 642 341];
-
             % Create StatusTextAreaLabel
             app.StatusTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
             app.StatusTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
@@ -739,6 +694,34 @@ classdef userInterface_script < matlab.apps.AppBase
             app.WarningBox.BackgroundColor = [0.9412 0.9412 0.9412];
             app.WarningBox.Position = [332 669 164 35];
             app.WarningBox.Value = {'Password length  is limited to 8 and chars ''0-9'', ''A-Z'', ''a-z'' are allowed'};
+
+            % Create UIAxes_cpu
+            app.UIAxes_cpu = uiaxes(app.BruteForceToolUIFigure);
+            title(app.UIAxes_cpu, 'CPU Average Load')
+            ylabel(app.UIAxes_cpu, '%')
+            app.UIAxes_cpu.XLim = [0 60];
+            app.UIAxes_cpu.YLim = [0 100];
+            app.UIAxes_cpu.XDir = 'reverse';
+            app.UIAxes_cpu.Box = 'on';
+            app.UIAxes_cpu.XTick = [0 20 40 60];
+            app.UIAxes_cpu.YTick = [0 25 50 75 100];
+            app.UIAxes_cpu.XGrid = 'on';
+            app.UIAxes_cpu.YGrid = 'on';
+            app.UIAxes_cpu.Position = [600 631 639 228];
+
+            % Create UIAxes_gpu
+            app.UIAxes_gpu = uiaxes(app.BruteForceToolUIFigure);
+            title(app.UIAxes_gpu, 'GPU Average Load')
+            ylabel(app.UIAxes_gpu, '%')
+            app.UIAxes_gpu.XLim = [0 60];
+            app.UIAxes_gpu.YLim = [0 100];
+            app.UIAxes_gpu.XDir = 'reverse';
+            app.UIAxes_gpu.Box = 'on';
+            app.UIAxes_gpu.XTick = [0 20 40 60];
+            app.UIAxes_gpu.YTick = [0 25 50 75 100];
+            app.UIAxes_gpu.XGrid = 'on';
+            app.UIAxes_gpu.YGrid = 'on';
+            app.UIAxes_gpu.Position = [599 406 642 226];
         end
     end
 
