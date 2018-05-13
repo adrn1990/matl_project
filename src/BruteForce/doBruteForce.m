@@ -32,19 +32,15 @@ Improvements= Obj.Improvements;
 [Length,~]= size(Improvements);
 FoundByImprovement= false;
 Method= Obj.HashStruct.Method;
+Array= Obj.AllowedChars;
 
 %The number of iterations to find a password is now for 1 to 3 digits
 Obj.Iterations = NbrOfChars^3+NbrOfChars^2+NbrOfChars;
 Iterations= Obj.Iterations;
 
+%Create a logical variable for the rainbowtable strategy
 RainbowStrat= strcmp(Obj.RainbowtableDropDown.Value,'Yes');
 
-%To generate the following cell-array as specified us the commented part in
-%the command window.
-%Arr= {char(48:57),char(65:90),char(97:122)} %0-9, A-Z, a-z 48-57, 65-90, 97-122
-%horzcat(Arr{:})
-
-Array= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
 %Options for function DataHash
 Opt= Obj.HashStruct;
