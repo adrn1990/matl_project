@@ -166,6 +166,10 @@ classdef userInterface_script < matlab.apps.AppBase
             %call init function
             app = initApp(app);
             
+            %set the object plot as children to the axis
+            plot([0],[0],'Parent',app.UIAxes_cpu);
+            plot([0],[0],'Parent',app.UIAxes_gpu);
+            
             app.InputEditField.FontAngle = 'italic';
             app.StartButton.Enable = 'off';
             app.NewrunMenu.Enable = 'off';
@@ -707,7 +711,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.UIAxes_cpu.YTick = [0 25 50 75 100];
             app.UIAxes_cpu.XGrid = 'on';
             app.UIAxes_cpu.YGrid = 'on';
-            app.UIAxes_cpu.Position = [600 631 639 228];
+            app.UIAxes_cpu.Position = [600 631 639 228];            
 
             % Create UIAxes_gpu
             app.UIAxes_gpu = uiaxes(app.BruteForceToolUIFigure);
