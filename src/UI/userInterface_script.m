@@ -55,11 +55,11 @@ classdef userInterface_script < matlab.apps.AppBase
         gpuData;
         PrevTime = 0;
         
-        %This property safes the allready found passwords and hashes. 
-        Improvements; 
-         
-        %This property safes the name of the file with the allready found passwords and hashes 
-        FileName; 
+        %This property safes the allready found passwords and hashes.
+        Improvements;
+        
+        %This property safes the name of the file with the allready found passwords and hashes
+        FileName;
         
         %This property safes all folders of the path
         Folders;
@@ -72,7 +72,7 @@ classdef userInterface_script < matlab.apps.AppBase
         
         %This property safes the number of chars for the password
         %0-9, A-Z, a-z
-        NbrOfChars= 62;      
+        NbrOfChars= 62;
         
         %This property is to calculate the progress
         AmountOfCalls;
@@ -83,6 +83,13 @@ classdef userInterface_script < matlab.apps.AppBase
         
         %This property safes the Hash of the given data
         Hash;
+        
+        %The following property saves the allowed chars for the password
+        %To generate the following cell-array as specified us the commented part in
+        %the command window.
+        %Arr= {char(48:57),char(65:90),char(97:122)} %0-9, A-Z, a-z 48-57, 65-90, 97-122
+        %horzcat(Arr{:})
+        AllowedChars= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
         
         %This struct safes the properties for the function DataHash
         HashStruct= struct('Method','','Format','HEX','Input','ascii');
@@ -96,7 +103,7 @@ classdef userInterface_script < matlab.apps.AppBase
         end
         
     end
-
+    
     methods (Access = public)
         
         function fWriteStatus(app,message)
@@ -105,6 +112,21 @@ classdef userInterface_script < matlab.apps.AppBase
         
     end
     
+    methods (Access = private)
+        %this function evaluates the used chars for the password or hash
+        %and returns true if they are valid
+        function IsValid = evalChars(app,Char)
+            IsValid= isempty(regexp(Char,sprintf('[^%s]',app.AllowedChars), 'once'));
+        end
+        
+        function results = evalStartBF(app)
+            if app.evaluateDone
+            end
+        end
+        
+    end
+    
+
     methods (Access = private)
 
         % Code that executes after component creation
@@ -222,7 +244,7 @@ classdef userInterface_script < matlab.apps.AppBase
                 %Setting up parallel processing
                 try
                     fWriteMessageBuffer(app, 'Starting up parallel processing...');
-                    %TODO: choose a cluster from dropdown. 
+                    %TODO: choose a cluster from dropdown.
                     pool =parpool('local');
                     
                     if pool.Connected == true
@@ -298,7 +320,7 @@ classdef userInterface_script < matlab.apps.AppBase
                 
                 %FIXME: Test for data visualisation-------------------------
                 
-               %displayData(app);
+                %displayData(app);
                 
                 
                 
@@ -317,11 +339,12 @@ classdef userInterface_script < matlab.apps.AppBase
             value = event.Value;
             strVal = convertCharsToStrings(value);
             valLenth = strlength(strVal);
-            %TODO: check event value for not allowed chars
-            if valLenth > app.MaxPwLength
+            if valLenth > app.MaxPwLength || ~evalChars(app,value)
                 app.WarningBox.Visible = 'on';
+                app.InputEditField.BackgroundColor= 'red';
             else
                 app.WarningBox.Visible = 'off';
+                app.InputEditField.BackgroundColor= 'white';
             end
         end
 
