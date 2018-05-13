@@ -24,10 +24,10 @@ classdef userInterface_script < matlab.apps.AppBase
         RainbowtableDropDown       matlab.ui.control.DropDown
         RessourceDropDownLabel     matlab.ui.control.Label
         RessourceDropDown          matlab.ui.control.DropDown
-        CPUGPUTempCTextAreaLabel   matlab.ui.control.Label
-        TemperatureOutput          matlab.ui.control.TextArea
-        CPUGPULoadLabel            matlab.ui.control.Label
-        LoadOutput                 matlab.ui.control.TextArea
+        CPUTempCLabel              matlab.ui.control.Label
+        CpuTemperatureOutput       matlab.ui.control.TextArea
+        CPULoadLabel               matlab.ui.control.Label
+        CpuLoadOutput              matlab.ui.control.TextArea
         ResultTextAreaLabel        matlab.ui.control.Label
         ResultOutput               matlab.ui.control.TextArea
         CoresDropDownLabel         matlab.ui.control.Label
@@ -39,6 +39,12 @@ classdef userInterface_script < matlab.apps.AppBase
         WarningBox                 matlab.ui.control.TextArea
         UIAxes_cpu                 matlab.ui.control.UIAxes
         UIAxes_gpu                 matlab.ui.control.UIAxes
+        GPULoadLabel               matlab.ui.control.Label
+        GpuLoadOutput              matlab.ui.control.TextArea
+        GPUTempCLabel              matlab.ui.control.Label
+        GpuTemperatureOutput       matlab.ui.control.TextArea
+        ClusterDropDownLabel       matlab.ui.control.Label
+        ClusterDropDown            matlab.ui.control.DropDown
     end
 
     properties (Access = public)
@@ -143,11 +149,11 @@ classdef userInterface_script < matlab.apps.AppBase
             
             %check if the mode to decrypt is set
             ModeValidity= ~strcmp(app.ModeDropDown.Value,'Select...');
-
-            %check if the mode to decrypt is set
-            RainbowValidity= ~strcmp(app.RainbowtableDropDown.Value,'Select...');            
             
-            %if all checks are true, the StartButton can be enabled. 
+            %check if the mode to decrypt is set
+            RainbowValidity= ~strcmp(app.RainbowtableDropDown.Value,'Select...');
+            
+            %if all checks are true, the StartButton can be enabled.
             if app.evaluateDone && InputValidity && ModeValidity && CharValidity && EncryptValidity && RainbowValidity
                 app.StartButton.Enable = 'on';
             else
@@ -239,39 +245,42 @@ classdef userInterface_script < matlab.apps.AppBase
                 end
                 
                 %Get CPU data
-                %FIXME: Write cpu data struct if RessourceDropDown = cpu
                 if ispc
                     fWriteMessageBuffer(app, 'Getting CPU data...');
                     app.cpuData = getCpuData;
+                    app.CpuLoadOutput.Value = app.cpuData.avgCpuLoad;
+                    app.CpuTemperatureOutput.Value = app.cpuData.currCpuTemp;
                     fWriteMessageBuffer(app, 'CPU data recieved');
                     fWriteMessageBuffer(app, app.delemiter);
                     
                     if gpuDeviceCount > 0
                         fWriteMessageBuffer(app, 'Getting GPU data...');
                         app.gpuData = getGpuData;
+                        app.GpuLoadOutput.Value = app.gpuData.avgGpuLoad;
+                        app.GpuTemperatureOutput.Value = app.gpuData.currGpuTemp;
                         fWriteMessageBuffer(app, 'GPU data recieved');
                         fWriteMessageBuffer(app, app.delemiter);
                     end
                 end
                 
                 %Set maximum cores (for better graph visuality)
-                if app.cpuInfo.NumProcessors > 4
-                    app.cpuInfo.NumProcessors = 4;
-                end
+%                 if app.cpuInfo.NumProcessors > 4
+%                     app.cpuInfo.NumProcessors = 4;
+%                 end
                 %Set value for "CPU cores" DropDown
-                switch app.cpuInfo.NumProcessors
-                    case 1
-                        app.CoresDropDown.Items = {'1'};
-                    case 2
-                        app.CoresDropDown.Items = {'1', '2'};
-                    case 3
-                        app.CoresDropDown.Items = {'1', '2', '3'};
-                    case 4
-                        app.CoresDropDown.Items = {'1', '2', '3', '4'};
-                end
+%                 switch app.cpuInfo.NumProcessors
+%                     case 1
+%                         app.CoresDropDown.Items = {'1'};
+%                     case 2
+%                         app.CoresDropDown.Items = {'1', '2'};
+%                     case 3
+%                         app.CoresDropDown.Items = {'1', '2', '3'};
+%                     case 4
+%                         app.CoresDropDown.Items = {'1', '2', '3', '4'};
+%                 end
                 app.NewrunMenu.Enable = 'on';
-                app.RessourceDropDown.Enable = 'on';
-                app.CoresDropDown.Enable = 'on';
+%                 app.RessourceDropDown.Enable = 'on';
+%                 app.CoresDropDown.Enable = 'on';
                 app.EvaluateButton.Enable = 'off';
                 
                 %Setting up parallel processing
@@ -330,42 +339,42 @@ classdef userInterface_script < matlab.apps.AppBase
         % Value changed function: RessourceDropDown
         function RessourceDropDownValueChanged(app, event)
             value = app.RessourceDropDown.Value;
-            
-            %Set items for Dropdown menu without select...
-            app.RessourceDropDown.Items = {'CPU', 'GPU'};
-            
-            %Set items dynamically
-            if value == 'CPU'
-                switch app.cpuInfo.NumProcessors
-                    case 1
-                        app.CoresDropDown.Items = {'1'};
-                    case 2
-                        app.CoresDropDown.Items = {'1', '2'};
-                    case 3
-                        app.CoresDropDown.Items = {'1', '2', '3'};
-                    case 4
-                        app.CoresDropDown.Items = {'1', '2', '3', '4'};
-                end
-                app.CoresDropDown.Enable = 'on';
-                app.UIAxes_gpu.Visible = 'off';
-                app.UIAxes_cpu.Visible = 'on';
-                app.TemperatureOutput.Value = app.cpuData.currCpuTemp;
-                app.LoadOutput.Value = app.cpuData.avgCpuLoad;
-                
-                %FIXME: Test for data visualisation-------------------------
-                
-                %displayData(app);
-                
-
-                
-            else
-                app.CoresDropDown.Items = {'1'};
-                app.CoresDropDown.Enable = 'off';
-                app.UIAxes_gpu.Visible = 'on';
-                app.UIAxes_cpu.Visible = 'off';
-                app.TemperatureOutput.Value = app.gpuData.currGpuTemp;
-                app.LoadOutput.Value = app.gpuData.avgGpuLoad; 
-            end
+%             
+%             %Set items for Dropdown menu without select...
+%             app.RessourceDropDown.Items = {'CPU', 'GPU'};
+%             
+%             %Set items dynamically
+%             if value == 'CPU'
+%                 switch app.cpuInfo.NumProcessors
+%                     case 1
+%                         app.CoresDropDown.Items = {'1'};
+%                     case 2
+%                         app.CoresDropDown.Items = {'1', '2'};
+%                     case 3
+%                         app.CoresDropDown.Items = {'1', '2', '3'};
+%                     case 4
+%                         app.CoresDropDown.Items = {'1', '2', '3', '4'};
+%                 end
+%                 app.CoresDropDown.Enable = 'on';
+%                 app.UIAxes_gpu.Visible = 'off';
+%                 app.UIAxes_cpu.Visible = 'on';
+%                 app.CpuTemperatureOutput.Value = app.cpuData.currCpuTemp;
+%                 app.CpuLoadOutput.Value = app.cpuData.avgCpuLoad;
+%                 
+%                 %FIXME: Test for data visualisation-------------------------
+%                 
+%                 %displayData(app);
+%                 
+%                 
+%                 
+%             else
+%                 app.CoresDropDown.Items = {'1'};
+%                 app.CoresDropDown.Enable = 'off';
+%                 app.UIAxes_gpu.Visible = 'on';
+%                 app.UIAxes_cpu.Visible = 'off';
+%                 app.CpuTemperatureOutput.Value = app.gpuData.currGpuTemp;
+%                 app.CpuLoadOutput.Value = app.gpuData.avgGpuLoad;
+%             end
         end
 
         % Value changing function: InputEditField
@@ -597,41 +606,41 @@ classdef userInterface_script < matlab.apps.AppBase
             % Create RessourceDropDownLabel
             app.RessourceDropDownLabel = uilabel(app.BruteForceToolUIFigure);
             app.RessourceDropDownLabel.HorizontalAlignment = 'right';
-            app.RessourceDropDownLabel.Position = [65 465 63 15];
+            app.RessourceDropDownLabel.Position = [65 432 63 15];
             app.RessourceDropDownLabel.Text = 'Ressource';
 
             % Create RessourceDropDown
             app.RessourceDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.RessourceDropDown.Items = {'Select...', 'CPU', 'GPU'};
             app.RessourceDropDown.ValueChangedFcn = createCallbackFcn(app, @RessourceDropDownValueChanged, true);
-            app.RessourceDropDown.Position = [221 461 76 22];
+            app.RessourceDropDown.Position = [221 428 76 22];
             app.RessourceDropDown.Value = 'Select...';
 
-            % Create CPUGPUTempCTextAreaLabel
-            app.CPUGPUTempCTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
-            app.CPUGPUTempCTextAreaLabel.HorizontalAlignment = 'right';
-            app.CPUGPUTempCTextAreaLabel.Position = [963 345 126 15];
-            app.CPUGPUTempCTextAreaLabel.Text = 'CPU / GPU Temp. [°C]';
+            % Create CPUTempCLabel
+            app.CPUTempCLabel = uilabel(app.BruteForceToolUIFigure);
+            app.CPUTempCLabel.HorizontalAlignment = 'right';
+            app.CPUTempCLabel.Position = [999 345 90 15];
+            app.CPUTempCLabel.Text = 'CPU Temp. [°C]';
 
-            % Create TemperatureOutput
-            app.TemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
-            app.TemperatureOutput.Editable = 'off';
-            app.TemperatureOutput.HorizontalAlignment = 'center';
-            app.TemperatureOutput.FontSize = 14;
-            app.TemperatureOutput.Position = [1127 338 92 28];
+            % Create CpuTemperatureOutput
+            app.CpuTemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
+            app.CpuTemperatureOutput.Editable = 'off';
+            app.CpuTemperatureOutput.HorizontalAlignment = 'center';
+            app.CpuTemperatureOutput.FontSize = 14;
+            app.CpuTemperatureOutput.Position = [1127 338 92 28];
 
-            % Create CPUGPULoadLabel
-            app.CPUGPULoadLabel = uilabel(app.BruteForceToolUIFigure);
-            app.CPUGPULoadLabel.HorizontalAlignment = 'right';
-            app.CPUGPULoadLabel.Position = [567 345 118 15];
-            app.CPUGPULoadLabel.Text = 'CPU / GPU Load [%]';
+            % Create CPULoadLabel
+            app.CPULoadLabel = uilabel(app.BruteForceToolUIFigure);
+            app.CPULoadLabel.HorizontalAlignment = 'right';
+            app.CPULoadLabel.Position = [661 345 82 15];
+            app.CPULoadLabel.Text = 'CPU Load [%]';
 
-            % Create LoadOutput
-            app.LoadOutput = uitextarea(app.BruteForceToolUIFigure);
-            app.LoadOutput.Editable = 'off';
-            app.LoadOutput.HorizontalAlignment = 'center';
-            app.LoadOutput.FontSize = 14;
-            app.LoadOutput.Position = [731 338 92 28];
+            % Create CpuLoadOutput
+            app.CpuLoadOutput = uitextarea(app.BruteForceToolUIFigure);
+            app.CpuLoadOutput.Editable = 'off';
+            app.CpuLoadOutput.HorizontalAlignment = 'center';
+            app.CpuLoadOutput.FontSize = 14;
+            app.CpuLoadOutput.Position = [789 338 92 28];
 
             % Create ResultTextAreaLabel
             app.ResultTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
@@ -651,14 +660,14 @@ classdef userInterface_script < matlab.apps.AppBase
             % Create CoresDropDownLabel
             app.CoresDropDownLabel = uilabel(app.BruteForceToolUIFigure);
             app.CoresDropDownLabel.HorizontalAlignment = 'right';
-            app.CoresDropDownLabel.Position = [332 465 38 15];
+            app.CoresDropDownLabel.Position = [332 432 38 15];
             app.CoresDropDownLabel.Text = 'Cores';
 
             % Create CoresDropDown
             app.CoresDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.CoresDropDown.Items = {};
             app.CoresDropDown.ValueChangedFcn = createCallbackFcn(app, @CoresDropDownValueChanged, true);
-            app.CoresDropDown.Position = [412 461 84 22];
+            app.CoresDropDown.Position = [412 428 84 22];
             app.CoresDropDown.Value = {};
 
             % Create AdvancedsettingsLabel
@@ -711,7 +720,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.UIAxes_cpu.YTick = [0 25 50 75 100];
             app.UIAxes_cpu.XGrid = 'on';
             app.UIAxes_cpu.YGrid = 'on';
-            app.UIAxes_cpu.Position = [600 631 639 228];            
+            app.UIAxes_cpu.Position = [600 631 639 228];
 
             % Create UIAxes_gpu
             app.UIAxes_gpu = uiaxes(app.BruteForceToolUIFigure);
@@ -726,6 +735,43 @@ classdef userInterface_script < matlab.apps.AppBase
             app.UIAxes_gpu.XGrid = 'on';
             app.UIAxes_gpu.YGrid = 'on';
             app.UIAxes_gpu.Position = [599 406 642 226];
+
+            % Create GPULoadLabel
+            app.GPULoadLabel = uilabel(app.BruteForceToolUIFigure);
+            app.GPULoadLabel.HorizontalAlignment = 'right';
+            app.GPULoadLabel.Position = [661 304 82 15];
+            app.GPULoadLabel.Text = 'GPU Load [%]';
+
+            % Create GpuLoadOutput
+            app.GpuLoadOutput = uitextarea(app.BruteForceToolUIFigure);
+            app.GpuLoadOutput.Editable = 'off';
+            app.GpuLoadOutput.HorizontalAlignment = 'center';
+            app.GpuLoadOutput.FontSize = 14;
+            app.GpuLoadOutput.Position = [789 297 92 28];
+
+            % Create GPUTempCLabel
+            app.GPUTempCLabel = uilabel(app.BruteForceToolUIFigure);
+            app.GPUTempCLabel.HorizontalAlignment = 'right';
+            app.GPUTempCLabel.Position = [998 304 91 15];
+            app.GPUTempCLabel.Text = 'GPU Temp. [°C]';
+
+            % Create GpuTemperatureOutput
+            app.GpuTemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
+            app.GpuTemperatureOutput.Editable = 'off';
+            app.GpuTemperatureOutput.HorizontalAlignment = 'center';
+            app.GpuTemperatureOutput.FontSize = 14;
+            app.GpuTemperatureOutput.Position = [1127 297 92 28];
+
+            % Create ClusterDropDownLabel
+            app.ClusterDropDownLabel = uilabel(app.BruteForceToolUIFigure);
+            app.ClusterDropDownLabel.Position = [73 481 55 15];
+            app.ClusterDropDownLabel.Text = 'Cluster';
+
+            % Create ClusterDropDown
+            app.ClusterDropDown = uidropdown(app.BruteForceToolUIFigure);
+            app.ClusterDropDown.Items = {};
+            app.ClusterDropDown.Position = [332 477 164 22];
+            app.ClusterDropDown.Value = {};
         end
     end
 
