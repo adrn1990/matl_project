@@ -13,8 +13,8 @@ src/test_dll\.m
 
 *.mat
 
-src/Files/FoundHashes\.mat
+src/Files/Improvements.mat
 
-src/Files/
+src\Files\Improvements.mat
 
 src/Untitled\.m
