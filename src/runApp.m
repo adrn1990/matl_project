@@ -24,6 +24,7 @@
 
 %==========================================================================
 %<Version 1.0> - 13.05.2018 - First version of the script.
+%<Version 1.1> - 14.05.2018 - License check for Parallel Computing Toolbox
 %==========================================================================
 
 %Check if the user's computer is a pc
@@ -68,8 +69,22 @@ if ~isstudent
         'Operating System Warning','warn'));
 end
 
+%Check if the paralleling toolbox is installed and licensed. Throw an
+%exception if not.
+Struct= ver('distcomp');
+IsInstalled= strcmp(Struct.Name,'Parallel Computing Toolbox');
+
+IsLicensed= license('test','Distrib_Computing_Toolbox');
+
+if ~IsInstalled || ~IsLicensed
+    msg = 'The Parallel Computing Toolbox has to be installed and licensed to use this software!';
+    uiwait(msgbox(msg,'Parallel Computing Toolbox','error'));
+    VerException = MException('',msg);
+    throw(VerException);
+end
+
 addpath([pwd,Slash,'UI']);
-clear Slash
+clear Slash msg VerException
 
 %==============================Calling the GUI=============================
 userInterface_script;
