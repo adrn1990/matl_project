@@ -26,13 +26,13 @@ function [Obj] = displayData(Obj)
 
 %Get CPU data
 CpuData = getCpuData;
-% Obj.CpuLoadOutput.Value = Obj.CpuData.avgCpuLoad;
-% Obj.CpuTemperatureOutput.Value = Obj.CpuData.currCpuTemp;
+Obj.CpuLoadOutput.Value = CpuData.avgCpuLoad;
+Obj.CpuTemperatureOutput.Value = CpuData.currCpuTemp;
 
 %Get GPU data
 GpuData = getGpuData;
-% Obj.GpuLoadOutput.Value = Obj.GpuData.avgGpuLoad;
-% Obj.GpuTemperatureOutput.Value = Obj.GpuData.currGpuTemp;
+Obj.GpuLoadOutput.Value = GpuData.avgGpuLoad;
+Obj.GpuTemperatureOutput.Value = GpuData.currGpuTemp;
 
 Obj.CpuValue(1) = str2double(CpuData.avgCpuLoad);
 Obj.GpuValue(1) = str2double(GpuData.avgGpuLoad);

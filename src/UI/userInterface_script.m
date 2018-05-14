@@ -2,49 +2,44 @@ classdef userInterface_script < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
-        BruteForceToolUIFigure     matlab.ui.Figure
-        FileMenu                   matlab.ui.container.Menu
-        NewrunMenu                 matlab.ui.container.Menu
-        SaveMenu                   matlab.ui.container.Menu
-        ExportMenu                 matlab.ui.container.Menu
-        ExitMenu                   matlab.ui.container.Menu
-        InfoMenu                   matlab.ui.container.Menu
-        AboutMenu                  matlab.ui.container.Menu
-        BruteforceToolLabel        matlab.ui.control.Label
-        InputPasswordHashLabel     matlab.ui.control.Label
-        InputEditField             matlab.ui.control.EditField
-        StartButton                matlab.ui.control.Button
-        LogMonitorTextAreaLabel    matlab.ui.control.Label
-        LogMonitorOutput           matlab.ui.control.TextArea
-        ModeTodecryptLabel         matlab.ui.control.Label
-        ModeDropDown               matlab.ui.control.DropDown
+        BruteForceToolUIFigure   matlab.ui.Figure
+        FileMenu                 matlab.ui.container.Menu
+        NewrunMenu               matlab.ui.container.Menu
+        SaveMenu                 matlab.ui.container.Menu
+        ExportMenu               matlab.ui.container.Menu
+        ExitMenu                 matlab.ui.container.Menu
+        InfoMenu                 matlab.ui.container.Menu
+        AboutMenu                matlab.ui.container.Menu
+        BruteforceToolLabel      matlab.ui.control.Label
+        InputPasswordHashLabel   matlab.ui.control.Label
+        InputEditField           matlab.ui.control.EditField
+        StartButton              matlab.ui.control.Button
+        LogMonitorTextAreaLabel  matlab.ui.control.Label
+        LogMonitorOutput         matlab.ui.control.TextArea
+        ModeTodecryptLabel       matlab.ui.control.Label
+        ModeDropDown             matlab.ui.control.DropDown
         EncryptionAlgorithmDropDownLabel  matlab.ui.control.Label
-        EncryptionDropDown         matlab.ui.control.DropDown
-        RainbowtableDropDownLabel  matlab.ui.control.Label
-        RainbowtableDropDown       matlab.ui.control.DropDown
-        RessourceDropDownLabel     matlab.ui.control.Label
-        RessourceDropDown          matlab.ui.control.DropDown
-        CPUTempCLabel              matlab.ui.control.Label
-        CpuTemperatureOutput       matlab.ui.control.TextArea
-        CPULoadLabel               matlab.ui.control.Label
-        CpuLoadOutput              matlab.ui.control.TextArea
-        ResultTextAreaLabel        matlab.ui.control.Label
-        ResultOutput               matlab.ui.control.TextArea
-        CoresDropDownLabel         matlab.ui.control.Label
-        CoresDropDown              matlab.ui.control.DropDown
-        AdvancedsettingsLabel      matlab.ui.control.Label
-        EvaluateButton             matlab.ui.control.Button
-        StatusTextAreaLabel        matlab.ui.control.Label
-        StatusOutput               matlab.ui.control.TextArea
-        WarningBox                 matlab.ui.control.TextArea
-        UIAxes_cpu                 matlab.ui.control.UIAxes
-        UIAxes_gpu                 matlab.ui.control.UIAxes
-        GPULoadLabel               matlab.ui.control.Label
-        GpuLoadOutput              matlab.ui.control.TextArea
-        GPUTempCLabel              matlab.ui.control.Label
-        GpuTemperatureOutput       matlab.ui.control.TextArea
-        ClusterDropDownLabel       matlab.ui.control.Label
-        ClusterDropDown            matlab.ui.control.DropDown
+        EncryptionDropDown       matlab.ui.control.DropDown
+        CPUTempCLabel            matlab.ui.control.Label
+        CpuTemperatureOutput     matlab.ui.control.TextArea
+        CPULoadLabel             matlab.ui.control.Label
+        CpuLoadOutput            matlab.ui.control.TextArea
+        ResultTextAreaLabel      matlab.ui.control.Label
+        ResultOutput             matlab.ui.control.TextArea
+        AdvancedsettingsLabel    matlab.ui.control.Label
+        EvaluateButton           matlab.ui.control.Button
+        StatusTextAreaLabel      matlab.ui.control.Label
+        StatusOutput             matlab.ui.control.TextArea
+        WarningBox               matlab.ui.control.TextArea
+        UIAxes_cpu               matlab.ui.control.UIAxes
+        UIAxes_gpu               matlab.ui.control.UIAxes
+        GPULoadLabel             matlab.ui.control.Label
+        GpuLoadOutput            matlab.ui.control.TextArea
+        GPUTempCLabel            matlab.ui.control.Label
+        GpuTemperatureOutput     matlab.ui.control.TextArea
+        ClusterDropDownLabel     matlab.ui.control.Label
+        ClusterDropDown          matlab.ui.control.DropDown
+        AbortButton              matlab.ui.control.Button
     end
 
     properties (Access = public)
@@ -154,11 +149,8 @@ classdef userInterface_script < matlab.apps.AppBase
             %check if the mode to decrypt is set
             ModeValidity= ~strcmp(app.ModeDropDown.Value,'Select...');
             
-            %check if the mode to decrypt is set
-            RainbowValidity= ~strcmp(app.RainbowtableDropDown.Value,'Select...');
-            
             %if all checks are true, the StartButton can be enabled.
-            if app.evaluateDone && InputValidity && ModeValidity && CharValidity && EncryptValidity && RainbowValidity
+            if app.evaluateDone && InputValidity && ModeValidity && CharValidity && EncryptValidity 
                 app.StartButton.Enable = 'on';
             else
                 app.StartButton.Enable = 'off';
@@ -177,20 +169,18 @@ classdef userInterface_script < matlab.apps.AppBase
             app = initApp(app);
             
             %set the object plot as children to the axis
-            area(0,0,'Parent',app.UIAxes_cpu,'LineWidth', 1,...
+            area(0,0,'Parent',app.UIAxes_cpu,'LineWidth', 0.75,...
                 'FaceColor', 'red',...
-                'FaceAlpha', 0.7,...
+                'FaceAlpha', 0.4,...
                 'AlignVertexCenters', 'on');
-            area(0,0,'Parent',app.UIAxes_gpu,'LineWidth', 1,...
-                'FaceColor', 'green',...
-                'FaceAlpha', 0.7,...
+            area(0,0,'Parent',app.UIAxes_gpu,'LineWidth', 0.75,...
+                'FaceColor', 'red',...
+                'FaceAlpha', 0.4,...
                 'AlignVertexCenters', 'on');
             
             app.InputEditField.FontAngle = 'italic';
             app.StartButton.Enable = 'off';
             app.NewrunMenu.Enable = 'off';
-            app.RessourceDropDown.Enable = 'off';
-            app.CoresDropDown.Enable = 'off';
             app.WarningBox.Visible = 'off';
         end
 
@@ -272,25 +262,7 @@ classdef userInterface_script < matlab.apps.AppBase
                         fWriteMessageBuffer(app, app.delemiter);
                     end
                 end
-                
-                %Set maximum cores (for better graph visuality)
-%                 if app.cpuInfo.NumProcessors > 4
-%                     app.cpuInfo.NumProcessors = 4;
-%                 end
-                %Set value for "CPU cores" DropDown
-%                 switch app.cpuInfo.NumProcessors
-%                     case 1
-%                         app.CoresDropDown.Items = {'1'};
-%                     case 2
-%                         app.CoresDropDown.Items = {'1', '2'};
-%                     case 3
-%                         app.CoresDropDown.Items = {'1', '2', '3'};
-%                     case 4
-%                         app.CoresDropDown.Items = {'1', '2', '3', '4'};
-%                 end
                 app.NewrunMenu.Enable = 'on';
-%                 app.RessourceDropDown.Enable = 'on';
-%                 app.CoresDropDown.Enable = 'on';
                 app.EvaluateButton.Enable = 'off';
                 
                 %Setting up parallel processing
@@ -320,7 +292,6 @@ classdef userInterface_script < matlab.apps.AppBase
                 app.evaluateDone = true;
                 evalStartBF(app);
                 
-                
             end
         end
 
@@ -344,47 +315,6 @@ classdef userInterface_script < matlab.apps.AppBase
         % Menu selected function: SaveMenu
         function SaveMenuSelected(app, event)
             
-        end
-
-        % Value changed function: RessourceDropDown
-        function RessourceDropDownValueChanged(app, event)
-            value = app.RessourceDropDown.Value;
-%             
-%             %Set items for Dropdown menu without select...
-%             app.RessourceDropDown.Items = {'CPU', 'GPU'};
-%             
-%             %Set items dynamically
-%             if value == 'CPU'
-%                 switch app.cpuInfo.NumProcessors
-%                     case 1
-%                         app.CoresDropDown.Items = {'1'};
-%                     case 2
-%                         app.CoresDropDown.Items = {'1', '2'};
-%                     case 3
-%                         app.CoresDropDown.Items = {'1', '2', '3'};
-%                     case 4
-%                         app.CoresDropDown.Items = {'1', '2', '3', '4'};
-%                 end
-%                 app.CoresDropDown.Enable = 'on';
-%                 app.UIAxes_gpu.Visible = 'off';
-%                 app.UIAxes_cpu.Visible = 'on';
-%                 app.CpuTemperatureOutput.Value = app.cpuData.currCpuTemp;
-%                 app.CpuLoadOutput.Value = app.cpuData.avgCpuLoad;
-%                 
-%                 %FIXME: Test for data visualisation-------------------------
-%                 
-%                 %displayData(app);
-%                 
-%                 
-%                 
-%             else
-%                 app.CoresDropDown.Items = {'1'};
-%                 app.CoresDropDown.Enable = 'off';
-%                 app.UIAxes_gpu.Visible = 'on';
-%                 app.UIAxes_cpu.Visible = 'off';
-%                 app.CpuTemperatureOutput.Value = app.gpuData.currGpuTemp;
-%                 app.CpuLoadOutput.Value = app.gpuData.avgGpuLoad;
-%             end
         end
 
         % Value changing function: InputEditField
@@ -424,12 +354,6 @@ classdef userInterface_script < matlab.apps.AppBase
             end
         end
 
-        % Value changed function: CoresDropDown
-        function CoresDropDownValueChanged(app, event)
-            value = app.CoresDropDown.Value;
-            
-        end
-
         % Value changed function: EncryptionDropDown
         function EncryptionDropDownValueChanged(app, event)
             value = app.EncryptionDropDown.Value;
@@ -449,14 +373,6 @@ classdef userInterface_script < matlab.apps.AppBase
                 case 'AES-256'
                     %TODO: this hashfunction has to be implemented.
             end
-            
-            evalStartBF(app);
-        end
-
-        % Value changed function: RainbowtableDropDown
-        function RainbowtableDropDownValueChanged(app, event)
-            %Set items for Dropdown menu without select...
-            app.RainbowtableDropDown.Items = {'Yes', 'No'};
             
             evalStartBF(app);
         end
@@ -559,7 +475,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.StartButton.FontName = 'Arial';
             app.StartButton.FontSize = 20;
             app.StartButton.FontWeight = 'bold';
-            app.StartButton.Position = [65 353 431 54];
+            app.StartButton.Position = [66 426 430 54];
             app.StartButton.Text = 'START Brute force';
 
             % Create LogMonitorTextAreaLabel
@@ -599,32 +515,6 @@ classdef userInterface_script < matlab.apps.AppBase
             app.EncryptionDropDown.ValueChangedFcn = createCallbackFcn(app, @EncryptionDropDownValueChanged, true);
             app.EncryptionDropDown.Position = [332 574 164 22];
             app.EncryptionDropDown.Value = 'Select...';
-
-            % Create RainbowtableDropDownLabel
-            app.RainbowtableDropDownLabel = uilabel(app.BruteForceToolUIFigure);
-            app.RainbowtableDropDownLabel.HorizontalAlignment = 'right';
-            app.RainbowtableDropDownLabel.Position = [66 525 78 15];
-            app.RainbowtableDropDownLabel.Text = 'Rainbowtable';
-
-            % Create RainbowtableDropDown
-            app.RainbowtableDropDown = uidropdown(app.BruteForceToolUIFigure);
-            app.RainbowtableDropDown.Items = {'Select...', 'Yes', 'No'};
-            app.RainbowtableDropDown.ValueChangedFcn = createCallbackFcn(app, @RainbowtableDropDownValueChanged, true);
-            app.RainbowtableDropDown.Position = [332 521 164 22];
-            app.RainbowtableDropDown.Value = 'Select...';
-
-            % Create RessourceDropDownLabel
-            app.RessourceDropDownLabel = uilabel(app.BruteForceToolUIFigure);
-            app.RessourceDropDownLabel.HorizontalAlignment = 'right';
-            app.RessourceDropDownLabel.Position = [65 432 63 15];
-            app.RessourceDropDownLabel.Text = 'Ressource';
-
-            % Create RessourceDropDown
-            app.RessourceDropDown = uidropdown(app.BruteForceToolUIFigure);
-            app.RessourceDropDown.Items = {'Select...', 'CPU', 'GPU'};
-            app.RessourceDropDown.ValueChangedFcn = createCallbackFcn(app, @RessourceDropDownValueChanged, true);
-            app.RessourceDropDown.Position = [221 428 76 22];
-            app.RessourceDropDown.Value = 'Select...';
 
             % Create CPUTempCLabel
             app.CPUTempCLabel = uilabel(app.BruteForceToolUIFigure);
@@ -666,19 +556,6 @@ classdef userInterface_script < matlab.apps.AppBase
             app.ResultOutput.FontSize = 48;
             app.ResultOutput.BackgroundColor = [0.9412 0.9412 0.9412];
             app.ResultOutput.Position = [650 185 583 60];
-
-            % Create CoresDropDownLabel
-            app.CoresDropDownLabel = uilabel(app.BruteForceToolUIFigure);
-            app.CoresDropDownLabel.HorizontalAlignment = 'right';
-            app.CoresDropDownLabel.Position = [332 432 38 15];
-            app.CoresDropDownLabel.Text = 'Cores';
-
-            % Create CoresDropDown
-            app.CoresDropDown = uidropdown(app.BruteForceToolUIFigure);
-            app.CoresDropDown.Items = {};
-            app.CoresDropDown.ValueChangedFcn = createCallbackFcn(app, @CoresDropDownValueChanged, true);
-            app.CoresDropDown.Position = [412 428 84 22];
-            app.CoresDropDown.Value = {};
 
             % Create AdvancedsettingsLabel
             app.AdvancedsettingsLabel = uilabel(app.BruteForceToolUIFigure);
@@ -774,14 +651,24 @@ classdef userInterface_script < matlab.apps.AppBase
 
             % Create ClusterDropDownLabel
             app.ClusterDropDownLabel = uilabel(app.BruteForceToolUIFigure);
-            app.ClusterDropDownLabel.Position = [73 481 55 15];
+            app.ClusterDropDownLabel.Position = [73 529 55 15];
             app.ClusterDropDownLabel.Text = 'Cluster';
 
             % Create ClusterDropDown
             app.ClusterDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.ClusterDropDown.Items = {};
-            app.ClusterDropDown.Position = [332 477 164 22];
+            app.ClusterDropDown.Position = [332 525 164 22];
             app.ClusterDropDown.Value = {};
+
+            % Create AbortButton
+            app.AbortButton = uibutton(app.BruteForceToolUIFigure, 'push');
+            app.AbortButton.BackgroundColor = [1 0.302 0];
+            app.AbortButton.FontName = 'Arial';
+            app.AbortButton.FontSize = 20;
+            app.AbortButton.FontWeight = 'bold';
+            app.AbortButton.FontColor = [1 1 1];
+            app.AbortButton.Position = [66 345 430 54];
+            app.AbortButton.Text = 'ABORT';
         end
     end
 
