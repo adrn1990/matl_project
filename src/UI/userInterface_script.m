@@ -553,12 +553,13 @@ classdef userInterface_script < matlab.apps.AppBase
             % Create StartButton
             app.StartButton = uibutton(app.BruteForceToolUIFigure, 'push');
             app.StartButton.ButtonPushedFcn = createCallbackFcn(app, @StartButtonPushed, true);
-            app.StartButton.BackgroundColor = [0.302 0.749 0.9294];
+            app.StartButton.BackgroundColor = [0.302 0.749 1];
             app.StartButton.FontName = 'Arial';
             app.StartButton.FontSize = 20;
             app.StartButton.FontWeight = 'bold';
+            app.StartButton.FontColor = [1 1 1];
             app.StartButton.Position = [66 426 430 54];
-            app.StartButton.Text = 'START Brute force';
+            app.StartButton.Text = 'START';
 
             % Create LogMonitorTextAreaLabel
             app.LogMonitorTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
