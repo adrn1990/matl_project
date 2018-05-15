@@ -121,7 +121,7 @@ classdef userInterface_script < matlab.apps.AppBase
             IsValid= isempty(regexp(Char,sprintf('[^%s]',app.AllowedChars), 'once'));
         end
         
-        function results = evalStartBF(app,varargin)
+        function evalStartBF(app,varargin)
             %check if varargin is used
             if isempty(varargin)
                 Input = app.InputEditField.Value;
@@ -149,12 +149,86 @@ classdef userInterface_script < matlab.apps.AppBase
             %check if the mode to decrypt is set
             ModeValidity= ~strcmp(app.ModeDropDown.Value,'Select...');
             
+            %TODO: add the functionality for the cluster dropdown
             %if all checks are true, the StartButton can be enabled.
-            if app.evaluateDone && InputValidity && ModeValidity && CharValidity && EncryptValidity 
+            if app.evaluateDone && InputValidity && ModeValidity && CharValidity && EncryptValidity
                 app.StartButton.Enable = 'on';
             else
                 app.StartButton.Enable = 'off';
             end
+        end
+        
+        %this function sets the components properties to the state before the system is evaluated
+        function compBeforeEval(app)
+            app.EvaluateButton.Enable = 'on';
+            app.WarningBox.Visible = 'off';
+            app.StartButton.Enable = 'off';
+            app.NewrunMenu.Enable = 'off';
+            app.SaveMenu.Enable = 'off';
+            app.ExitMenu.Enable = 'on';
+            app.ExportMenu.Enable = 'off';
+            app.AbortButton.Enable = 'off';
+            app.ModeDropDown.Enable = 'off';
+            app.InputEditField.Enable = 'off';
+            app.EncryptionDropDown.Enable = 'off';
+            app.ClusterDropDown.Enable = 'off';
+            
+            
+            app.messageBuffer = {''};
+            app.LogMonitorOutput.Value = '';
+            app.InputEditField.Value = '';
+            app.StatusOutput.Value = '';
+            app.ResultOutput.Value = '';
+        end
+        
+        %this function sets the components properties to the state after the system is evaluated
+        function compAfterEval(app)
+            app.EvaluateButton.Enable = 'off';
+            app.StartButton.Enable = 'off';
+            app.NewrunMenu.Enable = 'on';
+            app.SaveMenu.Enable = 'on';
+            app.ExitMenu.Enable = 'on';
+            app.ExportMenu.Enable = 'on';
+            app.AbortButton.Enable = 'off';
+            app.ModeDropDown.Enable = 'on';
+            app.InputEditField.Enable = 'on';
+            app.EncryptionDropDown.Enable = 'on';
+            app.ClusterDropDown.Enable = 'on';
+            
+        end
+        
+        %this function sets the component properties to the state while the brute forcing is in progress
+        function compWhileBruteForce(app)
+            app.EvaluateButton.Enable = 'off';
+            app.StartButton.Enable = 'off';
+            app.NewrunMenu.Enable = 'off';
+            app.SaveMenu.Enable = 'off';
+            app.ExitMenu.Enable = 'off';
+            app.ExportMenu.Enable = 'off';
+            app.AbortButton.Enable = 'on';
+            app.ModeDropDown.Enable = 'off';
+            app.InputEditField.Enable = 'off';
+            app.EncryptionDropDown.Enable = 'off';
+            app.ClusterDropDown.Enable = 'off';
+            app.ExitMenu.Enable = 'off';
+            app.ExportMenu.Enable = 'off';
+            
+        end
+        
+        function compWhileEvaluate(app)
+            app.EvaluateButton.Enable = 'off';
+            app.WarningBox.Visible = 'off';
+            app.StartButton.Enable = 'off';
+            app.NewrunMenu.Enable = 'off';
+            app.SaveMenu.Enable = 'off';
+            app.ExitMenu.Enable = 'off';
+            app.ExportMenu.Enable = 'off';
+            app.AbortButton.Enable = 'off';
+            app.ModeDropDown.Enable = 'off';
+            app.InputEditField.Enable = 'off';
+            app.EncryptionDropDown.Enable = 'off';
+            app.ClusterDropDown.Enable = 'off';
+
         end
         
     end
@@ -178,14 +252,16 @@ classdef userInterface_script < matlab.apps.AppBase
                 'FaceAlpha', 0.4,...
                 'AlignVertexCenters', 'on');
             
+            compBeforeEval(app);
+            
             app.InputEditField.FontAngle = 'italic';
-            app.StartButton.Enable = 'off';
-            app.NewrunMenu.Enable = 'off';
-            app.WarningBox.Visible = 'off';
+            
         end
 
         % Button pushed function: EvaluateButton
         function EvaluateButtonPushed(app, event)
+            %set the components to the visibility while evaluating
+            compWhileEvaluate(app);
             
             if ~app.evaluateDone
                 %Start system evaluation
@@ -262,8 +338,6 @@ classdef userInterface_script < matlab.apps.AppBase
                         fWriteMessageBuffer(app, app.delemiter);
                     end
                 end
-                app.NewrunMenu.Enable = 'on';
-                app.EvaluateButton.Enable = 'off';
                 
                 %Setting up parallel processing
                 try
@@ -289,9 +363,10 @@ classdef userInterface_script < matlab.apps.AppBase
                     
                 end
                 
+                %the evaluation is done
                 app.evaluateDone = true;
                 evalStartBF(app);
-                
+                compAfterEval(app);
             end
         end
 
@@ -340,18 +415,12 @@ classdef userInterface_script < matlab.apps.AppBase
                 case 'Yes'
                     filename = 'test.csv';
                     cell2csv(filename,app.messageBuffer);
-                    app.EvaluateButton.Enable = 'on';
-                    app.evaluateDone = false;
-                    app.NewrunMenu.Enable = 'off';
-                    app.messageBuffer = {''};
-                    app.LogMonitorOutput.Value = '';
                 case 'No'
-                    app.EvaluateButton.Enable = 'on';
-                    app.evaluateDone = false;
-                    app.NewrunMenu.Enable = 'off';
-                    app.messageBuffer = {''};
-                    app.LogMonitorOutput.Value = '';
+                    %do nothing
             end
+            
+            app.evaluateDone = false;
+            compBeforeEval(app)
         end
 
         % Value changed function: EncryptionDropDown
@@ -359,7 +428,7 @@ classdef userInterface_script < matlab.apps.AppBase
             value = app.EncryptionDropDown.Value;
             
             %Set items for Dropdown menu without select...
-            app.EncryptionDropDown.Items = {'SHA-1', 'SHA-256', 'SHA-512', 'MD5', 'AES-256'};
+            app.EncryptionDropDown.Items = {'SHA-1', 'SHA-256', 'SHA-512', 'MD5'};
             
             switch value
                 case 'SHA-1'
@@ -370,8 +439,6 @@ classdef userInterface_script < matlab.apps.AppBase
                     app.HashStruct.Method= 'SHA-512';
                 case 'MD5'
                     app.HashStruct.Method= 'MD5';
-                case 'AES-256'
-                    %TODO: this hashfunction has to be implemented.
             end
             
             evalStartBF(app);
@@ -389,7 +456,21 @@ classdef userInterface_script < matlab.apps.AppBase
         function StartButtonPushed(app, event)
             app.ResultOutput.Value = '';
             app.StatusOutput.Value = 'Your current progress in BruteForcing is: 0%';
+            
+            %change the visibility of components while brute forcing
+            compWhileBruteForce(app)
+            
+            %initialize the brute force
             initBruteForce(app);
+            
+            %execute the function to do the brute force
+            doBruteForce(app);
+            
+            %change the visibility of the components
+            compAfterEval(app);
+            
+            %evaluate if the start button can be active
+            evalStartBF(app)
         end
 
         % Close request function: BruteForceToolUIFigure
@@ -685,7 +766,7 @@ classdef userInterface_script < matlab.apps.AppBase
                 ConstructorException = MException(msgID,msg);
                 throw(ConstructorException);
             end
-            
+
             % Create and configure components
             createComponents(app)
 
