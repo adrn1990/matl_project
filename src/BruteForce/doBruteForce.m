@@ -18,7 +18,7 @@
 %Copyright:
 %
 %**************************************************************************
-function [Obj] = doBruteForce(Obj)
+function doBruteForce(Obj)
 
 %TODO: load Cluster
 
@@ -54,8 +54,9 @@ D.afterEach(@(x) updateParFor(x,Obj));
 %If the comparsion of the hashes is true, throw an exception to exit the
 %parfor-loop and assign the password to the result output to show it on the
 %gui.
-
+Obj.fWriteMessageBuffer(Obj.delemiter);
 Obj.fWriteMessageBuffer('BruteForcing in progress...');
+Obj.fWriteMessageBuffer(sprintf('Started on %s',datestr(now,'dd.mm.yyyy at HH:MM:SS')));
 tic
 try
     %try allready used passwords and hashses first
