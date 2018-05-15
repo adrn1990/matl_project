@@ -21,9 +21,12 @@
 
 %==========================================================================
 %<Version 1.0> - 12.05.2018 - First version of the function.
+%<Version 1.1> - 15.05.2018 - The function no longer calls the doBruteForce
+%                             function.
+%                           - The return value has been changed to nothing.
 %==========================================================================
 
-function [Obj] = initBruteForce(Obj)
+function initBruteForce(Obj)
 
 %Struct for DataHash function
 Opt= Obj.HashStruct;
@@ -43,8 +46,4 @@ end
 %Handover the hash to the object.
 Obj.Hash= Hash;
 
-%execute the function to do the brute force
-Obj= doBruteForce(Obj);
-
-return
 end
