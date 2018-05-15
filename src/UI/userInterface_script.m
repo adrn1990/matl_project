@@ -676,7 +676,16 @@ classdef userInterface_script < matlab.apps.AppBase
 
         % Construct app
         function app = userInterface_script
-
+            
+            %Check if there is allready an UI opened of the class userInterface
+            if ~isempty(findall(0, 'HandleVisibility', 'off','Name','Brute-Force Tool'))
+                msg = 'You can''t create more than one instance of the class userInterface!';
+                uiwait(msgbox(msg,'Constructor Error','error'));
+                msgID = '';
+                ConstructorException = MException(msgID,msg);
+                throw(ConstructorException);
+            end
+            
             % Create and configure components
             createComponents(app)
 
