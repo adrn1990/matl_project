@@ -87,6 +87,8 @@ classdef userInterface_script < matlab.apps.AppBase
         %This property safes the Hash of the given data
         Hash;
         
+        Abort= false;
+        
         %The following property saves the allowed chars for the password
         %To generate the following cell-array as specified us the commented part in
         %the command window.
@@ -484,6 +486,11 @@ classdef userInterface_script < matlab.apps.AppBase
             delete(app)
             
         end
+        
+        % Button pushed function: AbortButton
+        function AbortButtonPushed(app, event)
+            app.Abort = true;
+        end
     end
 
     % App initialization and construction
@@ -746,6 +753,7 @@ classdef userInterface_script < matlab.apps.AppBase
 
             % Create AbortButton
             app.AbortButton = uibutton(app.BruteForceToolUIFigure, 'push');
+            app.AbortButton.ButtonPushedFcn = createCallbackFcn(app, @AbortButtonPushed, true);
             app.AbortButton.BackgroundColor = [1 0.302 0];
             app.AbortButton.FontName = 'Arial';
             app.AbortButton.FontSize = 20;
