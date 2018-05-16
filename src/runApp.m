@@ -24,7 +24,8 @@
 
 %==========================================================================
 %<Version 1.0> - 13.05.2018 - First version of the script.
-%<Version 1.1> - 14.05.2018 - License check for Parallel Computing Toolbox
+%<Version 1.1> - 14.05.2018 - License check for Parallel Computing Toolbox.
+%<Version 1.2> - 16.05.2018 - Remove of variables added.
 %==========================================================================
 
 %Check if the user's computer is a pc
@@ -84,10 +85,10 @@ if ~IsInstalled || ~IsLicensed
 end
 
 addpath([pwd,Slash,'UI']);
-clear Slash msg VerException
+clear Slash msg VerException IsInstalled IsLicensed Struct
 
 %==============================Calling the GUI=============================
-userInterface_script;
+app= userInterface_script;
 %==========================================================================
 
 %% local function
