@@ -69,11 +69,12 @@ try
         
         
         %TODO: Use of gpu
-        %     if UseGpu
-        %         G = gpuArray(Iterations);
-        %         doBruteForceAscendingly(G,Hash,Array,Opt);
-        %         doBruteForceRandomly(G,Hash,Array,Opt);
-        %     end
+%             if gpuDeviceCount > 0
+%                 arr = 1:Iterations;
+%                 G = gpuArray(arr);
+%                 Pw = doBruteForceAscendinglyGpu(G,Hash,Array,Opt);
+%                 Pw_2 = doBruteForceRandomlyGpu(G,Hash,Array,Opt);
+%             end
         
         %TODO choose cluster from UI
         c = parcluster;
@@ -90,8 +91,8 @@ try
         
         while(~strcmp(Task1.State,'finished') && ~strcmp(Task2.State,'finished') && ~Break)
             %TODO: displaydata throws an exception
-            %displayData(Obj)
-            pause(3);
+            displayData(Obj)
+%             pause(3);
             if Obj.Abort
                 %Abort the BruteForce by cancelling the job and break the while
                 %loop

@@ -347,9 +347,9 @@ classdef userInterface_script < matlab.apps.AppBase
                      fWriteMessageBuffer(app, ' ');
                      
                      %get available clusters and plot it to the buffer
-                     Clusters= {'Select...'};
-                     Clusters1 = parallel.clusterProfiles;
-                     Clusters= horzcat(Clusters,Clusters1);
+%                      Clusters1= {'Select...'};
+                     Clusters = parallel.clusterProfiles;
+%                      app.Clusters= horzcat(Clusters1,app.Clusters);
                      for Increment=1:length(Clusters)
                        fWriteMessageBuffer(app, ['- "',Clusters{Increment},'"']);  
                      end
@@ -515,12 +515,6 @@ classdef userInterface_script < matlab.apps.AppBase
             app.Abort = true;
         end
         
-        % Value changed function: ClusterDropDown
-        function ClusterDropDownValueChanged(app, event)
-            app.ClusterDropDown.Items{1}= [];
-            
-            evalStartBF(app);
-        end
     end
 
     % App initialization and construction
@@ -551,10 +545,6 @@ classdef userInterface_script < matlab.apps.AppBase
             app.SaveMenu.MenuSelectedFcn = createCallbackFcn(app, @SaveMenuSelected, true);
             app.SaveMenu.Accelerator = 'S';
             app.SaveMenu.Text = 'Save';
-
-            % Create ExportMenu
-%             app.ExportMenu = uimenu(app.FileMenu);
-%             app.ExportMenu.Text = 'Export to csv...';
 
             % Create ExitMenu
             app.ExitMenu = uimenu(app.FileMenu);
@@ -770,18 +760,17 @@ classdef userInterface_script < matlab.apps.AppBase
             app.GpuTemperatureOutput.FontSize = 14;
             app.GpuTemperatureOutput.Position = [1127 297 92 28];
 
-            % Create ClusterDropDownLabel
+            % Create ClusterDropDownLabel            
+            app.ClusterDropDownLabel = uilabel(app.BruteForceToolUIFigure);
+            app.ClusterDropDownLabel.Position = [73 529 55 15];
+            app.ClusterDropDownLabel.Text = 'Cluster';
+            
+
+            % Create ClusterDropDown        
             app.ClusterDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.ClusterDropDown.Items = {'Select...'};
-            app.ClusterDropDown.ValueChangedFcn = createCallbackFcn(app, @ClusterDropDownValueChanged, true);
             app.ClusterDropDown.Position = [332 525 164 22];
             app.ClusterDropDown.Value = 'Select...';
-
-            % Create ClusterDropDown
-            app.ClusterDropDown = uidropdown(app.BruteForceToolUIFigure);
-            app.ClusterDropDown.Items = {};
-            app.ClusterDropDown.Position = [332 525 164 22];
-            app.ClusterDropDown.Value = {};
 
             % Create AbortButton
             app.AbortButton = uibutton(app.BruteForceToolUIFigure, 'push');
