@@ -49,13 +49,14 @@ Obj.fWriteMessageBuffer('BruteForcing in progress...');
 Obj.fWriteMessageBuffer(sprintf('Started on %s',datestr(now,'dd.mm.yyyy at HH:MM:SS')));
 tic
 try
-    
     %go first thru the improvements
-    for Increment=1:Length
+    %the increment starts at 2 because of the title in each column of the
+    %improvements cell.
+    for Increment=2:Length
         if strcmp(Hash,Improvements{Increment,2}) && ...
                 strcmp(Method,Improvements{Increment,3})
             FoundByImprovement= true;
-            Pw= {Improvements{Increment,1}};
+            Obj.ResultOutput.Value(1)= {Improvements{Increment,1}};
             break
         end
     end
@@ -96,6 +97,7 @@ try
                 %loop
                 Break = true;
                 Job.cancel;
+                Obj.fWriteMessageBuffer(sprintf('The BruteForcing has after %0.4f seconds been aborted!',toc));
             end
         end
         
@@ -107,35 +109,37 @@ try
             Task1.delete
         end
         
-        %TODO: get data from gpu
-        %gather(G2);
-        Pw = fetchOutputs(Job);
-        Pw{1};
-        
+        if ~Obj.Abort
+            %TODO: get data from gpu
+            %gather(G2);
+            Pw = fetchOutputs(Job);
+            Pw{1};
+            Obj.ResultOutput.Value= Pw;
+            
+            %if the password was not found by improvement, save it into the
+            %variable imrovements.
+            Improvements{end+1,1}= Pw{1};
+            Improvements{end,2}= DataHash(Pw{1},Opt);
+            Improvements{end,3}= Method;
+            Obj.Improvements= Improvements;
+        end
     end
     
-    %if the password was found by improvement, save it into the variable
-    %imrovements
-    if ~FoundByImprovement
-        Improvements{end+1,1}= Pw{1};
-        Improvements{end,2}= DataHash(Pw{1},Opt);
-        Improvements{end,3}= Method;
-        Obj.Improvements= Improvements;
-    end
     
-    Obj.ResultOutput.Value= Pw;
-    
+%catch any exception that may occur while brute forcing.    
 catch ME
     Obj.fWriteMessageBuffer('An error with the following message occured:');
     Obj.fWriteMessageBuffer(ME.message);
 end
 
 %write the message buffer
-if (~isempty(Obj.ResultOutput.Value{1}))
+if (~isempty(Obj.ResultOutput.Value{1}))%if a password has been found
     Obj.fWriteStatus('Your current progress in BruteForcing is: 100%');
     Obj.fWriteMessageBuffer('The BruteForcing was successfull!');
     Obj.fWriteMessageBuffer(sprintf('Your Password is: %s',Obj.ResultOutput.Value{1}));
-    Obj.fWriteMessageBuffer(sprintf('Elapsed time is %f seconds',toc));
+    Obj.fWriteMessageBuffer(sprintf('Elapsed time is %0.4f seconds',toc));
+    Obj.fWriteMessageBuffer(Obj.delemiter);
+elseif Break %if the brute forcing has been aborted
     Obj.fWriteMessageBuffer(Obj.delemiter);
 else
     Obj.fWriteStatus('Your current progress in BruteForcing is: 0%');
