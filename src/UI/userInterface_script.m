@@ -6,7 +6,6 @@ classdef userInterface_script < matlab.apps.AppBase
         FileMenu                 matlab.ui.container.Menu
         NewrunMenu               matlab.ui.container.Menu
         SaveMenu                 matlab.ui.container.Menu
-%         ExportMenu               matlab.ui.container.Menu
         ExitMenu                 matlab.ui.container.Menu
         InfoMenu                 matlab.ui.container.Menu
         AboutMenu                matlab.ui.container.Menu
@@ -56,7 +55,6 @@ classdef userInterface_script < matlab.apps.AppBase
         GpuValue = 0;
         time = 0;
         SizeReached = false;
-        LogIndex = 0;
         
         %This property safes the allready found passwords and hashes.
         Improvements;
@@ -169,7 +167,6 @@ classdef userInterface_script < matlab.apps.AppBase
             app.NewrunMenu.Enable = 'off';
             app.SaveMenu.Enable = 'off';
             app.ExitMenu.Enable = 'on';
-%             app.ExportMenu.Enable = 'off';
             app.AbortButton.Enable = 'off';
             app.ModeDropDown.Enable = 'off';
             app.InputEditField.Enable = 'off';
@@ -191,7 +188,6 @@ classdef userInterface_script < matlab.apps.AppBase
             app.NewrunMenu.Enable = 'on';
             app.SaveMenu.Enable = 'on';
             app.ExitMenu.Enable = 'on';
-%             app.ExportMenu.Enable = 'on';
             app.AbortButton.Enable = 'off';
             app.ModeDropDown.Enable = 'on';
             app.InputEditField.Enable = 'on';
@@ -207,14 +203,12 @@ classdef userInterface_script < matlab.apps.AppBase
             app.NewrunMenu.Enable = 'off';
             app.SaveMenu.Enable = 'off';
             app.ExitMenu.Enable = 'off';
-%             app.ExportMenu.Enable = 'off';
             app.AbortButton.Enable = 'on';
             app.ModeDropDown.Enable = 'off';
             app.InputEditField.Enable = 'off';
             app.EncryptionDropDown.Enable = 'off';
             app.ClusterDropDown.Enable = 'off';
             app.ExitMenu.Enable = 'off';
-%             app.ExportMenu.Enable = 'off';
             
         end
         
@@ -225,7 +219,6 @@ classdef userInterface_script < matlab.apps.AppBase
             app.NewrunMenu.Enable = 'off';
             app.SaveMenu.Enable = 'off';
             app.ExitMenu.Enable = 'off';
-%             app.ExportMenu.Enable = 'off';
             app.AbortButton.Enable = 'off';
             app.ModeDropDown.Enable = 'off';
             app.InputEditField.Enable = 'off';
@@ -242,6 +235,11 @@ classdef userInterface_script < matlab.apps.AppBase
         % Code that executes after component creation
         function startupFcn(app)
             
+            %Create directory for Log-files
+            dirStatus = exist('Log-files');
+            if dirStatus == 0
+                mkdir('Log-files');
+            end
             %call init function
             app = initApp(app);
             
@@ -257,8 +255,7 @@ classdef userInterface_script < matlab.apps.AppBase
             
             compBeforeEval(app);
             
-            app.InputEditField.FontAngle = 'italic';
-            
+            app.InputEditField.FontAngle = 'italic';   
         end
 
         % Button pushed function: EvaluateButton
