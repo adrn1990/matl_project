@@ -193,6 +193,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.InputEditField.Enable = 'on';
             app.EncryptionDropDown.Enable = 'on';
             app.ClusterDropDown.Enable = 'on';
+            app.Abort = false;
             
         end
         
@@ -341,23 +342,48 @@ classdef userInterface_script < matlab.apps.AppBase
                 
                 %Setting up parallel processing
                 try
-                    fWriteMessageBuffer(app, 'Starting up parallel processing...');
-                    %TODO: choose a cluster from dropdown.
-                    pool =parpool('local');
-                    
-                    if pool.Connected == true
-                        fWriteMessageBuffer(app, 'Parallel processing ready');
-                        parWorkers = num2str(pool.NumWorkers);
-                        strParWorkers = sprintf('NumWorkers: \t \t \t \t %s' , parWorkers);
-                        fWriteMessageBuffer(app, strParWorkers);
-                        
-                        clusterProfile = sprintf('Cluster profile: \t \t \t %s' , pool.Cluster.Profile);
-                        fWriteMessageBuffer(app, clusterProfile);
-                        fWriteMessageBuffer(app, app.delemiter);
-                    else %TODO exception handling
-                        fWriteMessageBuffer(app, 'Something went wroooooong!');
-                        fWriteMessageBuffer(app, app.delemiter);
-                    end
+                     fWriteMessageBuffer(app, 'Starting up parallel processing...');
+                     fWriteMessageBuffer(app, 'Getting Clusters:');
+                     fWriteMessageBuffer(app, ' ');
+                     
+                     %get available clusters and plot it to the buffer
+                     Clusters= {'Select...'};
+                     Clusters1 = parallel.clusterProfiles;
+                     Clusters= horzcat(Clusters,Clusters1);
+                     for Increment=1:length(Clusters)
+                       fWriteMessageBuffer(app, ['- "',Clusters{Increment},'"']);  
+                     end
+                     
+                     %close the current pool if there is one running
+                     p = gcp('nocreate'); % If no pool, do not create new one.
+                     if ~isempty(p)
+                         fWriteMessageBuffer(app, ' ');
+                         fWriteMessageBuffer(app, 'The running pool has to be closed!');
+                         delete(gcp('nocreate'));
+                         fWriteMessageBuffer(app, 'The pool is closed.');
+                     end
+                     
+                     
+                     app.ClusterDropDown.Items= Clusters;
+                     fWriteMessageBuffer(app, ' ');
+                     fWriteMessageBuffer(app, 'Parallel processing ready.');
+                     fWriteMessageBuffer(app, app.delemiter);
+%                     %TODO: choose a cluster from dropdown.
+%                     pool =parpool('local');
+%                     
+%                     if pool.Connected == true
+%                         fWriteMessageBuffer(app, 'Parallel processing ready');
+%                         parWorkers = num2str(pool.NumWorkers);
+%                         strParWorkers = sprintf('NumWorkers: \t \t \t \t %s' , parWorkers);
+%                         fWriteMessageBuffer(app, strParWorkers);
+%                         
+%                         clusterProfile = sprintf('Cluster profile: \t \t \t %s' , pool.Cluster.Profile);
+%                         fWriteMessageBuffer(app, clusterProfile);
+%                         fWriteMessageBuffer(app, app.delemiter);
+%                     else %TODO exception handling
+%                         fWriteMessageBuffer(app, 'Something went wroooooong!');
+%                         fWriteMessageBuffer(app, app.delemiter);
+%                     end
                 catch
                     fWriteMessageBuffer(app, 'No Parallel Toolbox found or an active session is running!');
                     
@@ -465,7 +491,7 @@ classdef userInterface_script < matlab.apps.AppBase
             initBruteForce(app);
             
             %execute the function to do the brute force
-            doBruteForce(app);
+            doBruteForce2(app);
             
             %change the visibility of the components
             compAfterEval(app);
@@ -487,6 +513,13 @@ classdef userInterface_script < matlab.apps.AppBase
         % Button pushed function: AbortButton
         function AbortButtonPushed(app, event)
             app.Abort = true;
+        end
+        
+        % Value changed function: ClusterDropDown
+        function ClusterDropDownValueChanged(app, event)
+            app.ClusterDropDown.Items{1}= [];
+            
+            evalStartBF(app);
         end
     end
 
@@ -738,9 +771,11 @@ classdef userInterface_script < matlab.apps.AppBase
             app.GpuTemperatureOutput.Position = [1127 297 92 28];
 
             % Create ClusterDropDownLabel
-            app.ClusterDropDownLabel = uilabel(app.BruteForceToolUIFigure);
-            app.ClusterDropDownLabel.Position = [73 529 55 15];
-            app.ClusterDropDownLabel.Text = 'Cluster';
+            app.ClusterDropDown = uidropdown(app.BruteForceToolUIFigure);
+            app.ClusterDropDown.Items = {'Select...'};
+            app.ClusterDropDown.ValueChangedFcn = createCallbackFcn(app, @ClusterDropDownValueChanged, true);
+            app.ClusterDropDown.Position = [332 525 164 22];
+            app.ClusterDropDown.Value = 'Select...';
 
             % Create ClusterDropDown
             app.ClusterDropDown = uidropdown(app.BruteForceToolUIFigure);
