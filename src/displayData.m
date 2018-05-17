@@ -31,6 +31,7 @@ Obj.CpuLoadOutput.Value = CpuData.avgCpuLoad;
 Obj.CpuTemperatureOutput.Value = CpuData.currCpuTemp;
 
 %Get GPU data
+%TODO: Check if GPU is enabled
 GpuData = getGpuData;
 Obj.GpuLoadOutput.Value = GpuData.avgGpuLoad;
 Obj.GpuTemperatureOutput.Value = GpuData.currGpuTemp;

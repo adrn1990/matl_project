@@ -39,6 +39,8 @@ classdef userInterface_script < matlab.apps.AppBase
         ClusterDropDownLabel     matlab.ui.control.Label
         ClusterDropDown          matlab.ui.control.DropDown
         AbortButton              matlab.ui.control.Button
+        GPUSwitchLabel           matlab.ui.control.Label
+        GPUSwitch                matlab.ui.control.Switch
     end
 
     properties (Access = public)
@@ -55,6 +57,7 @@ classdef userInterface_script < matlab.apps.AppBase
         GpuValue = 0;
         time = 0;
         SizeReached = false;
+        GpuEnabled = false;
         
         %This property safes the allready found passwords and hashes.
         Improvements;
@@ -172,8 +175,8 @@ classdef userInterface_script < matlab.apps.AppBase
             app.InputEditField.Enable = 'off';
             app.EncryptionDropDown.Enable = 'off';
             app.ClusterDropDown.Enable = 'off';
-            
-            
+            app.GPUSwitch.Enable = 'off';
+                     
             app.messageBuffer = {''};
             app.LogMonitorOutput.Value = '';
             app.InputEditField.Value = '';
@@ -194,6 +197,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.EncryptionDropDown.Enable = 'on';
             app.ClusterDropDown.Enable = 'on';
             app.Abort = false;
+            app.GPUSwitch.Enable = 'on';
             
         end
         
@@ -209,6 +213,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.InputEditField.Enable = 'off';
             app.EncryptionDropDown.Enable = 'off';
             app.ClusterDropDown.Enable = 'off';
+            app.GPUSwitch.Enable = 'off';
             app.ExitMenu.Enable = 'off';
             
         end
@@ -225,6 +230,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.InputEditField.Enable = 'off';
             app.EncryptionDropDown.Enable = 'off';
             app.ClusterDropDown.Enable = 'off';
+            app.GPUSwitch.Enable = 'off';
 
         end
         
@@ -253,6 +259,17 @@ classdef userInterface_script < matlab.apps.AppBase
                 'FaceColor', 'red',...
                 'FaceAlpha', 0.4,...
                 'AlignVertexCenters', 'on');
+            
+            %Set axis properties
+            app.UIAxes_gpu.Visible = 'off';
+            app.UIAxes_gpu.Position = [1231 370 10 10];
+            app.UIAxes_cpu.Position = [600 411 639 448];
+            
+            %Set GPU output data visibility
+            app.GpuTemperatureOutput.Visible = 'off';
+            app.GPUTempCLabel.Visible = 'off';
+            app.GpuLoadOutput.Visible = 'off';
+            app.GPULoadLabel.Visible = 'off';
             
             compBeforeEval(app);
             
@@ -330,7 +347,7 @@ classdef userInterface_script < matlab.apps.AppBase
                     fWriteMessageBuffer(app, 'CPU data recieved');
                     fWriteMessageBuffer(app, app.delemiter);
                     
-                    if gpuDeviceCount > 0
+                    if (gpuDeviceCount > 0) && (app.GpuEnabled == true)
                         fWriteMessageBuffer(app, 'Getting GPU data...');
                         app.gpuData = getGpuData;
                         app.GpuLoadOutput.Value = app.gpuData.avgGpuLoad;
@@ -347,9 +364,7 @@ classdef userInterface_script < matlab.apps.AppBase
                      fWriteMessageBuffer(app, ' ');
                      
                      %get available clusters and plot it to the buffer
-%                      Clusters1= {'Select...'};
                      Clusters = parallel.clusterProfiles;
-%                      app.Clusters= horzcat(Clusters1,app.Clusters);
                      for Increment=1:length(Clusters)
                        fWriteMessageBuffer(app, ['- "',Clusters{Increment},'"']);  
                      end
@@ -415,7 +430,7 @@ classdef userInterface_script < matlab.apps.AppBase
 
         % Menu selected function: SaveMenu
         function SaveMenuSelected(app, event)
-            saveFile(app)
+            saveFile(app);
             msgbox('File saved!');
         end
 
@@ -436,12 +451,11 @@ classdef userInterface_script < matlab.apps.AppBase
 
         % Menu selected function: NewrunMenu
         function NewrunMenuSelected(app, event)
-            exitBox = questdlg('Do you want to save all data?','Warning');
+            exitBox = questdlg('Do you want to save Log data?','Warning');
             
             switch exitBox
                 case 'Yes'
-                    filename = 'test.csv';
-                    cell2csv(filename,app.messageBuffer);
+                    saveFile(app);
                 case 'No'
                     %do nothing
             end
@@ -515,6 +529,35 @@ classdef userInterface_script < matlab.apps.AppBase
             app.Abort = true;
         end
         
+        % Value changed function: GPUSwitch
+        function GPUSwitchValueChanged(app, event)
+            value = app.GPUSwitch.Value;
+            %TODO: If system already evaluated and gpu enable -> message
+            %to user for a new evaluation
+            switch value
+                case 'Enabled'
+                    app.GpuEnabled = 'true';
+                    app.UIAxes_cpu.Position = [600 631 639 228];
+                    app.UIAxes_gpu.Position = [600 406 642 215];
+                    app.UIAxes_gpu.Visible = 'on';
+                    app.GpuTemperatureOutput.Visible = 'on';
+                    app.GPUTempCLabel.Visible = 'on';
+                    app.GpuLoadOutput.Visible = 'on';
+                    app.GPULoadLabel.Visible = 'on';
+ 
+                case 'Disabled'
+                    app.GpuEnabled = 'false';
+%                     app.UIAxes_gpu.Visible = 'off';
+                    app.GpuTemperatureOutput.Visible = 'off';
+                    app.GPUTempCLabel.Visible = 'off';
+                    app.GpuLoadOutput.Visible = 'off';
+                    app.GPULoadLabel.Visible = 'off';
+                    app.UIAxes_gpu.Position = [1231 370 10 10];
+                    app.UIAxes_cpu.Position = [600 411 639 448];
+            end
+            
+        end
+        
     end
 
     % App initialization and construction
@@ -581,12 +624,12 @@ classdef userInterface_script < matlab.apps.AppBase
             % Create StartButton
             app.StartButton = uibutton(app.BruteForceToolUIFigure, 'push');
             app.StartButton.ButtonPushedFcn = createCallbackFcn(app, @StartButtonPushed, true);
-            app.StartButton.BackgroundColor = [0.302 0.749 1];
+            app.StartButton.BackgroundColor = [0.4 0.8 0.9294];
             app.StartButton.FontName = 'Arial';
             app.StartButton.FontSize = 20;
             app.StartButton.FontWeight = 'bold';
             app.StartButton.FontColor = [1 1 1];
-            app.StartButton.Position = [66 426 430 54];
+            app.StartButton.Position = [66 411 430 54];
             app.StartButton.Text = 'START';
 
             % Create LogMonitorTextAreaLabel
@@ -732,6 +775,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.UIAxes_gpu.YTick = [0 25 50 75 100];
             app.UIAxes_gpu.XGrid = 'on';
             app.UIAxes_gpu.YGrid = 'on';
+            app.UIAxes_gpu.Visible = 'off';
             app.UIAxes_gpu.Position = [599 406 642 226];
 
             % Create GPULoadLabel
@@ -782,6 +826,18 @@ classdef userInterface_script < matlab.apps.AppBase
             app.AbortButton.FontColor = [1 1 1];
             app.AbortButton.Position = [66 345 430 54];
             app.AbortButton.Text = 'ABORT';
+            
+            % Create GPUSwitchLabel
+            app.GPUSwitchLabel = uilabel(app.BruteForceToolUIFigure);
+            app.GPUSwitchLabel.Position = [73 489 32 15];
+            app.GPUSwitchLabel.Text = 'GPU';
+            
+            % Create GPUSwitch
+            app.GPUSwitch = uiswitch(app.BruteForceToolUIFigure, 'slider');
+            app.GPUSwitch.Items = {'Disabled', 'Enabled'};
+            app.GPUSwitch.ValueChangedFcn = createCallbackFcn(app, @GPUSwitchValueChanged, true);
+            app.GPUSwitch.Position = [391 484 54 24];
+            app.GPUSwitch.Value = 'Disabled';
         end
     end
 
