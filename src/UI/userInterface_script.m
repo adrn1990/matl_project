@@ -46,6 +46,7 @@ classdef userInterface_script < matlab.apps.AppBase
     properties (Access = public)
         Property % Description
         delemiter = '---------------------------------------------------------------------------------------------------------------';
+        delemiter2 = '===============================================================';
         messageBuffer = {''};
         evaluateDone = false;
         cpuInfo;
@@ -72,7 +73,7 @@ classdef userInterface_script < matlab.apps.AppBase
         Slash;
         
         %The maximum of the password length is set to 8
-        MaxPwLength= 8;
+        MaxPwLength= 4;
         
         %This property safes the number of chars for the password
         %0-9, A-Z, a-z
@@ -511,7 +512,7 @@ classdef userInterface_script < matlab.apps.AppBase
             compAfterEval(app);
             
             %evaluate if the start button can be active
-            evalStartBF(app)
+            evalStartBF(app);
         end
 
         % Close request function: BruteForceToolUIFigure
@@ -520,7 +521,7 @@ classdef userInterface_script < matlab.apps.AppBase
             %call function for delete procedure
             deleteApp(app);
             
-            delete(app)
+            delete(app);
             
         end
         
@@ -536,7 +537,7 @@ classdef userInterface_script < matlab.apps.AppBase
             %to user for a new evaluation
             switch value
                 case 'Enabled'
-                    app.GpuEnabled = 'true';
+                    app.GpuEnabled = true;
                     app.UIAxes_cpu.Position = [600 631 639 228];
                     app.UIAxes_gpu.Position = [600 406 642 215];
                     app.UIAxes_gpu.Visible = 'on';
@@ -544,9 +545,19 @@ classdef userInterface_script < matlab.apps.AppBase
                     app.GPUTempCLabel.Visible = 'on';
                     app.GpuLoadOutput.Visible = 'on';
                     app.GPULoadLabel.Visible = 'on';
+                    
+                    fWriteMessageBuffer(app, app.delemiter2);
+                    fWriteMessageBuffer(app, 'New system evaluation required!');
+                    fWriteMessageBuffer(app, app.delemiter2);
+                    
+                    app.EvaluateButton.Enable = 'on';
+                    app.StartButton.Enable = 'off';
+                    app.evaluateDone = false;
+%                     compBeforeEval(app);
  
                 case 'Disabled'
-                    app.GpuEnabled = 'false';
+%                     compAfterEval(app);
+                    app.GpuEnabled = false;
 %                     app.UIAxes_gpu.Visible = 'off';
                     app.GpuTemperatureOutput.Visible = 'off';
                     app.GPUTempCLabel.Visible = 'off';
@@ -554,6 +565,10 @@ classdef userInterface_script < matlab.apps.AppBase
                     app.GPULoadLabel.Visible = 'off';
                     app.UIAxes_gpu.Position = [1231 370 10 10];
                     app.UIAxes_cpu.Position = [600 411 639 448];
+                    
+                    app.EvaluateButton.Enable = 'off';
+                    app.StartButton.Enable = 'on';
+                    app.evaluateDone = true;
             end
             
         end
