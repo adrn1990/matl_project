@@ -441,7 +441,7 @@ classdef userInterface_script < matlab.apps.AppBase
             valLenth = strlength(strVal);
             if valLenth > app.MaxPwLength || ~evalChars(app,value)
                 app.WarningBox.Visible = 'on';
-                app.InputEditField.BackgroundColor= 'red';
+                app.InputEditField.BackgroundColor= [1 0.302 0];
             else
                 app.WarningBox.Visible = 'off';
                 app.InputEditField.BackgroundColor= 'white';
