@@ -32,7 +32,6 @@ end
 %define the path to the powershell scripts per each user
 UserPath= [pwd,Slash,'Scripts',Slash];
 
-%TODO: choose powershell scripts per GUI or dynamically
 [~,gpuTermalZones] = system(sprintf('powershell -inputformat none -file %sget-gpu-temperature.ps1',UserPath));
 gpuTermalZones = regexp(gpuTermalZones,'\d*','match');
 gpuTempKelvin = str2double(horzcat(gpuTermalZones{:}));

@@ -49,6 +49,7 @@ classdef userInterface_script < matlab.apps.AppBase
         delemiter2 = '===============================================================';
         messageBuffer = {''};
         evaluateDone = false;
+        gpuEvaluationDone = false;
         cpuInfo;
         cpuData;
         gpuInfo;
@@ -195,6 +196,35 @@ classdef userInterface_script < matlab.apps.AppBase
             app.ResultOutput.Value = '';
         end
         
+        %this function sets the components properties to the state after
+        %GPU were set to enable
+        function compGpuEnabled(app)
+            app.EvaluateButton.Enable = 'on';
+            app.WarningBox.Visible = 'off';
+            app.StartButton.Enable = 'off';
+            app.NewrunMenu.Enable = 'off';
+            app.SaveMenu.Enable = 'off';
+            app.ExitMenu.Enable = 'on';
+            app.AbortButton.Enable = 'off';
+            app.ModeDropDown.Enable = 'off';
+            app.InputEditField.Enable = 'off';
+            app.EncryptionDropDown.Enable = 'off';
+            app.ClusterDropDown.Enable = 'off';
+            app.StartButton.Enable = 'off';
+            app.GPUSwitch.Enable = 'on';
+            
+            app.UIAxes_cpu.Position = [600 631 639 228];
+            app.UIAxes_gpu.Position = [600 406 642 215];
+            app.UIAxes_gpu.Visible = 'on';
+            app.GpuTemperatureOutput.Visible = 'on';
+            app.GPUTempCLabel.Visible = 'on';
+            app.GpuLoadOutput.Visible = 'on';
+            app.GPULoadLabel.Visible = 'on';
+            
+            app.StatusOutput.Value = '';
+            app.ResultOutput.Value = '';
+        end
+        
         %this function sets the components properties to the state after the system is evaluated
         function compAfterEval(app)
             app.EvaluateButton.Enable = 'off';
@@ -228,7 +258,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.ExitMenu.Enable = 'off';
             
         end
-        
+        %this function sets the components properties to the state while the system gets evaluated
         function compWhileEvaluate(app)
             app.EvaluateButton.Enable = 'off';
             app.WarningBox.Visible = 'off';
@@ -428,6 +458,7 @@ classdef userInterface_script < matlab.apps.AppBase
                         app.GpuTemperatureOutput.Value = app.gpuData.currGpuTemp;
                         fWriteMessageBuffer(app, 'GPU data recieved');
                         fWriteMessageBuffer(app, app.delemiter);
+                        app.gpuEvaluationDone = true;
                     end
                 end
                 
@@ -606,32 +637,20 @@ classdef userInterface_script < matlab.apps.AppBase
         % Value changed function: GPUSwitch
         function GPUSwitchValueChanged(app, event)
             value = app.GPUSwitch.Value;
-            %TODO: If system already evaluated and gpu enable -> message
-            %to user for a new evaluation
+
             switch value
                 case 'Enabled'
                     app.GpuEnabled = true;
-                    app.UIAxes_cpu.Position = [600 631 639 228];
-                    app.UIAxes_gpu.Position = [600 406 642 215];
-                    app.UIAxes_gpu.Visible = 'on';
-                    app.GpuTemperatureOutput.Visible = 'on';
-                    app.GPUTempCLabel.Visible = 'on';
-                    app.GpuLoadOutput.Visible = 'on';
-                    app.GPULoadLabel.Visible = 'on';
+                    compGpuEnabled(app);
                     
                     fWriteMessageBuffer(app, app.delemiter2);
                     fWriteMessageBuffer(app, 'New system evaluation required!');
                     fWriteMessageBuffer(app, app.delemiter2);
-                    
-                    app.EvaluateButton.Enable = 'on';
-                    app.StartButton.Enable = 'off';
+
                     app.evaluateDone = false;
-%                     compBeforeEval(app);
  
                 case 'Disabled'
-%                     compAfterEval(app);
                     app.GpuEnabled = false;
-%                     app.UIAxes_gpu.Visible = 'off';
                     app.GpuTemperatureOutput.Visible = 'off';
                     app.GPUTempCLabel.Visible = 'off';
                     app.GpuLoadOutput.Visible = 'off';
@@ -639,9 +658,12 @@ classdef userInterface_script < matlab.apps.AppBase
                     app.UIAxes_gpu.Position = [1231 370 10 10];
                     app.UIAxes_cpu.Position = [600 411 639 448];
                     
-                    app.EvaluateButton.Enable = 'off';
-                    app.StartButton.Enable = 'on';
-                    app.evaluateDone = true;
+                    if app.gpuEvaluationDone == true
+                        app.EvaluateButton.Enable = 'off';
+                        app.evaluateDone = true;
+                    else
+                        app.EvaluateButton.Enable = 'off';
+                    end
             end
             
         end
@@ -654,9 +676,285 @@ classdef userInterface_script < matlab.apps.AppBase
         % Create UIFigure and components
         function createComponents(app)
 
-            % Create BruteForceToolUIFigure
+%             % Create BruteForceToolUIFigure
+%             app.BruteForceToolUIFigure = uifigure;
+%             app.BruteForceToolUIFigure.Color = [0.9412 0.9412 0.9412];
+%             app.BruteForceToolUIFigure.Position = [100 100 1284 974];
+%             app.BruteForceToolUIFigure.Name = 'Brute-Force Tool';
+%             app.BruteForceToolUIFigure.CloseRequestFcn = createCallbackFcn(app, @CloseRequest, true);
+% 
+%             % Create FileMenu
+%             app.FileMenu = uimenu(app.BruteForceToolUIFigure);
+%             app.FileMenu.Text = 'File';
+% 
+%             % Create NewrunMenu
+%             app.NewrunMenu = uimenu(app.FileMenu);
+%             app.NewrunMenu.MenuSelectedFcn = createCallbackFcn(app, @NewrunMenuSelected, true);
+%             app.NewrunMenu.Accelerator = 'N';
+%             app.NewrunMenu.Text = 'New run...';
+% 
+%             % Create SaveMenu
+%             app.SaveMenu = uimenu(app.FileMenu);
+%             app.SaveMenu.MenuSelectedFcn = createCallbackFcn(app, @SaveMenuSelected, true);
+%             app.SaveMenu.Accelerator = 'S';
+%             app.SaveMenu.Text = 'Save';
+% 
+%             % Create ExitMenu
+%             app.ExitMenu = uimenu(app.FileMenu);
+%             app.ExitMenu.MenuSelectedFcn = createCallbackFcn(app, @ExitMenuSelected, true);
+%             app.ExitMenu.Text = 'Exit';
+% 
+%             % Create InfoMenu
+%             app.InfoMenu = uimenu(app.BruteForceToolUIFigure);
+%             app.InfoMenu.Text = '?';
+% 
+%             % Create AboutMenu
+%             app.AboutMenu = uimenu(app.InfoMenu);
+%             app.AboutMenu.MenuSelectedFcn = createCallbackFcn(app, @AboutMenuSelected, true);
+%             app.AboutMenu.Text = 'About...';
+% 
+%             % Create BruteforceToolLabel
+%             app.BruteforceToolLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.BruteforceToolLabel.FontSize = 20;
+%             app.BruteforceToolLabel.FontWeight = 'bold';
+%             app.BruteforceToolLabel.Position = [41 926 158 26];
+%             app.BruteforceToolLabel.Text = 'Brute force Tool';
+% 
+%             % Create InputPasswordHashLabel
+%             app.InputPasswordHashLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.InputPasswordHashLabel.HorizontalAlignment = 'right';
+%             app.InputPasswordHashLabel.Position = [66 707 133 15];
+%             app.InputPasswordHashLabel.Text = 'Input [Password / Hash]';
+% 
+%             % Create InputEditField
+%             app.InputEditField = uieditfield(app.BruteForceToolUIFigure, 'text');
+%             app.InputEditField.ValueChangingFcn = createCallbackFcn(app, @InputEditFieldValueChanging, true);
+%             app.InputEditField.Position = [332 703 164 22];
+% 
+%             % Create StartButton
+%             app.StartButton = uibutton(app.BruteForceToolUIFigure, 'push');
+%             app.StartButton.ButtonPushedFcn = createCallbackFcn(app, @StartButtonPushed, true);
+%             app.StartButton.BackgroundColor = [0.4 0.8 0.9294];
+%             app.StartButton.FontName = 'Arial';
+%             app.StartButton.FontSize = 20;
+%             app.StartButton.FontWeight = 'bold';
+%             app.StartButton.FontColor = [1 1 1];
+%             app.StartButton.Position = [66 411 430 54];
+%             app.StartButton.Text = 'START';
+% 
+%             % Create LogMonitorTextAreaLabel
+%             app.LogMonitorTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.LogMonitorTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
+%             app.LogMonitorTextAreaLabel.Position = [34 250 70 15];
+%             app.LogMonitorTextAreaLabel.Text = 'Log-Monitor';
+% 
+%             % Create LogMonitorOutput
+%             app.LogMonitorOutput = uitextarea(app.BruteForceToolUIFigure);
+%             app.LogMonitorOutput.Editable = 'off';
+%             app.LogMonitorOutput.BackgroundColor = [0.9412 0.9412 0.9412];
+%             app.LogMonitorOutput.Position = [31 21 570 224];
+% 
+%             % Create ModeTodecryptLabel
+%             app.ModeTodecryptLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.ModeTodecryptLabel.HorizontalAlignment = 'right';
+%             app.ModeTodecryptLabel.Position = [66 747 101 15];
+%             app.ModeTodecryptLabel.Text = 'Mode [To decrypt]';
+% 
+%             % Create ModeDropDown
+%             app.ModeDropDown = uidropdown(app.BruteForceToolUIFigure);
+%             app.ModeDropDown.Items = {'Select...', 'Password', 'Hash'};
+%             app.ModeDropDown.ValueChangedFcn = createCallbackFcn(app, @ModeDropDownValueChanged, true);
+%             app.ModeDropDown.Position = [332 743 164 22];
+%             app.ModeDropDown.Value = 'Select...';
+% 
+%             % Create EncryptionAlgorithmDropDownLabel
+%             app.EncryptionAlgorithmDropDownLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.EncryptionAlgorithmDropDownLabel.HorizontalAlignment = 'right';
+%             app.EncryptionAlgorithmDropDownLabel.Position = [66 578 123 15];
+%             app.EncryptionAlgorithmDropDownLabel.Text = 'Encryption [Algorithm]';
+% 
+%             % Create EncryptionDropDown
+%             app.EncryptionDropDown = uidropdown(app.BruteForceToolUIFigure);
+%             app.EncryptionDropDown.Items = {'Select...', 'SHA-1', 'SHA-256', 'SHA-512', 'MD5', 'AES-256'};
+%             app.EncryptionDropDown.ValueChangedFcn = createCallbackFcn(app, @EncryptionDropDownValueChanged, true);
+%             app.EncryptionDropDown.Position = [332 574 164 22];
+%             app.EncryptionDropDown.Value = 'Select...';
+% 
+%             % Create CPUTempCLabel
+%             app.CPUTempCLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.CPUTempCLabel.HorizontalAlignment = 'right';
+%             app.CPUTempCLabel.Position = [999 345 90 15];
+%             app.CPUTempCLabel.Text = 'CPU Temp. [ï¿½C]';
+% 
+%             % Create CpuTemperatureOutput
+%             app.CpuTemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
+%             app.CpuTemperatureOutput.Editable = 'off';
+%             app.CpuTemperatureOutput.HorizontalAlignment = 'center';
+%             app.CpuTemperatureOutput.FontSize = 14;
+%             app.CpuTemperatureOutput.Position = [1127 338 92 28];
+% 
+%             % Create CPULoadLabel
+%             app.CPULoadLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.CPULoadLabel.HorizontalAlignment = 'right';
+%             app.CPULoadLabel.Position = [661 345 82 15];
+%             app.CPULoadLabel.Text = 'CPU Load [%]';
+% 
+%             % Create CpuLoadOutput
+%             app.CpuLoadOutput = uitextarea(app.BruteForceToolUIFigure);
+%             app.CpuLoadOutput.Editable = 'off';
+%             app.CpuLoadOutput.HorizontalAlignment = 'center';
+%             app.CpuLoadOutput.FontSize = 14;
+%             app.CpuLoadOutput.Position = [789 338 92 28];
+% 
+%             % Create ResultTextAreaLabel
+%             app.ResultTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.ResultTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
+%             app.ResultTextAreaLabel.HorizontalAlignment = 'right';
+%             app.ResultTextAreaLabel.Position = [645 250 40 15];
+%             app.ResultTextAreaLabel.Text = 'Result';
+% 
+%             % Create ResultOutput
+%             app.ResultOutput = uitextarea(app.BruteForceToolUIFigure);
+%             app.ResultOutput.Editable = 'off';
+%             app.ResultOutput.HorizontalAlignment = 'center';
+%             app.ResultOutput.FontSize = 48;
+%             app.ResultOutput.BackgroundColor = [0.9412 0.9412 0.9412];
+%             app.ResultOutput.Position = [650 185 583 60];
+% 
+%             % Create AdvancedsettingsLabel
+%             app.AdvancedsettingsLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.AdvancedsettingsLabel.VerticalAlignment = 'center';
+%             app.AdvancedsettingsLabel.FontSize = 16;
+%             app.AdvancedsettingsLabel.FontAngle = 'italic';
+%             app.AdvancedsettingsLabel.Position = [65 631 338 20];
+%             app.AdvancedsettingsLabel.Text = 'Advanced settings';
+% 
+%             % Create EvaluateButton
+%             app.EvaluateButton = uibutton(app.BruteForceToolUIFigure, 'push');
+%             app.EvaluateButton.ButtonPushedFcn = createCallbackFcn(app, @EvaluateButtonPushed, true);
+%             app.EvaluateButton.BackgroundColor = [1 0.9255 0.5451];
+%             app.EvaluateButton.FontSize = 14;
+%             app.EvaluateButton.FontWeight = 'bold';
+%             app.EvaluateButton.Position = [73 816 423 45];
+%             app.EvaluateButton.Text = 'Evaluate System';
+% 
+%             % Create StatusTextAreaLabel
+%             app.StatusTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.StatusTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
+%             app.StatusTextAreaLabel.Position = [34 310 40 15];
+%             app.StatusTextAreaLabel.Text = 'Status';
+% 
+%             % Create StatusOutput
+%             app.StatusOutput = uitextarea(app.BruteForceToolUIFigure);
+%             app.StatusOutput.Editable = 'off';
+%             app.StatusOutput.BackgroundColor = [0.9412 0.9412 0.9412];
+%             app.StatusOutput.Position = [31 276 570 29];
+% 
+%             % Create WarningBox
+%             app.WarningBox = uitextarea(app.BruteForceToolUIFigure);
+%             app.WarningBox.Editable = 'off';
+%             app.WarningBox.FontSize = 9;
+%             app.WarningBox.FontColor = [1 0 0];
+%             app.WarningBox.BackgroundColor = [0.9412 0.9412 0.9412];
+%             app.WarningBox.Position = [332 669 164 35];
+%             app.WarningBox.Value = {'Password length  is limited to 8 and chars ''0-9'', ''A-Z'', ''a-z'' are allowed'};
+% 
+%             % Create UIAxes_cpu
+%             app.UIAxes_cpu = uiaxes(app.BruteForceToolUIFigure);
+%             title(app.UIAxes_cpu, 'CPU Average Load')
+%             ylabel(app.UIAxes_cpu, '%')
+%             app.UIAxes_cpu.XLim = [0 60];
+%             app.UIAxes_cpu.YLim = [0 100];
+%             app.UIAxes_cpu.XDir = 'reverse';
+%             app.UIAxes_cpu.Box = 'on';
+%             app.UIAxes_cpu.XTick = [0 20 40 60];
+%             app.UIAxes_cpu.YTick = [0 25 50 75 100];
+%             app.UIAxes_cpu.XGrid = 'on';
+%             app.UIAxes_cpu.YGrid = 'on';
+%             app.UIAxes_cpu.Position = [600 631 639 228];
+% 
+%             % Create UIAxes_gpu
+%             app.UIAxes_gpu = uiaxes(app.BruteForceToolUIFigure);
+%             title(app.UIAxes_gpu, 'GPU Average Load')
+%             ylabel(app.UIAxes_gpu, '%')
+%             app.UIAxes_gpu.XLim = [0 60];
+%             app.UIAxes_gpu.YLim = [0 100];
+%             app.UIAxes_gpu.XDir = 'reverse';
+%             app.UIAxes_gpu.Box = 'on';
+%             app.UIAxes_gpu.XTick = [0 20 40 60];
+%             app.UIAxes_gpu.YTick = [0 25 50 75 100];
+%             app.UIAxes_gpu.XGrid = 'on';
+%             app.UIAxes_gpu.YGrid = 'on';
+%             app.UIAxes_gpu.Visible = 'off';
+%             app.UIAxes_gpu.Position = [599 406 642 226];
+% 
+%             % Create GPULoadLabel
+%             app.GPULoadLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.GPULoadLabel.HorizontalAlignment = 'right';
+%             app.GPULoadLabel.Position = [661 304 82 15];
+%             app.GPULoadLabel.Text = 'GPU Load [%]';
+% 
+%             % Create GpuLoadOutput
+%             app.GpuLoadOutput = uitextarea(app.BruteForceToolUIFigure);
+%             app.GpuLoadOutput.Editable = 'off';
+%             app.GpuLoadOutput.HorizontalAlignment = 'center';
+%             app.GpuLoadOutput.FontSize = 14;
+%             app.GpuLoadOutput.Position = [789 297 92 28];
+% 
+%             % Create GPUTempCLabel
+%             app.GPUTempCLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.GPUTempCLabel.HorizontalAlignment = 'right';
+%             app.GPUTempCLabel.Position = [998 304 91 15];
+%             app.GPUTempCLabel.Text = 'GPU Temp. [ï¿½C]';
+% 
+%             % Create GpuTemperatureOutput
+%             app.GpuTemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
+%             app.GpuTemperatureOutput.Editable = 'off';
+%             app.GpuTemperatureOutput.HorizontalAlignment = 'center';
+%             app.GpuTemperatureOutput.FontSize = 14;
+%             app.GpuTemperatureOutput.Position = [1127 297 92 28];
+% 
+%             % Create ClusterDropDownLabel            
+%             app.ClusterDropDownLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.ClusterDropDownLabel.Position = [73 529 55 15];
+%             app.ClusterDropDownLabel.Text = 'Cluster';
+%             
+% 
+%             % Create ClusterDropDown        
+%             app.ClusterDropDown = uidropdown(app.BruteForceToolUIFigure);
+%             app.ClusterDropDown.Items = {'Select...'};
+%             app.ClusterDropDown.Position = [332 525 164 22];
+%             app.ClusterDropDown.Value = 'Select...';
+% 
+%             % Create AbortButton
+%             app.AbortButton = uibutton(app.BruteForceToolUIFigure, 'push');
+%             app.AbortButton.ButtonPushedFcn = createCallbackFcn(app, @AbortButtonPushed, true);
+%             app.AbortButton.BackgroundColor = [1 0.302 0];
+%             app.AbortButton.FontName = 'Arial';
+%             app.AbortButton.FontSize = 20;
+%             app.AbortButton.FontWeight = 'bold';
+%             app.AbortButton.FontColor = [1 1 1];
+%             app.AbortButton.Position = [66 345 430 54];
+%             app.AbortButton.Text = 'ABORT';
+%             
+%             % Create GPUSwitchLabel
+%             app.GPUSwitchLabel = uilabel(app.BruteForceToolUIFigure);
+%             app.GPUSwitchLabel.Position = [73 489 32 15];
+%             app.GPUSwitchLabel.Text = 'GPU';
+%             
+%             % Create GPUSwitch
+%             app.GPUSwitch = uiswitch(app.BruteForceToolUIFigure, 'slider');
+%             app.GPUSwitch.Items = {'Disabled', 'Enabled'};
+%             app.GPUSwitch.ValueChangedFcn = createCallbackFcn(app, @GPUSwitchValueChanged, true);
+%             app.GPUSwitch.Position = [391 484 54 24];
+%             app.GPUSwitch.Value = 'Disabled';
+% 
+% 
+%         end
+
+% Create BruteForceToolUIFigure
             app.BruteForceToolUIFigure = uifigure;
-            app.BruteForceToolUIFigure.Color = [0.9412 0.9412 0.9412];
+            app.BruteForceToolUIFigure.Color = [0.3137 0.3137 0.3137];
             app.BruteForceToolUIFigure.Position = [100 100 1284 974];
             app.BruteForceToolUIFigure.Name = 'Brute-Force Tool';
             app.BruteForceToolUIFigure.CloseRequestFcn = createCallbackFcn(app, @CloseRequest, true);
@@ -693,21 +991,27 @@ classdef userInterface_script < matlab.apps.AppBase
 
             % Create BruteforceToolLabel
             app.BruteforceToolLabel = uilabel(app.BruteForceToolUIFigure);
-            app.BruteforceToolLabel.FontSize = 20;
+            app.BruteforceToolLabel.FontName = 'Digital-7 Mono';
+            app.BruteforceToolLabel.FontSize = 26;
             app.BruteforceToolLabel.FontWeight = 'bold';
-            app.BruteforceToolLabel.Position = [41 926 158 26];
+            app.BruteforceToolLabel.FontColor = [0.9412 0.9412 0.9412];
+            app.BruteforceToolLabel.Position = [44 914 203 32];
             app.BruteforceToolLabel.Text = 'Brute force Tool';
 
             % Create InputPasswordHashLabel
             app.InputPasswordHashLabel = uilabel(app.BruteForceToolUIFigure);
+            app.InputPasswordHashLabel.BackgroundColor = [0.3137 0.3137 0.3137];
             app.InputPasswordHashLabel.HorizontalAlignment = 'right';
+            app.InputPasswordHashLabel.FontColor = [1 1 1];
             app.InputPasswordHashLabel.Position = [66 707 133 15];
             app.InputPasswordHashLabel.Text = 'Input [Password / Hash]';
 
             % Create InputEditField
             app.InputEditField = uieditfield(app.BruteForceToolUIFigure, 'text');
             app.InputEditField.ValueChangingFcn = createCallbackFcn(app, @InputEditFieldValueChanging, true);
-            app.InputEditField.Position = [332 703 164 22];
+            app.InputEditField.FontColor = [1 1 1];
+            app.InputEditField.BackgroundColor = [0.3137 0.3137 0.3137];
+            app.InputEditField.Position = [332 703 164 22];           
 
             % Create StartButton
             app.StartButton = uibutton(app.BruteForceToolUIFigure, 'push');
@@ -718,23 +1022,27 @@ classdef userInterface_script < matlab.apps.AppBase
             app.StartButton.FontWeight = 'bold';
             app.StartButton.FontColor = [1 1 1];
             app.StartButton.Position = [66 411 430 54];
-            app.StartButton.Text = 'START';
+            app.StartButton.Text = 'START Brute force';
 
             % Create LogMonitorTextAreaLabel
             app.LogMonitorTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
-            app.LogMonitorTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
-            app.LogMonitorTextAreaLabel.Position = [34 250 70 15];
+            app.LogMonitorTextAreaLabel.BackgroundColor = [0.3137 0.3137 0.3137];
+            app.LogMonitorTextAreaLabel.FontColor = [1 1 1];
+            app.LogMonitorTextAreaLabel.Position = [34 263 70 15];
             app.LogMonitorTextAreaLabel.Text = 'Log-Monitor';
 
             % Create LogMonitorOutput
             app.LogMonitorOutput = uitextarea(app.BruteForceToolUIFigure);
             app.LogMonitorOutput.Editable = 'off';
-            app.LogMonitorOutput.BackgroundColor = [0.9412 0.9412 0.9412];
-            app.LogMonitorOutput.Position = [31 21 570 224];
+            app.LogMonitorOutput.FontColor = [1 1 1];
+            app.LogMonitorOutput.BackgroundColor = [0.3137 0.3137 0.3137];
+            app.LogMonitorOutput.Position = [31 34 570 224];
 
             % Create ModeTodecryptLabel
             app.ModeTodecryptLabel = uilabel(app.BruteForceToolUIFigure);
+            app.ModeTodecryptLabel.BackgroundColor = [0.3137 0.3137 0.3137];
             app.ModeTodecryptLabel.HorizontalAlignment = 'right';
+            app.ModeTodecryptLabel.FontColor = [1 1 1];
             app.ModeTodecryptLabel.Position = [66 747 101 15];
             app.ModeTodecryptLabel.Text = 'Mode [To decrypt]';
 
@@ -742,12 +1050,16 @@ classdef userInterface_script < matlab.apps.AppBase
             app.ModeDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.ModeDropDown.Items = {'Select...', 'Password', 'Hash'};
             app.ModeDropDown.ValueChangedFcn = createCallbackFcn(app, @ModeDropDownValueChanged, true);
+            app.ModeDropDown.FontColor = [1 1 1];
+            app.ModeDropDown.BackgroundColor = [0.3137 0.3137 0.3137];
             app.ModeDropDown.Position = [332 743 164 22];
             app.ModeDropDown.Value = 'Select...';
 
             % Create EncryptionAlgorithmDropDownLabel
             app.EncryptionAlgorithmDropDownLabel = uilabel(app.BruteForceToolUIFigure);
+            app.EncryptionAlgorithmDropDownLabel.BackgroundColor = [0.3137 0.3137 0.3137];
             app.EncryptionAlgorithmDropDownLabel.HorizontalAlignment = 'right';
+            app.EncryptionAlgorithmDropDownLabel.FontColor = [1 1 1];
             app.EncryptionAlgorithmDropDownLabel.Position = [66 578 123 15];
             app.EncryptionAlgorithmDropDownLabel.Text = 'Encryption [Algorithm]';
 
@@ -755,25 +1067,32 @@ classdef userInterface_script < matlab.apps.AppBase
             app.EncryptionDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.EncryptionDropDown.Items = {'Select...', 'SHA-1', 'SHA-256', 'SHA-512', 'MD5', 'AES-256'};
             app.EncryptionDropDown.ValueChangedFcn = createCallbackFcn(app, @EncryptionDropDownValueChanged, true);
+            app.EncryptionDropDown.FontColor = [1 1 1];
+            app.EncryptionDropDown.BackgroundColor = [0.3137 0.3137 0.3137];
             app.EncryptionDropDown.Position = [332 574 164 22];
             app.EncryptionDropDown.Value = 'Select...';
 
             % Create CPUTempCLabel
             app.CPUTempCLabel = uilabel(app.BruteForceToolUIFigure);
+            app.CPUTempCLabel.BackgroundColor = [0.3137 0.3137 0.3137];
             app.CPUTempCLabel.HorizontalAlignment = 'right';
+            app.CPUTempCLabel.FontColor = [1 1 1];
             app.CPUTempCLabel.Position = [999 345 90 15];
-            app.CPUTempCLabel.Text = 'CPU Temp. [°C]';
+            app.CPUTempCLabel.Text = 'CPU Temp. [ï¿½C]';
 
             % Create CpuTemperatureOutput
             app.CpuTemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
             app.CpuTemperatureOutput.Editable = 'off';
             app.CpuTemperatureOutput.HorizontalAlignment = 'center';
             app.CpuTemperatureOutput.FontSize = 14;
+            app.CpuTemperatureOutput.FontColor = [1 1 1];
+            app.CpuTemperatureOutput.BackgroundColor = [0.3137 0.3137 0.3137];
             app.CpuTemperatureOutput.Position = [1127 338 92 28];
 
             % Create CPULoadLabel
             app.CPULoadLabel = uilabel(app.BruteForceToolUIFigure);
             app.CPULoadLabel.HorizontalAlignment = 'right';
+            app.CPULoadLabel.FontColor = [1 1 1];
             app.CPULoadLabel.Position = [661 345 82 15];
             app.CPULoadLabel.Text = 'CPU Load [%]';
 
@@ -782,12 +1101,15 @@ classdef userInterface_script < matlab.apps.AppBase
             app.CpuLoadOutput.Editable = 'off';
             app.CpuLoadOutput.HorizontalAlignment = 'center';
             app.CpuLoadOutput.FontSize = 14;
+            app.CpuLoadOutput.FontColor = [1 1 1];
+            app.CpuLoadOutput.BackgroundColor = [0.3137 0.3137 0.3137];
             app.CpuLoadOutput.Position = [789 338 92 28];
 
             % Create ResultTextAreaLabel
             app.ResultTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
-            app.ResultTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
+            app.ResultTextAreaLabel.BackgroundColor = [0.3137 0.3137 0.3137];
             app.ResultTextAreaLabel.HorizontalAlignment = 'right';
+            app.ResultTextAreaLabel.FontColor = [1 1 1];
             app.ResultTextAreaLabel.Position = [645 250 40 15];
             app.ResultTextAreaLabel.Text = 'Result';
 
@@ -796,7 +1118,9 @@ classdef userInterface_script < matlab.apps.AppBase
             app.ResultOutput.Editable = 'off';
             app.ResultOutput.HorizontalAlignment = 'center';
             app.ResultOutput.FontSize = 48;
-            app.ResultOutput.BackgroundColor = [0.9412 0.9412 0.9412];
+            app.ResultOutput.FontWeight = 'bold';
+            app.ResultOutput.FontColor = [0.6784 1 0.1843];
+            app.ResultOutput.BackgroundColor = [0.3137 0.3137 0.3137];
             app.ResultOutput.Position = [650 185 583 60];
 
             % Create AdvancedsettingsLabel
@@ -804,6 +1128,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.AdvancedsettingsLabel.VerticalAlignment = 'center';
             app.AdvancedsettingsLabel.FontSize = 16;
             app.AdvancedsettingsLabel.FontAngle = 'italic';
+            app.AdvancedsettingsLabel.FontColor = [1 1 1];
             app.AdvancedsettingsLabel.Position = [65 631 338 20];
             app.AdvancedsettingsLabel.Text = 'Advanced settings';
 
@@ -818,15 +1143,17 @@ classdef userInterface_script < matlab.apps.AppBase
 
             % Create StatusTextAreaLabel
             app.StatusTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
-            app.StatusTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
-            app.StatusTextAreaLabel.Position = [34 310 40 15];
+            app.StatusTextAreaLabel.BackgroundColor = [0.3137 0.3137 0.3137];
+            app.StatusTextAreaLabel.FontColor = [1 1 1];
+            app.StatusTextAreaLabel.Position = [34 323 40 15];
             app.StatusTextAreaLabel.Text = 'Status';
 
             % Create StatusOutput
             app.StatusOutput = uitextarea(app.BruteForceToolUIFigure);
             app.StatusOutput.Editable = 'off';
-            app.StatusOutput.BackgroundColor = [0.9412 0.9412 0.9412];
-            app.StatusOutput.Position = [31 276 570 29];
+            app.StatusOutput.FontColor = [1 1 1];
+            app.StatusOutput.BackgroundColor = [0.3137 0.3137 0.3137];
+            app.StatusOutput.Position = [31 289 570 29];
 
             % Create WarningBox
             app.WarningBox = uitextarea(app.BruteForceToolUIFigure);
@@ -835,40 +1162,55 @@ classdef userInterface_script < matlab.apps.AppBase
             app.WarningBox.FontColor = [1 0 0];
             app.WarningBox.BackgroundColor = [0.9412 0.9412 0.9412];
             app.WarningBox.Position = [332 669 164 35];
-            app.WarningBox.Value = {sprintf('Password length is limited to %d and chars ''0-9'', ''A-Z'', ''a-z'' are allowed',app.MaxPwLength)};
+            app.WarningBox.Value = {'Password length  is limited to 8 and chars ''0-9'', ''A-Z'', ''a-z'' are allowed'};
 
             % Create UIAxes_cpu
             app.UIAxes_cpu = uiaxes(app.BruteForceToolUIFigure);
-            title(app.UIAxes_cpu, 'CPU Average Load')
+            title(app.UIAxes_cpu, 'CPU Average Load','Color','white')
             ylabel(app.UIAxes_cpu, '%')
             app.UIAxes_cpu.XLim = [0 60];
             app.UIAxes_cpu.YLim = [0 100];
             app.UIAxes_cpu.XDir = 'reverse';
+            app.UIAxes_cpu.GridColor = [0.902 0.902 0.902];
+            app.UIAxes_cpu.MinorGridColor = [0.149 0.149 0.149];
             app.UIAxes_cpu.Box = 'on';
+            app.UIAxes_cpu.XColor = [0.9412 0.9412 0.9412];
             app.UIAxes_cpu.XTick = [0 20 40 60];
+            app.UIAxes_cpu.YColor = [0.9412 0.9412 0.9412];
             app.UIAxes_cpu.YTick = [0 25 50 75 100];
+            app.UIAxes_cpu.ZColor = [0.9412 0.9412 0.9412];
+            app.UIAxes_cpu.Color = [0.3137 0.3137 0.3137];
             app.UIAxes_cpu.XGrid = 'on';
             app.UIAxes_cpu.YGrid = 'on';
+            app.UIAxes_cpu.BackgroundColor = [0.3137 0.3137 0.3137];
             app.UIAxes_cpu.Position = [600 631 639 228];
 
             % Create UIAxes_gpu
             app.UIAxes_gpu = uiaxes(app.BruteForceToolUIFigure);
-            title(app.UIAxes_gpu, 'GPU Average Load')
+            title(app.UIAxes_gpu, 'GPU Average Load', 'Color','white')
             ylabel(app.UIAxes_gpu, '%')
             app.UIAxes_gpu.XLim = [0 60];
             app.UIAxes_gpu.YLim = [0 100];
             app.UIAxes_gpu.XDir = 'reverse';
+            app.UIAxes_gpu.GridColor = [0.902 0.902 0.902];
+            app.UIAxes_gpu.MinorGridColor = [0.902 0.902 0.902];
             app.UIAxes_gpu.Box = 'on';
+            app.UIAxes_gpu.BoxStyle = 'full';
+            app.UIAxes_gpu.XColor = [0.9412 0.9412 0.9412];
             app.UIAxes_gpu.XTick = [0 20 40 60];
+            app.UIAxes_gpu.YColor = [0.9412 0.9412 0.9412];
             app.UIAxes_gpu.YTick = [0 25 50 75 100];
+            app.UIAxes_gpu.Color = [0.3137 0.3137 0.3137];
             app.UIAxes_gpu.XGrid = 'on';
             app.UIAxes_gpu.YGrid = 'on';
-            app.UIAxes_gpu.Visible = 'off';
-            app.UIAxes_gpu.Position = [599 406 642 226];
+            app.UIAxes_gpu.BackgroundColor = [0.3137 0.3137 0.3137];
+            app.UIAxes_gpu.Position = [599 405 642 215];
 
             % Create GPULoadLabel
             app.GPULoadLabel = uilabel(app.BruteForceToolUIFigure);
+            app.GPULoadLabel.BackgroundColor = [0.3137 0.3137 0.3137];
             app.GPULoadLabel.HorizontalAlignment = 'right';
+            app.GPULoadLabel.FontColor = [1 1 1];
             app.GPULoadLabel.Position = [661 304 82 15];
             app.GPULoadLabel.Text = 'GPU Load [%]';
 
@@ -877,30 +1219,40 @@ classdef userInterface_script < matlab.apps.AppBase
             app.GpuLoadOutput.Editable = 'off';
             app.GpuLoadOutput.HorizontalAlignment = 'center';
             app.GpuLoadOutput.FontSize = 14;
+            app.GpuLoadOutput.FontColor = [1 1 1];
+            app.GpuLoadOutput.BackgroundColor = [0.3137 0.3137 0.3137];
             app.GpuLoadOutput.Position = [789 297 92 28];
 
             % Create GPUTempCLabel
             app.GPUTempCLabel = uilabel(app.BruteForceToolUIFigure);
+            app.GPUTempCLabel.BackgroundColor = [0.3137 0.3137 0.3137];
             app.GPUTempCLabel.HorizontalAlignment = 'right';
+            app.GPUTempCLabel.FontColor = [1 1 1];
             app.GPUTempCLabel.Position = [998 304 91 15];
-            app.GPUTempCLabel.Text = 'GPU Temp. [°C]';
+            app.GPUTempCLabel.Text = 'GPU Temp. [ï¿½C]';
 
             % Create GpuTemperatureOutput
             app.GpuTemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
             app.GpuTemperatureOutput.Editable = 'off';
             app.GpuTemperatureOutput.HorizontalAlignment = 'center';
             app.GpuTemperatureOutput.FontSize = 14;
+            app.GpuTemperatureOutput.FontColor = [1 1 1];
+            app.GpuTemperatureOutput.BackgroundColor = [0.3137 0.3137 0.3137];
             app.GpuTemperatureOutput.Position = [1127 297 92 28];
 
-            % Create ClusterDropDownLabel            
+            % Create ClusterDropDownLabel
             app.ClusterDropDownLabel = uilabel(app.BruteForceToolUIFigure);
+            app.ClusterDropDownLabel.BackgroundColor = [0.3137 0.3137 0.3137];
+            app.ClusterDropDownLabel.FontColor = [1 1 1];
             app.ClusterDropDownLabel.Position = [73 529 55 15];
             app.ClusterDropDownLabel.Text = 'Cluster';
-            
 
-            % Create ClusterDropDown        
+            % Create ClusterDropDown
             app.ClusterDropDown = uidropdown(app.BruteForceToolUIFigure);
             app.ClusterDropDown.Items = {'Select...'};
+            app.ClusterDropDown.ValueChangedFcn = createCallbackFcn(app, @ClusterDropDownValueChanged, true);
+            app.ClusterDropDown.FontColor = [1 1 1];
+            app.ClusterDropDown.BackgroundColor = [0.3137 0.3137 0.3137];
             app.ClusterDropDown.Position = [332 525 164 22];
             app.ClusterDropDown.Value = 'Select...';
 
@@ -914,20 +1266,23 @@ classdef userInterface_script < matlab.apps.AppBase
             app.AbortButton.FontColor = [1 1 1];
             app.AbortButton.Position = [66 345 430 54];
             app.AbortButton.Text = 'ABORT';
-            
+
             % Create GPUSwitchLabel
             app.GPUSwitchLabel = uilabel(app.BruteForceToolUIFigure);
+            app.GPUSwitchLabel.FontColor = [1 1 1];
             app.GPUSwitchLabel.Position = [73 489 32 15];
             app.GPUSwitchLabel.Text = 'GPU';
-            
+
             % Create GPUSwitch
             app.GPUSwitch = uiswitch(app.BruteForceToolUIFigure, 'slider');
             app.GPUSwitch.Items = {'Disabled', 'Enabled'};
             app.GPUSwitch.ValueChangedFcn = createCallbackFcn(app, @GPUSwitchValueChanged, true);
+            app.GPUSwitch.FontColor = [1 1 1];
             app.GPUSwitch.Position = [391 484 54 24];
             app.GPUSwitch.Value = 'Disabled';
         end
     end
+
 
     methods (Access = public)
 
