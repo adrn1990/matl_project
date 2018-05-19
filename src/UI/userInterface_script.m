@@ -1,6 +1,56 @@
+%**************************************************************************
+%Project:           Brute-Force Tool
+%
+%Authors:           B. Hürzeler
+%                   A. Gonzalez
+%
+%Name:              userInterface
+%
+%Description:       TODO
+%
+%Input:             No input
+%
+%Output:            Object of the class userInterface
+%
+%Example:           app = userInterface_script();
+%
+%Copyright:
+%
+%**************************************************************************
+
+%=============================Version- Overview============================
+%{
+%==========================================================================
+%<Version 1.0> - 28.04.2018 - First draft of the class and its UI.
+%
+%<Version 2.0> - 11.05.2018 - Second draft of the class and its UI.
+%                           - Integration of bruteforcing with parfor-loop 
+%                             up to three characters.
+%                           - Implementation of improvement procedure.
+%                           - Call of initialization and delete functions.
+%                           - Integration of powershell scripts.
+%                           - Implementation of runApp script to create an
+%                             object and check different things of system.
+%
+%<Version 3.0> - 14.05.2018 - New strategy of providing the load to the
+%                             workers of the parallel computing toolbox.
+%                           - Graphs changed and displaying of data
+%                             implemented.
+%
+%<Version 4.0> - 18.05.2018 - New functionalities around the GPU and its
+%                             graphs.
+%                           - Hashes and passwords can now be forced.
+%                           - Dynamic warning depending on the
+%                             configuration of the components.
+%                           - Password length changed to 4 chars.
+%==========================================================================
+%}
+
 classdef userInterface_script < matlab.apps.AppBase
 
-    % Properties that correspond to app components
+%==========================================================================
+%=============================class properties=============================
+%==========================================================================
     properties (Access = public)
         BruteForceToolUIFigure   matlab.ui.Figure
         FileMenu                 matlab.ui.container.Menu
@@ -41,9 +91,7 @@ classdef userInterface_script < matlab.apps.AppBase
         AbortButton              matlab.ui.control.Button
         GPUSwitchLabel           matlab.ui.control.Label
         GPUSwitch                matlab.ui.control.Switch
-    end
 
-    properties (Access = public)
         Property % Description
         delemiter = '---------------------------------------------------------------------------------------------------------------';
         delemiter2 = '===============================================================';
@@ -105,25 +153,14 @@ classdef userInterface_script < matlab.apps.AppBase
         
         %This struct safes the properties for the function DataHash
         HashStruct= struct('Method','','Format','HEX','Input','ascii');
-    end
-    
-    methods (Access = public)
-        %Message Buffer
-        function fWriteMessageBuffer(app,message)
-            app.messageBuffer{end + 1} = message;
-            app.LogMonitorOutput.Value = app.messageBuffer;
-        end
-        
-    end
-    
-    methods (Access = public)
-        
-        function fWriteStatus(app,message)
-            app.StatusOutput.Value= message;
-        end
-        
-    end
-    
+    end % end of class properties
+%==========================================================================    
+
+
+
+%==========================================================================
+%===========================class private methods==========================
+%==========================================================================
     methods (Access = private)
         %this function evaluates the used chars for the password or hash
         %and returns true if they are valid
@@ -131,6 +168,7 @@ classdef userInterface_script < matlab.apps.AppBase
             IsValid= isempty(regexp(Char,sprintf('[^%s]',app.AllowedChars), 'once'));
         end
         
+        %evaluate if the 'Start BruteForce' Button can be enabled.
         function evalStartBF(app,varargin)
             %check if varargin is used
             if isempty(varargin)
@@ -160,6 +198,12 @@ classdef userInterface_script < matlab.apps.AppBase
                 CharValidity= false;
             end
             
+            if strcmp(app.GPUSwitch.Value,'Enabled')
+                EvalDone= app.gpuEvaluationDone;
+            else
+                EvalDone= app.evaluateDone;
+            end
+            
             %check if an encryption algorithm is set
             EncryptValidity= ~strcmp(app.EncryptionDropDown.Value,'Select...');
             
@@ -167,7 +211,7 @@ classdef userInterface_script < matlab.apps.AppBase
             ModeValidity= ~strcmp(app.ModeDropDown.Value,'Select...');
             
             %if all checks are true, the StartButton can be enabled.
-            if app.evaluateDone && InputValidity && ModeValidity && CharValidity && EncryptValidity
+            if EvalDone && InputValidity && ModeValidity && CharValidity && EncryptValidity
                 app.StartButton.Enable = 'on';
             else
                 app.StartButton.Enable = 'off';
@@ -258,6 +302,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.ExitMenu.Enable = 'off';
             
         end
+        
         %this function sets the components properties to the state while the system gets evaluated
         function compWhileEvaluate(app)
             app.EvaluateButton.Enable = 'off';
@@ -339,11 +384,7 @@ classdef userInterface_script < matlab.apps.AppBase
                 end
             end
         end
-    end
-    
-
-    methods (Access = private)
-
+        
         % Code that executes after component creation
         function startupFcn(app)
             
@@ -659,7 +700,7 @@ classdef userInterface_script < matlab.apps.AppBase
                     app.UIAxes_gpu.Position = [1231 370 10 10];
                     app.UIAxes_cpu.Position = [600 411 639 448];
                     
-                    evalStartBF(app);
+                    
                     
                     if app.gpuEvaluationDone == true
                         evalStartBF(app);
@@ -671,293 +712,14 @@ classdef userInterface_script < matlab.apps.AppBase
                     end
             end
             
+            evalStartBF(app);
+            
         end
         
-    end
-
-    % App initialization and construction
-    methods (Access = private)
-
         % Create UIFigure and components
         function createComponents(app)
 
-%             % Create BruteForceToolUIFigure
-%             app.BruteForceToolUIFigure = uifigure;
-%             app.BruteForceToolUIFigure.Color = [0.9412 0.9412 0.9412];
-%             app.BruteForceToolUIFigure.Position = [100 100 1284 974];
-%             app.BruteForceToolUIFigure.Name = 'Brute-Force Tool';
-%             app.BruteForceToolUIFigure.CloseRequestFcn = createCallbackFcn(app, @CloseRequest, true);
-% 
-%             % Create FileMenu
-%             app.FileMenu = uimenu(app.BruteForceToolUIFigure);
-%             app.FileMenu.Text = 'File';
-% 
-%             % Create NewrunMenu
-%             app.NewrunMenu = uimenu(app.FileMenu);
-%             app.NewrunMenu.MenuSelectedFcn = createCallbackFcn(app, @NewrunMenuSelected, true);
-%             app.NewrunMenu.Accelerator = 'N';
-%             app.NewrunMenu.Text = 'New run...';
-% 
-%             % Create SaveMenu
-%             app.SaveMenu = uimenu(app.FileMenu);
-%             app.SaveMenu.MenuSelectedFcn = createCallbackFcn(app, @SaveMenuSelected, true);
-%             app.SaveMenu.Accelerator = 'S';
-%             app.SaveMenu.Text = 'Save';
-% 
-%             % Create ExitMenu
-%             app.ExitMenu = uimenu(app.FileMenu);
-%             app.ExitMenu.MenuSelectedFcn = createCallbackFcn(app, @ExitMenuSelected, true);
-%             app.ExitMenu.Text = 'Exit';
-% 
-%             % Create InfoMenu
-%             app.InfoMenu = uimenu(app.BruteForceToolUIFigure);
-%             app.InfoMenu.Text = '?';
-% 
-%             % Create AboutMenu
-%             app.AboutMenu = uimenu(app.InfoMenu);
-%             app.AboutMenu.MenuSelectedFcn = createCallbackFcn(app, @AboutMenuSelected, true);
-%             app.AboutMenu.Text = 'About...';
-% 
-%             % Create BruteforceToolLabel
-%             app.BruteforceToolLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.BruteforceToolLabel.FontSize = 20;
-%             app.BruteforceToolLabel.FontWeight = 'bold';
-%             app.BruteforceToolLabel.Position = [41 926 158 26];
-%             app.BruteforceToolLabel.Text = 'Brute force Tool';
-% 
-%             % Create InputPasswordHashLabel
-%             app.InputPasswordHashLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.InputPasswordHashLabel.HorizontalAlignment = 'right';
-%             app.InputPasswordHashLabel.Position = [66 707 133 15];
-%             app.InputPasswordHashLabel.Text = 'Input [Password / Hash]';
-% 
-%             % Create InputEditField
-%             app.InputEditField = uieditfield(app.BruteForceToolUIFigure, 'text');
-%             app.InputEditField.ValueChangingFcn = createCallbackFcn(app, @InputEditFieldValueChanging, true);
-%             app.InputEditField.Position = [332 703 164 22];
-% 
-%             % Create StartButton
-%             app.StartButton = uibutton(app.BruteForceToolUIFigure, 'push');
-%             app.StartButton.ButtonPushedFcn = createCallbackFcn(app, @StartButtonPushed, true);
-%             app.StartButton.BackgroundColor = [0.4 0.8 0.9294];
-%             app.StartButton.FontName = 'Arial';
-%             app.StartButton.FontSize = 20;
-%             app.StartButton.FontWeight = 'bold';
-%             app.StartButton.FontColor = [1 1 1];
-%             app.StartButton.Position = [66 411 430 54];
-%             app.StartButton.Text = 'START';
-% 
-%             % Create LogMonitorTextAreaLabel
-%             app.LogMonitorTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.LogMonitorTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
-%             app.LogMonitorTextAreaLabel.Position = [34 250 70 15];
-%             app.LogMonitorTextAreaLabel.Text = 'Log-Monitor';
-% 
-%             % Create LogMonitorOutput
-%             app.LogMonitorOutput = uitextarea(app.BruteForceToolUIFigure);
-%             app.LogMonitorOutput.Editable = 'off';
-%             app.LogMonitorOutput.BackgroundColor = [0.9412 0.9412 0.9412];
-%             app.LogMonitorOutput.Position = [31 21 570 224];
-% 
-%             % Create ModeTodecryptLabel
-%             app.ModeTodecryptLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.ModeTodecryptLabel.HorizontalAlignment = 'right';
-%             app.ModeTodecryptLabel.Position = [66 747 101 15];
-%             app.ModeTodecryptLabel.Text = 'Mode [To decrypt]';
-% 
-%             % Create ModeDropDown
-%             app.ModeDropDown = uidropdown(app.BruteForceToolUIFigure);
-%             app.ModeDropDown.Items = {'Select...', 'Password', 'Hash'};
-%             app.ModeDropDown.ValueChangedFcn = createCallbackFcn(app, @ModeDropDownValueChanged, true);
-%             app.ModeDropDown.Position = [332 743 164 22];
-%             app.ModeDropDown.Value = 'Select...';
-% 
-%             % Create EncryptionAlgorithmDropDownLabel
-%             app.EncryptionAlgorithmDropDownLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.EncryptionAlgorithmDropDownLabel.HorizontalAlignment = 'right';
-%             app.EncryptionAlgorithmDropDownLabel.Position = [66 578 123 15];
-%             app.EncryptionAlgorithmDropDownLabel.Text = 'Encryption [Algorithm]';
-% 
-%             % Create EncryptionDropDown
-%             app.EncryptionDropDown = uidropdown(app.BruteForceToolUIFigure);
-%             app.EncryptionDropDown.Items = {'Select...', 'SHA-1', 'SHA-256', 'SHA-512', 'MD5', 'AES-256'};
-%             app.EncryptionDropDown.ValueChangedFcn = createCallbackFcn(app, @EncryptionDropDownValueChanged, true);
-%             app.EncryptionDropDown.Position = [332 574 164 22];
-%             app.EncryptionDropDown.Value = 'Select...';
-% 
-%             % Create CPUTempCLabel
-%             app.CPUTempCLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.CPUTempCLabel.HorizontalAlignment = 'right';
-%             app.CPUTempCLabel.Position = [999 345 90 15];
-%             app.CPUTempCLabel.Text = 'CPU Temp. [ï¿½C]';
-% 
-%             % Create CpuTemperatureOutput
-%             app.CpuTemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
-%             app.CpuTemperatureOutput.Editable = 'off';
-%             app.CpuTemperatureOutput.HorizontalAlignment = 'center';
-%             app.CpuTemperatureOutput.FontSize = 14;
-%             app.CpuTemperatureOutput.Position = [1127 338 92 28];
-% 
-%             % Create CPULoadLabel
-%             app.CPULoadLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.CPULoadLabel.HorizontalAlignment = 'right';
-%             app.CPULoadLabel.Position = [661 345 82 15];
-%             app.CPULoadLabel.Text = 'CPU Load [%]';
-% 
-%             % Create CpuLoadOutput
-%             app.CpuLoadOutput = uitextarea(app.BruteForceToolUIFigure);
-%             app.CpuLoadOutput.Editable = 'off';
-%             app.CpuLoadOutput.HorizontalAlignment = 'center';
-%             app.CpuLoadOutput.FontSize = 14;
-%             app.CpuLoadOutput.Position = [789 338 92 28];
-% 
-%             % Create ResultTextAreaLabel
-%             app.ResultTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.ResultTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
-%             app.ResultTextAreaLabel.HorizontalAlignment = 'right';
-%             app.ResultTextAreaLabel.Position = [645 250 40 15];
-%             app.ResultTextAreaLabel.Text = 'Result';
-% 
-%             % Create ResultOutput
-%             app.ResultOutput = uitextarea(app.BruteForceToolUIFigure);
-%             app.ResultOutput.Editable = 'off';
-%             app.ResultOutput.HorizontalAlignment = 'center';
-%             app.ResultOutput.FontSize = 48;
-%             app.ResultOutput.BackgroundColor = [0.9412 0.9412 0.9412];
-%             app.ResultOutput.Position = [650 185 583 60];
-% 
-%             % Create AdvancedsettingsLabel
-%             app.AdvancedsettingsLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.AdvancedsettingsLabel.VerticalAlignment = 'center';
-%             app.AdvancedsettingsLabel.FontSize = 16;
-%             app.AdvancedsettingsLabel.FontAngle = 'italic';
-%             app.AdvancedsettingsLabel.Position = [65 631 338 20];
-%             app.AdvancedsettingsLabel.Text = 'Advanced settings';
-% 
-%             % Create EvaluateButton
-%             app.EvaluateButton = uibutton(app.BruteForceToolUIFigure, 'push');
-%             app.EvaluateButton.ButtonPushedFcn = createCallbackFcn(app, @EvaluateButtonPushed, true);
-%             app.EvaluateButton.BackgroundColor = [1 0.9255 0.5451];
-%             app.EvaluateButton.FontSize = 14;
-%             app.EvaluateButton.FontWeight = 'bold';
-%             app.EvaluateButton.Position = [73 816 423 45];
-%             app.EvaluateButton.Text = 'Evaluate System';
-% 
-%             % Create StatusTextAreaLabel
-%             app.StatusTextAreaLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.StatusTextAreaLabel.BackgroundColor = [0.9412 0.9412 0.9412];
-%             app.StatusTextAreaLabel.Position = [34 310 40 15];
-%             app.StatusTextAreaLabel.Text = 'Status';
-% 
-%             % Create StatusOutput
-%             app.StatusOutput = uitextarea(app.BruteForceToolUIFigure);
-%             app.StatusOutput.Editable = 'off';
-%             app.StatusOutput.BackgroundColor = [0.9412 0.9412 0.9412];
-%             app.StatusOutput.Position = [31 276 570 29];
-% 
-%             % Create WarningBox
-%             app.WarningBox = uitextarea(app.BruteForceToolUIFigure);
-%             app.WarningBox.Editable = 'off';
-%             app.WarningBox.FontSize = 9;
-%             app.WarningBox.FontColor = [1 0 0];
-%             app.WarningBox.BackgroundColor = [0.9412 0.9412 0.9412];
-%             app.WarningBox.Position = [332 669 164 35];
-%             app.WarningBox.Value = {'Password length  is limited to 8 and chars ''0-9'', ''A-Z'', ''a-z'' are allowed'};
-% 
-%             % Create UIAxes_cpu
-%             app.UIAxes_cpu = uiaxes(app.BruteForceToolUIFigure);
-%             title(app.UIAxes_cpu, 'CPU Average Load')
-%             ylabel(app.UIAxes_cpu, '%')
-%             app.UIAxes_cpu.XLim = [0 60];
-%             app.UIAxes_cpu.YLim = [0 100];
-%             app.UIAxes_cpu.XDir = 'reverse';
-%             app.UIAxes_cpu.Box = 'on';
-%             app.UIAxes_cpu.XTick = [0 20 40 60];
-%             app.UIAxes_cpu.YTick = [0 25 50 75 100];
-%             app.UIAxes_cpu.XGrid = 'on';
-%             app.UIAxes_cpu.YGrid = 'on';
-%             app.UIAxes_cpu.Position = [600 631 639 228];
-% 
-%             % Create UIAxes_gpu
-%             app.UIAxes_gpu = uiaxes(app.BruteForceToolUIFigure);
-%             title(app.UIAxes_gpu, 'GPU Average Load')
-%             ylabel(app.UIAxes_gpu, '%')
-%             app.UIAxes_gpu.XLim = [0 60];
-%             app.UIAxes_gpu.YLim = [0 100];
-%             app.UIAxes_gpu.XDir = 'reverse';
-%             app.UIAxes_gpu.Box = 'on';
-%             app.UIAxes_gpu.XTick = [0 20 40 60];
-%             app.UIAxes_gpu.YTick = [0 25 50 75 100];
-%             app.UIAxes_gpu.XGrid = 'on';
-%             app.UIAxes_gpu.YGrid = 'on';
-%             app.UIAxes_gpu.Visible = 'off';
-%             app.UIAxes_gpu.Position = [599 406 642 226];
-% 
-%             % Create GPULoadLabel
-%             app.GPULoadLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.GPULoadLabel.HorizontalAlignment = 'right';
-%             app.GPULoadLabel.Position = [661 304 82 15];
-%             app.GPULoadLabel.Text = 'GPU Load [%]';
-% 
-%             % Create GpuLoadOutput
-%             app.GpuLoadOutput = uitextarea(app.BruteForceToolUIFigure);
-%             app.GpuLoadOutput.Editable = 'off';
-%             app.GpuLoadOutput.HorizontalAlignment = 'center';
-%             app.GpuLoadOutput.FontSize = 14;
-%             app.GpuLoadOutput.Position = [789 297 92 28];
-% 
-%             % Create GPUTempCLabel
-%             app.GPUTempCLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.GPUTempCLabel.HorizontalAlignment = 'right';
-%             app.GPUTempCLabel.Position = [998 304 91 15];
-%             app.GPUTempCLabel.Text = 'GPU Temp. [ï¿½C]';
-% 
-%             % Create GpuTemperatureOutput
-%             app.GpuTemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
-%             app.GpuTemperatureOutput.Editable = 'off';
-%             app.GpuTemperatureOutput.HorizontalAlignment = 'center';
-%             app.GpuTemperatureOutput.FontSize = 14;
-%             app.GpuTemperatureOutput.Position = [1127 297 92 28];
-% 
-%             % Create ClusterDropDownLabel            
-%             app.ClusterDropDownLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.ClusterDropDownLabel.Position = [73 529 55 15];
-%             app.ClusterDropDownLabel.Text = 'Cluster';
-%             
-% 
-%             % Create ClusterDropDown        
-%             app.ClusterDropDown = uidropdown(app.BruteForceToolUIFigure);
-%             app.ClusterDropDown.Items = {'Select...'};
-%             app.ClusterDropDown.Position = [332 525 164 22];
-%             app.ClusterDropDown.Value = 'Select...';
-% 
-%             % Create AbortButton
-%             app.AbortButton = uibutton(app.BruteForceToolUIFigure, 'push');
-%             app.AbortButton.ButtonPushedFcn = createCallbackFcn(app, @AbortButtonPushed, true);
-%             app.AbortButton.BackgroundColor = [1 0.302 0];
-%             app.AbortButton.FontName = 'Arial';
-%             app.AbortButton.FontSize = 20;
-%             app.AbortButton.FontWeight = 'bold';
-%             app.AbortButton.FontColor = [1 1 1];
-%             app.AbortButton.Position = [66 345 430 54];
-%             app.AbortButton.Text = 'ABORT';
-%             
-%             % Create GPUSwitchLabel
-%             app.GPUSwitchLabel = uilabel(app.BruteForceToolUIFigure);
-%             app.GPUSwitchLabel.Position = [73 489 32 15];
-%             app.GPUSwitchLabel.Text = 'GPU';
-%             
-%             % Create GPUSwitch
-%             app.GPUSwitch = uiswitch(app.BruteForceToolUIFigure, 'slider');
-%             app.GPUSwitch.Items = {'Disabled', 'Enabled'};
-%             app.GPUSwitch.ValueChangedFcn = createCallbackFcn(app, @GPUSwitchValueChanged, true);
-%             app.GPUSwitch.Position = [391 484 54 24];
-%             app.GPUSwitch.Value = 'Disabled';
-% 
-% 
-%         end
-
-% Create BruteForceToolUIFigure
+            % Create BruteForceToolUIFigure
             app.BruteForceToolUIFigure = uifigure;
             app.BruteForceToolUIFigure.Color = [0.3137 0.3137 0.3137];
             app.BruteForceToolUIFigure.Position = [100 100 1284 974];
@@ -1083,7 +845,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.CPUTempCLabel.HorizontalAlignment = 'right';
             app.CPUTempCLabel.FontColor = [1 1 1];
             app.CPUTempCLabel.Position = [999 345 90 15];
-            app.CPUTempCLabel.Text = 'CPU Temp. [ï¿½C]';
+            app.CPUTempCLabel.Text = 'CPU Temp. [°]';
 
             % Create CpuTemperatureOutput
             app.CpuTemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
@@ -1233,7 +995,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.GPUTempCLabel.HorizontalAlignment = 'right';
             app.GPUTempCLabel.FontColor = [1 1 1];
             app.GPUTempCLabel.Position = [998 304 91 15];
-            app.GPUTempCLabel.Text = 'GPU Temp. [ï¿½C]';
+            app.GPUTempCLabel.Text = 'GPU Temp. [°]';
 
             % Create GpuTemperatureOutput
             app.GpuTemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
@@ -1285,9 +1047,14 @@ classdef userInterface_script < matlab.apps.AppBase
             app.GPUSwitch.Position = [391 484 54 24];
             app.GPUSwitch.Value = 'Disabled';
         end
-    end
+    end %end of class private methods
+%==========================================================================
 
 
+
+%==========================================================================
+%===========================class public methods===========================
+%==========================================================================
     methods (Access = public)
 
         % Construct app
@@ -1322,5 +1089,19 @@ classdef userInterface_script < matlab.apps.AppBase
             % Delete UIFigure when app is deleted
             delete(app.BruteForceToolUIFigure)
         end
-    end
-end
+        
+        function fWriteStatus(app,message)
+            app.StatusOutput.Value= message;
+        end
+        
+        %Message Buffer
+        function fWriteMessageBuffer(app,message)
+            app.messageBuffer{end + 1} = message;
+            app.LogMonitorOutput.Value = app.messageBuffer;
+        end
+        
+    end %end of class public methods
+%==========================================================================
+
+
+end %end of class
