@@ -72,7 +72,7 @@ classdef userInterface_script < matlab.apps.AppBase
         %This property safes the char slash/backslash
         Slash;
         
-        %The maximum of the password length is set to 8
+        %The maximum of the password length is set to 4
         MaxPwLength= 4;
         
         %This property safes the number of chars for the password
@@ -86,9 +86,13 @@ classdef userInterface_script < matlab.apps.AppBase
         %to do
         Iterations;
         
-        %This property safes the Hash of the given data
+        %This property saves the hash of the given data
         Hash;
         
+        %This property saves the lenght of the hash        
+        HashLength= 40;
+        
+        %this
         Abort= false;
         
         %The following property saves the allowed chars for the password
@@ -134,10 +138,17 @@ classdef userInterface_script < matlab.apps.AppBase
                 Input= varargin{1};
             end
             
-            %check if the input is between 0 and 9
-            if (0 < length(Input)) &&  (length(Input) < 9)
-                InputValidity= true;
-            else
+
+            if strcmp(app.ModeDropDown.Value,app.ModeDropDown.Items{1})
+                %check if the input is between 0 and the maximum of the pasword
+                %length
+                if (0 < length(Input)) &&  (length(Input) < app.MaxPwLength+1)
+                    InputValidity= true;
+                else
+                    InputValidity= false;
+                end
+            else %mode is hash
+                %TODO: edit
                 InputValidity= false;
             end
             
@@ -148,13 +159,12 @@ classdef userInterface_script < matlab.apps.AppBase
                 CharValidity= false;
             end
             
-            %check if an encryption algorithm is set is set
+            %check if an encryption algorithm is set
             EncryptValidity= ~strcmp(app.EncryptionDropDown.Value,'Select...');
             
             %check if the mode to decrypt is set
             ModeValidity= ~strcmp(app.ModeDropDown.Value,'Select...');
             
-            %TODO: add the functionality for the cluster dropdown
             %if all checks are true, the StartButton can be enabled.
             if app.evaluateDone && InputValidity && ModeValidity && CharValidity && EncryptValidity
                 app.StartButton.Enable = 'on';
@@ -235,6 +245,69 @@ classdef userInterface_script < matlab.apps.AppBase
 
         end
         
+        %evaluate which warning message should be showed. This is a dynamic
+        %problem because the length of each hash method is different.
+        function evalInputFieldWarningMsg(app)
+            if strcmp(app.ModeDropDown.Value,app.ModeDropDown.Items{1})
+                app.WarningBox.Value = {sprintf([...
+                    'Password length is limited to %d and chars ''0-9'', ',...
+                    '''A-Z'', ''a-z'' are allowed.'],app.MaxPwLength)};
+            elseif ~strcmp(app.ModeDropDown.Value,app.ModeDropDown.Items{1})
+                app.WarningBox.Value = {sprintf([...
+                    'Hash length has to be %d and chars ''0-9'', ''A-Z'',',...
+                    '''a-z'' are allowed.'],app.HashLength)};
+            end
+        end
+        
+        %get the length of the hash which is set by the encryption dropdown.
+        %This is done by encrypt the password '1234' with the given
+        %options.
+        function Length= getHashLength(app)
+            
+            if ~strcmp(app.EncryptionDropDown.Value,'Select...')
+                Length= length(DataHash('1234',app.HashStruct));
+            else
+                Length= 40;
+            end
+            
+        end
+        
+        %this function evaluates if the warning of the input field should
+        %be visible or not. It depends on different options like the mode,
+        %the length of the input and used chars.
+        function evalInputFieldWarningVisibility(app,varargin)
+            
+            %check if varargin is used
+            if isempty(varargin)
+                valLength = length(app.InputEditField.Value);
+                value= app.InputEditField.Value;
+            else
+                valLength= varargin{1};
+                value= varargin{2};
+            end
+            
+            %set the backgroundcolor.
+            Color= [1 0.302 0];
+            
+            %check which mode is used
+            if strcmp(app.ModeDropDown.Value,'Password')%PWmode
+                if valLength > app.MaxPwLength || ~evalChars(app,value)
+                    app.WarningBox.Visible = 'on';
+                    app.InputEditField.BackgroundColor= Color;
+                else
+                    app.WarningBox.Visible = 'off';
+                    app.InputEditField.BackgroundColor= 'white';
+                end
+            elseif strcmp(app.ModeDropDown.Value,'Hash') %hashmode
+                if ~(app.HashLength == valLength) || ~evalChars(app,value)
+                    app.WarningBox.Visible = 'on';
+                    app.InputEditField.BackgroundColor= Color;
+                else
+                    app.WarningBox.Visible = 'off';
+                    app.InputEditField.BackgroundColor= 'white';
+                end
+            end
+        end
     end
     
 
@@ -439,15 +512,11 @@ classdef userInterface_script < matlab.apps.AppBase
         function InputEditFieldValueChanging(app, event)
             value = event.Value;
             strVal = convertCharsToStrings(value);
-            valLenth = strlength(strVal);
-            if valLenth > app.MaxPwLength || ~evalChars(app,value)
-                app.WarningBox.Visible = 'on';
-                app.InputEditField.BackgroundColor= [1 0.302 0];
-            else
-                app.WarningBox.Visible = 'off';
-                app.InputEditField.BackgroundColor= 'white';
-            end
+            valLength = strlength(strVal);
+            evalInputFieldWarningVisibility(app,valLength,value);
+
             evalStartBF(app,value);
+            evalInputFieldWarningMsg(app);
         end
 
         % Menu selected function: NewrunMenu
@@ -483,6 +552,9 @@ classdef userInterface_script < matlab.apps.AppBase
                     app.HashStruct.Method= 'MD5';
             end
             
+            app.HashLength= getHashLength(app);
+
+            evalInputFieldWarningMsg(app);
             evalStartBF(app);
         end
 
@@ -490,8 +562,9 @@ classdef userInterface_script < matlab.apps.AppBase
         function ModeDropDownValueChanged(app, event)
             %Set items for Dropdown menu without select...
             app.ModeDropDown.Items = {'Password', 'Hash'};
-            app.ModeDropDown.Value;
             evalStartBF(app);
+            evalInputFieldWarningMsg(app);
+            evalInputFieldWarningVisibility(app);
         end
 
         % Button pushed function: StartButton
@@ -762,7 +835,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.WarningBox.FontColor = [1 0 0];
             app.WarningBox.BackgroundColor = [0.9412 0.9412 0.9412];
             app.WarningBox.Position = [332 669 164 35];
-            app.WarningBox.Value = {'Password length  is limited to 8 and chars ''0-9'', ''A-Z'', ''a-z'' are allowed'};
+            app.WarningBox.Value = {sprintf('Password length is limited to %d and chars ''0-9'', ''A-Z'', ''a-z'' are allowed',app.MaxPwLength)};
 
             % Create UIAxes_cpu
             app.UIAxes_cpu = uiaxes(app.BruteForceToolUIFigure);
