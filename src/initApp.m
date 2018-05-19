@@ -21,6 +21,7 @@
 
 %==========================================================================
 %<Version 1.0> - 12.05.2018 - First version of the function.
+%<Version 1.1> - 18.05.2018 - GPU availability added.
 %==========================================================================
 
 function Obj = initApp(Obj)
@@ -52,5 +53,9 @@ cd([CurrPath,Obj.Slash,'Files']);
 Obj.Improvements= importdata(Obj.FileName);
 cd(CurrPath);
 clear CurrPath
+
+if gpuDeviceCount > 0
+    Obj.GpuAvailable= true;
+end
 
 end
