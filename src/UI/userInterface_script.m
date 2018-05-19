@@ -201,7 +201,7 @@ classdef userInterface_script < matlab.apps.AppBase
         function compGpuEnabled(app)
             app.EvaluateButton.Enable = 'on';
             app.WarningBox.Visible = 'off';
-            app.StartButton.Enable = 'off';
+%             app.StartButton.Enable = 'off';
             app.NewrunMenu.Enable = 'off';
             app.SaveMenu.Enable = 'off';
             app.ExitMenu.Enable = 'on';
@@ -210,7 +210,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.InputEditField.Enable = 'off';
             app.EncryptionDropDown.Enable = 'off';
             app.ClusterDropDown.Enable = 'off';
-            app.StartButton.Enable = 'off';
+%             app.StartButton.Enable = 'off';
             app.GPUSwitch.Enable = 'on';
             
             app.UIAxes_cpu.Position = [600 631 639 228];
@@ -659,9 +659,12 @@ classdef userInterface_script < matlab.apps.AppBase
                     app.UIAxes_gpu.Position = [1231 370 10 10];
                     app.UIAxes_cpu.Position = [600 411 639 448];
                     
+                    evalStartBF(app);
+                    
                     if app.gpuEvaluationDone == true
-                        app.EvaluateButton.Enable = 'off';
-                        app.evaluateDone = true;
+                        evalStartBF(app);
+%                         app.EvaluateButton.Enable = 'off';
+%                         app.evaluateDone = true;
                     else
                         compAfterEval(app);
 %                         app.EvaluateButton.Enable = 'off';
@@ -1162,9 +1165,8 @@ classdef userInterface_script < matlab.apps.AppBase
             app.WarningBox.Editable = 'off';
             app.WarningBox.FontSize = 9;
             app.WarningBox.FontColor = [1 0 0];
-            app.WarningBox.BackgroundColor = [0.9412 0.9412 0.9412];
+            app.WarningBox.BackgroundColor = [0.3137 0.3137 0.3137];
             app.WarningBox.Position = [332 669 164 35];
-            app.WarningBox.Value = {'Password length  is limited to 8 and chars ''0-9'', ''A-Z'', ''a-z'' are allowed'};
 
             % Create UIAxes_cpu
             app.UIAxes_cpu = uiaxes(app.BruteForceToolUIFigure);
