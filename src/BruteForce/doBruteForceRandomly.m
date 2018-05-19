@@ -24,7 +24,7 @@ function [Pw] = doBruteForceRandomly (Iterations,Hash,Array,Opt)
 
 for Increment=1:Iterations
     Inc= randi(Iterations);
-    if strcmp(Hash,DataHash(createString(Inc,Array),Opt))
+    if strcmpi(Hash,DataHash(createString(Inc,Array),Opt))
         Pw= createString(Inc,Array);
         break
     end

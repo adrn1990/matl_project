@@ -20,7 +20,10 @@
 %**************************************************************************
 function [] = doBruteForce2 (Obj)
 
+%local variable for the numbers of chars
 NbrOfChars= Obj.NbrOfChars;
+
+%local variable for the number of digits the password can have
 MaxPwLength= Obj.MaxPwLength;
 
 Obj.AmountOfCalls= 1;
@@ -31,9 +34,14 @@ Improvements= Obj.Improvements;
 FoundByImprovement= false;
 Method= Obj.HashStruct.Method;
 Array= Obj.AllowedChars;
+Cluster= Obj.ClusterDropDown.Value;
 
-%The number of iterations to find a password is now for 1 to 3 digits
-Obj.Iterations = NbrOfChars^3+NbrOfChars^2+NbrOfChars;
+%local variable to save the logical information if the brute force should
+%be aborted.
+Break= false;
+
+%The number of iterations to find a password is now for 1 to 4 digits
+Obj.Iterations = sum(NbrOfChars.^(1:MaxPwLength));
 Iterations= Obj.Iterations;
 
 %Options for function DataHash
@@ -41,7 +49,7 @@ Opt= Obj.HashStruct;
 
 %TODO: Update status bar
 % %Preparation for UI update
-% D = parallel.pool.DataQueue;
+% D = parallel.FevalQueue;
 % D.afterEach(@disp);
 
 Obj.fWriteMessageBuffer(Obj.delemiter);
@@ -66,18 +74,10 @@ try
     if ~FoundByImprovement
         
         %TODO: Divide Iterations for amount of workers and gpus
-        
-        
-        %TODO: Use of gpu
-%             if gpuDeviceCount > 0
-%                 arr = 1:Iterations;
-%                 G = gpuArray(arr);
-%                 Pw = doBruteForceAscendinglyGpu(G,Hash,Array,Opt);
-%                 Pw_2 = doBruteForceRandomlyGpu(G,Hash,Array,Opt);
-%             end
+               
         
         %TODO choose cluster from UI
-        c = parcluster;
+        c = parcluster(Cluster);
         Job = createJob(c);
         
         %TODO: divide the task to more than two workers (if there are any)
@@ -85,14 +85,12 @@ try
         Task2= createTask(Job, @doBruteForceRandomly, 1, {Iterations,Hash,Array,Opt},'CaptureDiary',true);
         
         %submit the job to the scheduler
-        submit(Job)
-        
-        Break= false;
+        submit(Job)       
         
         while(~strcmp(Task1.State,'finished') && ~strcmp(Task2.State,'finished') && ~Break)
             %TODO: displaydata throws an exception
-            displayData(Obj)
-%             pause(3);
+            %displayData(Obj)
+             pause(3);
             if Obj.Abort
                 %Abort the BruteForce by cancelling the job and break the while
                 %loop
@@ -111,8 +109,6 @@ try
         end
         
         if ~Obj.Abort
-            %TODO: get data from gpu
-            %gather(G2);
             Pw = fetchOutputs(Job);
             Pw{1};
             Obj.ResultOutput.Value= Pw;
@@ -148,4 +144,3 @@ else
     Obj.fWriteMessageBuffer('Please try again.');
     Obj.fWriteMessageBuffer(Obj.delemiter);
 end
-
