@@ -91,68 +91,99 @@ classdef userInterface_script < matlab.apps.AppBase
         AbortButton              matlab.ui.control.Button
         GPUSwitchLabel           matlab.ui.control.Label
         GPUSwitch                matlab.ui.control.Switch
+        
+%manual properties---
 
-        Property % Description
-        delemiter = '---------------------------------------------------------------------------------------------------------------';
-        delemiter2 = '===============================================================';
-        messageBuffer = {''};
-        evaluateDone = false;
-        gpuEvaluationDone = false;
-        cpuInfo;
-        cpuData;
-        gpuInfo;
-        gpuData;
-        %For displayData()
-        CpuValue = 0;
-        GpuValue = 0;
-        time = 0;
-        SizeReached = false;
-        GpuEnabled = false;
-        
-        %This property safes the allready found passwords and hashes.
-        Improvements;
-        
-        %This property safes the name of the file with the allready found passwords and hashes
-        FileName;
-        
-        %This property safes all folders of the path
-        Folders;
-        
-        %This property safes the char slash/backslash
-        Slash;
-        
-        %The maximum of the password length is set to 4
-        MaxPwLength= 4;
-        
-        %This property safes the number of chars for the password
-        %0-9, A-Z, a-z
-        NbrOfChars= 62;
-        
-        %This property is to calculate the progress
-        AmountOfCalls;
-        
-        %This property saves the amount of iterations the parfor loop has
-        %to do
-        Iterations;
-        
-        %This property saves the hash of the given data
-        Hash;
-        
-        %This property saves the lenght of the hash        
-        HashLength= 40;
-        
-        %this
+        %TODO: description
         Abort= false;
-        
+
         %The following property saves the allowed chars for the password
         %To generate the following cell-array as specified us the commented part in
         %the command window.
         %Arr= {char(48:57),char(65:90),char(97:122)} %0-9, A-Z, a-z 48-57, 65-90, 97-122
         %horzcat(Arr{:})
         AllowedChars= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+                
+        %This property is to calculate the progress
+        AmountOfCalls;
+        
+        %TODO: description
+        delemiter = '---------------------------------------------------------------------------------------------------------------';
+
+        %TODO: description
+        delemiter2 = '===============================================================';
+
+        %TODO: description
+        evaluateDone = false;
+
+        %TODO: description
+        cpuData;
+
+        %TODO: description
+        cpuInfo;
+
+        %TODO: description
+        CpuValue = 0;
+
+        %This property safes the name of the file with the allready found passwords and hashes
+        FileName;
+
+        %This property safes all folders of the path
+        Folders;
+                
+        %TODO: description
+        gpuInfo;
+
+        %TODO: description
+        gpuData;
+
+        %TODO: description
+        GpuEnabled = false;
+
+        %TODO: description
+        gpuEvaluationDone = false;
+
+        %TODO: description
+        GpuValue = 0;
+
+        %This property saves the hash of the given data
+        Hash;
+        
+        %This property saves the lenght of the hash        
+        HashLength= 40;
         
         %This struct safes the properties for the function DataHash
         HashStruct= struct('Method','','Format','HEX','Input','ascii');
+
+        %This property safes the allready found passwords and hashes.
+        Improvements;
+
+        %This property saves the amount of iterations the parfor loop has
+        %to do
+        Iterations;
+                
+        %The maximum of the password length is set to 4
+        MaxPwLength= 4;
+        
+        %TODO: description
+        messageBuffer = {''};
+        
+        %This property safes the number of chars for the password
+        %0-9, A-Z, a-z
+        NbrOfChars= 62;
+        
+        %TODO: description
+        Property % Description
+
+        %TODO: description
+        SizeReached = false;
+        
+        %This property safes the char slash/backslash
+        Slash;
+        
+        %TODO: description
+        time = 0;
+
     end % end of class properties
 %==========================================================================    
 
@@ -162,62 +193,43 @@ classdef userInterface_script < matlab.apps.AppBase
 %===========================class private methods==========================
 %==========================================================================
     methods (Access = private)
-        %this function evaluates the used chars for the password or hash
-        %and returns true if they are valid
-        function IsValid = evalChars(app,Char)
-            IsValid= isempty(regexp(Char,sprintf('[^%s]',app.AllowedChars), 'once'));
+         % Button pushed function: AbortButton
+        function AbortButtonPushed(app, event)
+            app.Abort = true;
+        end
+               
+        % Menu selected function: AboutMenu
+        function AboutMenuSelected(app, event)
+            msgbox({'Name: Brute-Force Tool' 'Version: 0.0.0' 'Designer: A.Gonzalez / B. Huerzeler'}, 'About...');
         end
         
-        %evaluate if the 'Start BruteForce' Button can be enabled.
-        function evalStartBF(app,varargin)
-            %check if varargin is used
-            if isempty(varargin)
-                Input = app.InputEditField.Value;
-            else
-                Input= varargin{1};
-            end
+        % Close request function: BruteForceToolUIFigure
+        function CloseRequest(app, event)
             
+            %call function for delete procedure
+            deleteApp(app);
+            
+            delete(app);
+            
+        end
+                
+        %this function sets the components properties to the state after the system is evaluated
+        function compAfterEval(app)
+            app.EvaluateButton.Enable = 'off';
+            app.StartButton.Enable = 'off';
+            app.NewrunMenu.Enable = 'on';
+            app.SaveMenu.Enable = 'on';
+            app.ExitMenu.Enable = 'on';
+            app.AbortButton.Enable = 'off';
+            app.ModeDropDown.Enable = 'on';
+            app.InputEditField.Enable = 'on';
+            app.EncryptionDropDown.Enable = 'on';
+            app.ClusterDropDown.Enable = 'on';
+            app.Abort = false;
+            app.GPUSwitch.Enable = 'on';
+            
+        end
 
-            if strcmp(app.ModeDropDown.Value,app.ModeDropDown.Items{1})
-                %check if the input is between 0 and the maximum of the pasword
-                %length
-                if (0 < length(Input)) &&  (length(Input) < app.MaxPwLength+1)
-                    InputValidity= true;
-                else
-                    InputValidity= false;
-                end
-            else %mode is hash
-                %TODO: edit
-                InputValidity= false;
-            end
-            
-            %check if the chars in the inputbox are valid
-            if evalChars(app,Input)
-                CharValidity = true;
-            else
-                CharValidity= false;
-            end
-            
-            if strcmp(app.GPUSwitch.Value,'Enabled')
-                EvalDone= app.gpuEvaluationDone;
-            else
-                EvalDone= app.evaluateDone;
-            end
-            
-            %check if an encryption algorithm is set
-            EncryptValidity= ~strcmp(app.EncryptionDropDown.Value,'Select...');
-            
-            %check if the mode to decrypt is set
-            ModeValidity= ~strcmp(app.ModeDropDown.Value,'Select...');
-            
-            %if all checks are true, the StartButton can be enabled.
-            if EvalDone && InputValidity && ModeValidity && CharValidity && EncryptValidity
-                app.StartButton.Enable = 'on';
-            else
-                app.StartButton.Enable = 'off';
-            end
-        end
-        
         %this function sets the components properties to the state before the system is evaluated
         function compBeforeEval(app)
             app.EvaluateButton.Enable = 'on';
@@ -268,24 +280,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.StatusOutput.Value = '';
             app.ResultOutput.Value = '';
         end
-        
-        %this function sets the components properties to the state after the system is evaluated
-        function compAfterEval(app)
-            app.EvaluateButton.Enable = 'off';
-            app.StartButton.Enable = 'off';
-            app.NewrunMenu.Enable = 'on';
-            app.SaveMenu.Enable = 'on';
-            app.ExitMenu.Enable = 'on';
-            app.AbortButton.Enable = 'off';
-            app.ModeDropDown.Enable = 'on';
-            app.InputEditField.Enable = 'on';
-            app.EncryptionDropDown.Enable = 'on';
-            app.ClusterDropDown.Enable = 'on';
-            app.Abort = false;
-            app.GPUSwitch.Enable = 'on';
-            
-        end
-        
+                
         %this function sets the component properties to the state while the brute forcing is in progress
         function compWhileBruteForce(app)
             app.EvaluateButton.Enable = 'off';
@@ -319,403 +314,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.GPUSwitch.Enable = 'off';
 
         end
-        
-        %evaluate which warning message should be showed. This is a dynamic
-        %problem because the length of each hash method is different.
-        function evalInputFieldWarningMsg(app)
-            if strcmp(app.ModeDropDown.Value,app.ModeDropDown.Items{1})
-                app.WarningBox.Value = {sprintf([...
-                    'Password length is limited to %d and chars ''0-9'', ',...
-                    '''A-Z'', ''a-z'' are allowed.'],app.MaxPwLength)};
-            elseif ~strcmp(app.ModeDropDown.Value,app.ModeDropDown.Items{1})
-                app.WarningBox.Value = {sprintf([...
-                    'Hash length has to be %d and chars ''0-9'', ''A-Z'',',...
-                    '''a-z'' are allowed.'],app.HashLength)};
-            end
-        end
-        
-        %get the length of the hash which is set by the encryption dropdown.
-        %This is done by encrypt the password '1234' with the given
-        %options.
-        function Length= getHashLength(app)
-            
-            if ~strcmp(app.EncryptionDropDown.Value,'Select...')
-                Length= length(DataHash('1234',app.HashStruct));
-            else
-                Length= 40;
-            end
-            
-        end
-        
-        %this function evaluates if the warning of the input field should
-        %be visible or not. It depends on different options like the mode,
-        %the length of the input and used chars.
-        function evalInputFieldWarningVisibility(app,varargin)
-            
-            %check if varargin is used
-            if isempty(varargin)
-                valLength = length(app.InputEditField.Value);
-                value= app.InputEditField.Value;
-            else
-                valLength= varargin{1};
-                value= varargin{2};
-            end
-            
-            %set the backgroundcolor.
-            Color1= [1 0.302 0];
-            Color2= [0.3137 0.3137 0.3137];
-            
-            %check which mode is used
-            if strcmp(app.ModeDropDown.Value,'Password')%PWmode
-                if valLength > app.MaxPwLength || ~evalChars(app,value)
-                    app.WarningBox.Visible = 'on';
-                    app.InputEditField.BackgroundColor= Color1;
-                else
-                    app.WarningBox.Visible = 'off';
-                    app.InputEditField.BackgroundColor= Color2;
-                end
-            elseif strcmp(app.ModeDropDown.Value,'Hash') %hashmode
-                if ~(app.HashLength == valLength) || ~evalChars(app,value)
-                    app.WarningBox.Visible = 'on';
-                    app.InputEditField.BackgroundColor= Color1;
-                else
-                    app.WarningBox.Visible = 'off';
-                    app.InputEditField.BackgroundColor= Color2;
-                end
-            end
-        end
-        
-        % Code that executes after component creation
-        function startupFcn(app)
-            
-            %Create directory for Log-files
-            dirStatus = exist('Log-files');
-            if dirStatus == 0
-                mkdir('Log-files');
-            end
-            %call init function
-            app = initApp(app);
-            
-            %set the object plot as children to the axis
-            area(0,0,'Parent',app.UIAxes_cpu,'LineWidth', 0.75,...
-                'FaceColor', 'red',...
-                'FaceAlpha', 0.4,...
-                'AlignVertexCenters', 'on');
-            area(0,0,'Parent',app.UIAxes_gpu,'LineWidth', 0.75,...
-                'FaceColor', 'red',...
-                'FaceAlpha', 0.4,...
-                'AlignVertexCenters', 'on');
-            
-            %Set axis properties
-            app.UIAxes_gpu.Visible = 'off';
-            app.UIAxes_gpu.Position = [1231 370 10 10];
-            app.UIAxes_cpu.Position = [600 411 639 448];
-            
-            %Set GPU output data visibility
-            app.GpuTemperatureOutput.Visible = 'off';
-            app.GPUTempCLabel.Visible = 'off';
-            app.GpuLoadOutput.Visible = 'off';
-            app.GPULoadLabel.Visible = 'off';
-            
-            compBeforeEval(app);
-            
-            app.InputEditField.FontAngle = 'italic';   
-        end
 
-        % Button pushed function: EvaluateButton
-        function EvaluateButtonPushed(app, event)
-            %set the components to the visibility while evaluating
-            compWhileEvaluate(app);
-            
-            if ~app.evaluateDone
-                %Start system evaluation
-                fWriteMessageBuffer(app, 'System evaluation started...');
-                
-                %Get CPU information
-                fWriteMessageBuffer(app, 'Get CPU information: ');
-                fWriteMessageBuffer(app, app.delemiter);
-                
-                app.cpuInfo = cpuinfo();
-                
-                cpuMessage = sprintf('Name: \t \t \t %s' , app.cpuInfo.Name);
-                fWriteMessageBuffer(app, cpuMessage);
-                
-                cpuCores = num2str(app.cpuInfo.NumProcessors);
-                cpuMessage = sprintf('Number of cores: \t %s', cpuCores);
-                fWriteMessageBuffer(app, cpuMessage);
-                
-                cpuMessage = sprintf('Clock: \t \t \t %s', app.cpuInfo.Clock);
-                fWriteMessageBuffer(app, cpuMessage);
-                
-                cpuMessage = sprintf('OS Type: \t \t %s (%s)', app.cpuInfo.OSType, app.cpuInfo.OSVersion);
-                fWriteMessageBuffer(app, cpuMessage);
-                fWriteMessageBuffer(app, 'Getting CPU information done...');
-                fWriteMessageBuffer(app, app.delemiter);
-                
-                try
-                    app.gpuInfo = gpuDevice;
-                    
-                    fWriteMessageBuffer(app, 'Compatible GPU detected...');
-                    
-                    % Get GPU information
-                    fWriteMessageBuffer(app, 'Get GPUinformation: ');
-                    fWriteMessageBuffer(app, app.delemiter);
-                    
-                    gpuMessage = sprintf('Name: \t \t \t \t %s' , app.gpuInfo.Name);
-                    fWriteMessageBuffer(app, gpuMessage);
-                    
-                    gpuMessage = sprintf('Compute Capability: \t %s', app.gpuInfo.ComputeCapability);
-                    fWriteMessageBuffer(app, gpuMessage);
-                    
-                    gpuThreads = num2str(app.gpuInfo.MaxThreadsPerBlock);
-                    gpuMessage = sprintf('Max Threads per block: \t %s', gpuThreads);
-                    fWriteMessageBuffer(app, gpuMessage);
-                    
-                    gpuClock = num2str(app.gpuInfo.ClockRateKHz);
-                    gpuMessage = sprintf('Clock rate [kHz]: \t \t %s', gpuClock);
-                    fWriteMessageBuffer(app, gpuMessage);
-                    
-                    fWriteMessageBuffer(app, 'Getting GPU information done...');
-                    fWriteMessageBuffer(app, app.delemiter);
-                    
-                catch
-                    app.StatusOutput.Value = 'Existing GPU is not compatible!';
-                    fWriteMessageBuffer(app, 'Compatible GPU = 0');
-                    fWriteMessageBuffer(app, app.delemiter);
-                end
-                
-                %Get CPU data
-                if ispc
-                    fWriteMessageBuffer(app, 'Getting CPU data...');
-                    app.cpuData = getCpuData;
-                    app.CpuLoadOutput.Value = app.cpuData.avgCpuLoad;
-                    app.CpuTemperatureOutput.Value = app.cpuData.currCpuTemp;
-                    fWriteMessageBuffer(app, 'CPU data recieved');
-                    fWriteMessageBuffer(app, app.delemiter);
-                    
-                    if (gpuDeviceCount > 0) && (app.GpuEnabled == true)
-                        fWriteMessageBuffer(app, 'Getting GPU data...');
-                        app.gpuData = getGpuData;
-                        app.GpuLoadOutput.Value = app.gpuData.avgGpuLoad;
-                        app.GpuTemperatureOutput.Value = app.gpuData.currGpuTemp;
-                        fWriteMessageBuffer(app, 'GPU data recieved');
-                        fWriteMessageBuffer(app, app.delemiter);
-                        app.gpuEvaluationDone = true;
-                    end
-                end
-                
-                %Setting up parallel processing
-                try
-                     fWriteMessageBuffer(app, 'Starting up parallel processing...');
-                     fWriteMessageBuffer(app, 'Getting Clusters:');
-                     fWriteMessageBuffer(app, ' ');
-                     
-                     %get available clusters and plot it to the buffer
-                     Clusters = parallel.clusterProfiles;
-                     for Increment=1:length(Clusters)
-                       fWriteMessageBuffer(app, ['- "',Clusters{Increment},'"']);  
-                     end
-                     
-                     %close the current pool if there is one running
-                     p = gcp('nocreate'); % If no pool, do not create new one.
-                     if ~isempty(p)
-                         fWriteMessageBuffer(app, ' ');
-                         fWriteMessageBuffer(app, 'The running pool has to be closed!');
-                         delete(gcp('nocreate'));
-                         fWriteMessageBuffer(app, 'The pool is closed.');
-                     end
-                     
-                     
-                     app.ClusterDropDown.Items= Clusters;
-                     fWriteMessageBuffer(app, ' ');
-                     fWriteMessageBuffer(app, 'Parallel processing ready.');
-                     fWriteMessageBuffer(app, app.delemiter);
-%                     %TODO: choose a cluster from dropdown.
-%                     pool =parpool('local');
-%                     
-%                     if pool.Connected == true
-%                         fWriteMessageBuffer(app, 'Parallel processing ready');
-%                         parWorkers = num2str(pool.NumWorkers);
-%                         strParWorkers = sprintf('NumWorkers: \t \t \t \t %s' , parWorkers);
-%                         fWriteMessageBuffer(app, strParWorkers);
-%                         
-%                         clusterProfile = sprintf('Cluster profile: \t \t \t %s' , pool.Cluster.Profile);
-%                         fWriteMessageBuffer(app, clusterProfile);
-%                         fWriteMessageBuffer(app, app.delemiter);
-%                     else %TODO exception handling
-%                         fWriteMessageBuffer(app, 'Something went wroooooong!');
-%                         fWriteMessageBuffer(app, app.delemiter);
-%                     end
-                catch
-                    fWriteMessageBuffer(app, 'No Parallel Toolbox found or an active session is running!');
-                    
-                end
-                
-                %the evaluation is done
-                app.evaluateDone = true;
-                evalStartBF(app);
-                compAfterEval(app);
-            end
-        end
-
-        % Menu selected function: ExitMenu
-        function ExitMenuSelected(app, event)
-            exitBox = questdlg('Do you really want to exit without saving?','Warning');
-            %TODO: File saving should be implemented here as well
-            switch exitBox
-                case 'Yes'
-                    app.delete;
-                case 'No'
-                    
-            end
-        end
-
-        % Menu selected function: AboutMenu
-        function AboutMenuSelected(app, event)
-            msgbox({'Name: Brute-Force Tool' 'Version: 0.0.0' 'Designer: A.Gonzalez / B. Huerzeler'}, 'About...');
-        end
-
-        % Menu selected function: SaveMenu
-        function SaveMenuSelected(app, event)
-            saveFile(app);
-            msgbox('File saved!');
-        end
-
-        % Value changing function: InputEditField
-        function InputEditFieldValueChanging(app, event)
-            value = event.Value;
-            strVal = convertCharsToStrings(value);
-            valLength = strlength(strVal);
-            evalInputFieldWarningVisibility(app,valLength,value);
-
-            evalStartBF(app,value);
-            evalInputFieldWarningMsg(app);
-        end
-
-        % Menu selected function: NewrunMenu
-        function NewrunMenuSelected(app, event)
-            exitBox = questdlg('Do you want to save Log data?','Warning');
-            
-            switch exitBox
-                case 'Yes'
-                    saveFile(app);
-                case 'No'
-                    %do nothing
-            end
-            
-            app.evaluateDone = false;
-            compBeforeEval(app)
-        end
-
-        % Value changed function: EncryptionDropDown
-        function EncryptionDropDownValueChanged(app, event)
-            value = app.EncryptionDropDown.Value;
-            
-            %Set items for Dropdown menu without select...
-            app.EncryptionDropDown.Items = {'SHA-1', 'SHA-256', 'SHA-512', 'MD5'};
-            
-            switch value
-                case 'SHA-1'
-                    app.HashStruct.Method= 'SHA-1';
-                case 'SHA-256'
-                    app.HashStruct.Method= 'SHA-256';
-                case 'SHA-512'
-                    app.HashStruct.Method= 'SHA-512';
-                case 'MD5'
-                    app.HashStruct.Method= 'MD5';
-            end
-            
-            app.HashLength= getHashLength(app);
-
-            evalInputFieldWarningMsg(app);
-            evalStartBF(app);
-        end
-
-        % Value changed function: ModeDropDown
-        function ModeDropDownValueChanged(app, event)
-            %Set items for Dropdown menu without select...
-            app.ModeDropDown.Items = {'Password', 'Hash'};
-            evalStartBF(app);
-            evalInputFieldWarningMsg(app);
-            evalInputFieldWarningVisibility(app);
-        end
-
-        % Button pushed function: StartButton
-        function StartButtonPushed(app, event)
-            app.ResultOutput.Value = '';
-            app.StatusOutput.Value = 'Your current progress in BruteForcing is: 0%';
-            
-            %change the visibility of components while brute forcing
-            compWhileBruteForce(app)
-            
-            %initialize the brute force
-            initBruteForce(app);
-            
-            %execute the function to do the brute force
-            doBruteForce2(app);
-            
-            %change the visibility of the components
-            compAfterEval(app);
-            
-            %evaluate if the start button can be active
-            evalStartBF(app);
-        end
-
-        % Close request function: BruteForceToolUIFigure
-        function CloseRequest(app, event)
-            
-            %call function for delete procedure
-            deleteApp(app);
-            
-            delete(app);
-            
-        end
-        
-        % Button pushed function: AbortButton
-        function AbortButtonPushed(app, event)
-            app.Abort = true;
-        end
-        
-        % Value changed function: GPUSwitch
-        function GPUSwitchValueChanged(app, event)
-            value = app.GPUSwitch.Value;
-
-            switch value
-                case 'Enabled'
-                    app.GpuEnabled = true;
-                    compGpuEnabled(app);
-                    
-                    fWriteMessageBuffer(app, app.delemiter2);
-                    fWriteMessageBuffer(app, 'New system evaluation required!');
-                    fWriteMessageBuffer(app, app.delemiter2);
-
-%                     app.evaluateDone = false;
- 
-                case 'Disabled'
-                    app.GpuEnabled = false;
-                    app.GpuTemperatureOutput.Visible = 'off';
-                    app.GPUTempCLabel.Visible = 'off';
-                    app.GpuLoadOutput.Visible = 'off';
-                    app.GPULoadLabel.Visible = 'off';
-                    app.UIAxes_gpu.Position = [1231 370 10 10];
-                    app.UIAxes_cpu.Position = [600 411 639 448];
-                    
-                    
-                    
-                    if app.gpuEvaluationDone == true
-                        evalStartBF(app);
-%                         app.EvaluateButton.Enable = 'off';
-%                         app.evaluateDone = true;
-                    else
-                        compAfterEval(app);
-%                         app.EvaluateButton.Enable = 'off';
-                    end
-            end
-            
-            evalStartBF(app);
-            
-        end
-        
         % Create UIFigure and components
         function createComponents(app)
 
@@ -1047,6 +646,439 @@ classdef userInterface_script < matlab.apps.AppBase
             app.GPUSwitch.Position = [391 484 54 24];
             app.GPUSwitch.Value = 'Disabled';
         end
+        
+        % Value changed function: EncryptionDropDown
+        function EncryptionDropDownValueChanged(app, event)
+            value = app.EncryptionDropDown.Value;
+            
+            %Set items for Dropdown menu without select...
+            app.EncryptionDropDown.Items = {'SHA-1', 'SHA-256', 'SHA-512', 'MD5'};
+            
+            switch value
+                case 'SHA-1'
+                    app.HashStruct.Method= 'SHA-1';
+                case 'SHA-256'
+                    app.HashStruct.Method= 'SHA-256';
+                case 'SHA-512'
+                    app.HashStruct.Method= 'SHA-512';
+                case 'MD5'
+                    app.HashStruct.Method= 'MD5';
+            end
+            
+            app.HashLength= getHashLength(app);
+
+            evalInputFieldWarningMsg(app);
+            evalStartBF(app);
+        end
+                
+        %this function evaluates the used chars for the password or hash
+        %and returns true if they are valid
+        function [IsValid] = evalChars(app,Char)
+            IsValid= isempty(regexp(Char,sprintf('[^%s]',app.AllowedChars), 'once'));
+        end
+
+        %evaluate which warning message should be showed. This is a dynamic
+        %problem because the length of each hash method is different.
+        function evalInputFieldWarningMsg(app)
+            if strcmp(app.ModeDropDown.Value,app.ModeDropDown.Items{1})
+                app.WarningBox.Value = {sprintf([...
+                    'Password length is limited to %d and chars ''0-9'', ',...
+                    '''A-Z'', ''a-z'' are allowed.'],app.MaxPwLength)};
+            elseif ~strcmp(app.ModeDropDown.Value,app.ModeDropDown.Items{1})
+                app.WarningBox.Value = {sprintf([...
+                    'Hash length has to be %d and chars ''0-9'', ''A-Z'',',...
+                    '''a-z'' are allowed.'],app.HashLength)};
+            end
+        end
+        
+        %this function evaluates if the warning of the input field should
+        %be visible or not. It depends on different options like the mode,
+        %the length of the input and used chars.
+        function evalInputFieldWarningVisibility(app,varargin)
+            
+            %check if varargin is used
+            if isempty(varargin)
+                valLength = length(app.InputEditField.Value);
+                value= app.InputEditField.Value;
+            else
+                valLength= varargin{1};
+                value= varargin{2};
+            end
+            
+            %set the backgroundcolor.
+            Color1= [1 0.302 0];
+            Color2= [0.3137 0.3137 0.3137];
+            
+            %check which mode is used
+            if strcmp(app.ModeDropDown.Value,'Password')%PWmode
+                if valLength > app.MaxPwLength || ~evalChars(app,value)
+                    app.WarningBox.Visible = 'on';
+                    app.InputEditField.BackgroundColor= Color1;
+                else
+                    app.WarningBox.Visible = 'off';
+                    app.InputEditField.BackgroundColor= Color2;
+                end
+            elseif strcmp(app.ModeDropDown.Value,'Hash') %hashmode
+                if ~(app.HashLength == valLength) || ~evalChars(app,value)
+                    app.WarningBox.Visible = 'on';
+                    app.InputEditField.BackgroundColor= Color1;
+                else
+                    app.WarningBox.Visible = 'off';
+                    app.InputEditField.BackgroundColor= Color2;
+                end
+            end
+        end
+        
+        % Button pushed function: EvaluateButton
+        function EvaluateButtonPushed(app, event)
+            %set the components to the visibility while evaluating
+            compWhileEvaluate(app);
+            
+            if ~app.evaluateDone
+                %Start system evaluation
+                fWriteMessageBuffer(app, 'System evaluation started...');
+                
+                %Get CPU information
+                fWriteMessageBuffer(app, 'Get CPU information: ');
+                fWriteMessageBuffer(app, app.delemiter);
+                
+                app.cpuInfo = cpuinfo();
+                
+                cpuMessage = sprintf('Name: \t \t \t %s' , app.cpuInfo.Name);
+                fWriteMessageBuffer(app, cpuMessage);
+                
+                cpuCores = num2str(app.cpuInfo.NumProcessors);
+                cpuMessage = sprintf('Number of cores: \t %s', cpuCores);
+                fWriteMessageBuffer(app, cpuMessage);
+                
+                cpuMessage = sprintf('Clock: \t \t \t %s', app.cpuInfo.Clock);
+                fWriteMessageBuffer(app, cpuMessage);
+                
+                cpuMessage = sprintf('OS Type: \t \t %s (%s)', app.cpuInfo.OSType, app.cpuInfo.OSVersion);
+                fWriteMessageBuffer(app, cpuMessage);
+                fWriteMessageBuffer(app, 'Getting CPU information done...');
+                fWriteMessageBuffer(app, app.delemiter);
+                
+                try
+                    app.gpuInfo = gpuDevice;
+                    
+                    fWriteMessageBuffer(app, 'Compatible GPU detected...');
+                    
+                    % Get GPU information
+                    fWriteMessageBuffer(app, 'Get GPUinformation: ');
+                    fWriteMessageBuffer(app, app.delemiter);
+                    
+                    gpuMessage = sprintf('Name: \t \t \t \t %s' , app.gpuInfo.Name);
+                    fWriteMessageBuffer(app, gpuMessage);
+                    
+                    gpuMessage = sprintf('Compute Capability: \t %s', app.gpuInfo.ComputeCapability);
+                    fWriteMessageBuffer(app, gpuMessage);
+                    
+                    gpuThreads = num2str(app.gpuInfo.MaxThreadsPerBlock);
+                    gpuMessage = sprintf('Max Threads per block: \t %s', gpuThreads);
+                    fWriteMessageBuffer(app, gpuMessage);
+                    
+                    gpuClock = num2str(app.gpuInfo.ClockRateKHz);
+                    gpuMessage = sprintf('Clock rate [kHz]: \t \t %s', gpuClock);
+                    fWriteMessageBuffer(app, gpuMessage);
+                    
+                    fWriteMessageBuffer(app, 'Getting GPU information done...');
+                    fWriteMessageBuffer(app, app.delemiter);
+                    
+                catch
+                    app.StatusOutput.Value = 'Existing GPU is not compatible!';
+                    fWriteMessageBuffer(app, 'Compatible GPU = 0');
+                    fWriteMessageBuffer(app, app.delemiter);
+                end
+                
+                %Get CPU data
+                if ispc
+                    fWriteMessageBuffer(app, 'Getting CPU data...');
+                    app.cpuData = getCpuData;
+                    app.CpuLoadOutput.Value = app.cpuData.avgCpuLoad;
+                    app.CpuTemperatureOutput.Value = app.cpuData.currCpuTemp;
+                    fWriteMessageBuffer(app, 'CPU data recieved');
+                    fWriteMessageBuffer(app, app.delemiter);
+                    
+                    if (gpuDeviceCount > 0) && (app.GpuEnabled == true)
+                        fWriteMessageBuffer(app, 'Getting GPU data...');
+                        app.gpuData = getGpuData;
+                        app.GpuLoadOutput.Value = app.gpuData.avgGpuLoad;
+                        app.GpuTemperatureOutput.Value = app.gpuData.currGpuTemp;
+                        fWriteMessageBuffer(app, 'GPU data recieved');
+                        fWriteMessageBuffer(app, app.delemiter);
+                        app.gpuEvaluationDone = true;
+                    end
+                end
+                
+                %Setting up parallel processing
+                try
+                     fWriteMessageBuffer(app, 'Starting up parallel processing...');
+                     fWriteMessageBuffer(app, 'Getting Clusters:');
+                     fWriteMessageBuffer(app, ' ');
+                     
+                     %get available clusters and plot it to the buffer
+                     Clusters = parallel.clusterProfiles;
+                     for Increment=1:length(Clusters)
+                       fWriteMessageBuffer(app, ['- "',Clusters{Increment},'"']);  
+                     end
+                     
+                     %close the current pool if there is one running
+                     p = gcp('nocreate'); % If no pool, do not create new one.
+                     if ~isempty(p)
+                         fWriteMessageBuffer(app, ' ');
+                         fWriteMessageBuffer(app, 'The running pool has to be closed!');
+                         delete(gcp('nocreate'));
+                         fWriteMessageBuffer(app, 'The pool is closed.');
+                     end
+                     
+                     
+                     app.ClusterDropDown.Items= Clusters;
+                     fWriteMessageBuffer(app, ' ');
+                     fWriteMessageBuffer(app, 'Parallel processing ready.');
+                     fWriteMessageBuffer(app, app.delemiter);
+%                     %TODO: choose a cluster from dropdown.
+%                     pool =parpool('local');
+%                     
+%                     if pool.Connected == true
+%                         fWriteMessageBuffer(app, 'Parallel processing ready');
+%                         parWorkers = num2str(pool.NumWorkers);
+%                         strParWorkers = sprintf('NumWorkers: \t \t \t \t %s' , parWorkers);
+%                         fWriteMessageBuffer(app, strParWorkers);
+%                         
+%                         clusterProfile = sprintf('Cluster profile: \t \t \t %s' , pool.Cluster.Profile);
+%                         fWriteMessageBuffer(app, clusterProfile);
+%                         fWriteMessageBuffer(app, app.delemiter);
+%                     else %TODO exception handling
+%                         fWriteMessageBuffer(app, 'Something went wroooooong!');
+%                         fWriteMessageBuffer(app, app.delemiter);
+%                     end
+                catch
+                    fWriteMessageBuffer(app, 'No Parallel Toolbox found or an active session is running!');
+                    
+                end
+                
+                %the evaluation is done
+                app.evaluateDone = true;
+                evalStartBF(app);
+                compAfterEval(app);
+            end
+        end
+
+        %evaluate if the 'Start BruteForce' Button can be enabled.
+        function evalStartBF(app,varargin)
+            %check if varargin is used
+            if isempty(varargin)
+                Input = app.InputEditField.Value;
+            else
+                Input= varargin{1};
+            end
+            
+
+            if strcmp(app.ModeDropDown.Value,app.ModeDropDown.Items{1})
+                %check if the input is between 0 and the maximum of the pasword
+                %length
+                if (0 < length(Input)) &&  (length(Input) < app.MaxPwLength+1)
+                    InputValidity= true;
+                else
+                    InputValidity= false;
+                end
+            else %mode is hash
+                %TODO: edit
+                InputValidity= false;
+            end
+            
+            %check if the chars in the inputbox are valid
+            if evalChars(app,Input)
+                CharValidity = true;
+            else
+                CharValidity= false;
+            end
+            
+            if strcmp(app.GPUSwitch.Value,'Enabled')
+                EvalDone= app.gpuEvaluationDone;
+            else
+                EvalDone= app.evaluateDone;
+            end
+            
+            %check if an encryption algorithm is set
+            EncryptValidity= ~strcmp(app.EncryptionDropDown.Value,'Select...');
+            
+            %check if the mode to decrypt is set
+            ModeValidity= ~strcmp(app.ModeDropDown.Value,'Select...');
+            
+            %if all checks are true, the StartButton can be enabled.
+            if EvalDone && InputValidity && ModeValidity && CharValidity && EncryptValidity
+                app.StartButton.Enable = 'on';
+            else
+                app.StartButton.Enable = 'off';
+            end
+        end
+
+        % Menu selected function: ExitMenu
+        function ExitMenuSelected(app, event)
+            exitBox = questdlg('Do you really want to exit without saving?','Warning');
+            %TODO: File saving should be implemented here as well
+            switch exitBox
+                case 'Yes'
+                    app.delete;
+                case 'No'
+                    
+            end
+        end
+        
+        %get the length of the hash which is set by the encryption dropdown.
+        %This is done by encrypt the password '1234' with the given
+        %options.
+        function [Length] = getHashLength(app)
+            
+            if ~strcmp(app.EncryptionDropDown.Value,'Select...')
+                Length= length(DataHash('1234',app.HashStruct));
+            else
+                Length= 40;
+            end
+            
+        end
+
+        % Value changed function: GPUSwitch
+        function GPUSwitchValueChanged(app, event)
+            value = app.GPUSwitch.Value;
+
+            switch value
+                case 'Enabled'
+                    app.GpuEnabled = true;
+                    compGpuEnabled(app);
+                    
+                    fWriteMessageBuffer(app, app.delemiter2);
+                    fWriteMessageBuffer(app, 'New system evaluation required!');
+                    fWriteMessageBuffer(app, app.delemiter2);
+
+%                     app.evaluateDone = false;
+ 
+                case 'Disabled'
+                    app.GpuEnabled = false;
+                    app.GpuTemperatureOutput.Visible = 'off';
+                    app.GPUTempCLabel.Visible = 'off';
+                    app.GpuLoadOutput.Visible = 'off';
+                    app.GPULoadLabel.Visible = 'off';
+                    app.UIAxes_gpu.Position = [1231 370 10 10];
+                    app.UIAxes_cpu.Position = [600 411 639 448];
+                    
+                    
+                    
+                    if app.gpuEvaluationDone == true
+                        evalStartBF(app);
+%                         app.EvaluateButton.Enable = 'off';
+%                         app.evaluateDone = true;
+                    else
+                        compAfterEval(app);
+%                         app.EvaluateButton.Enable = 'off';
+                    end
+            end
+            
+            evalStartBF(app);
+            
+        end
+                
+        % Value changing function: InputEditField
+        function InputEditFieldValueChanging(app, event)
+            value = event.Value;
+            strVal = convertCharsToStrings(value);
+            valLength = strlength(strVal);
+            evalInputFieldWarningVisibility(app,valLength,value);
+
+            evalStartBF(app,value);
+            evalInputFieldWarningMsg(app);
+        end
+
+        % Value changed function: ModeDropDown
+        function ModeDropDownValueChanged(app, event)
+            %Set items for Dropdown menu without select...
+            app.ModeDropDown.Items = {'Password', 'Hash'};
+            evalStartBF(app);
+            evalInputFieldWarningMsg(app);
+            evalInputFieldWarningVisibility(app);
+        end
+
+        % Menu selected function: NewrunMenu
+        function NewrunMenuSelected(app, event)
+            exitBox = questdlg('Do you want to save Log data?','Warning');
+            
+            switch exitBox
+                case 'Yes'
+                    saveFile(app);
+                case 'No'
+                    %do nothing
+            end
+            
+            app.evaluateDone = false;
+            compBeforeEval(app)
+        end
+        
+        % Code that executes after component creation
+        function startupFcn(app)
+            
+            %Create directory for Log-files
+            dirStatus = exist('Log-files');
+            if dirStatus == 0
+                mkdir('Log-files');
+            end
+            %call init function
+            app = initApp(app);
+            
+            %set the object plot as children to the axis
+            area(0,0,'Parent',app.UIAxes_cpu,'LineWidth', 0.75,...
+                'FaceColor', 'red',...
+                'FaceAlpha', 0.4,...
+                'AlignVertexCenters', 'on');
+            area(0,0,'Parent',app.UIAxes_gpu,'LineWidth', 0.75,...
+                'FaceColor', 'red',...
+                'FaceAlpha', 0.4,...
+                'AlignVertexCenters', 'on');
+            
+            %Set axis properties
+            app.UIAxes_gpu.Visible = 'off';
+            app.UIAxes_gpu.Position = [1231 370 10 10];
+            app.UIAxes_cpu.Position = [600 411 639 448];
+            
+            %Set GPU output data visibility
+            app.GpuTemperatureOutput.Visible = 'off';
+            app.GPUTempCLabel.Visible = 'off';
+            app.GpuLoadOutput.Visible = 'off';
+            app.GPULoadLabel.Visible = 'off';
+            
+            compBeforeEval(app);
+            
+            app.InputEditField.FontAngle = 'italic';   
+        end
+
+        % Menu selected function: SaveMenu
+        function SaveMenuSelected(app, event)
+            saveFile(app);
+            msgbox('File saved!');
+        end
+
+        % Button pushed function: StartButton
+        function StartButtonPushed(app, event)
+            app.ResultOutput.Value = '';
+            app.StatusOutput.Value = 'Your current progress in BruteForcing is: 0%';
+            
+            %change the visibility of components while brute forcing
+            compWhileBruteForce(app)
+            
+            %initialize the brute force
+            initBruteForce(app);
+            
+            %execute the function to do the brute force
+            doBruteForce2(app);
+            
+            %change the visibility of the components
+            compAfterEval(app);
+            
+            %evaluate if the start button can be active
+            evalStartBF(app);
+        end
+
     end %end of class private methods
 %==========================================================================
 
@@ -1057,8 +1089,25 @@ classdef userInterface_script < matlab.apps.AppBase
 %==========================================================================
     methods (Access = public)
 
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.BruteForceToolUIFigure)
+        end
+
+        %Message Buffer
+        function fWriteMessageBuffer(app,message)
+            app.messageBuffer{end + 1} = message;
+            app.LogMonitorOutput.Value = app.messageBuffer;
+        end
+        
+        function fWriteStatus(app,message)
+            app.StatusOutput.Value= message;
+        end
+        
         % Construct app
-        function app = userInterface_script
+        function [app] = userInterface_script
             
             %Check if there is allready an UI opened of the class userInterface
             if ~isempty(findall(0, 'HandleVisibility', 'off','Name','Brute-Force Tool'))
@@ -1081,23 +1130,6 @@ classdef userInterface_script < matlab.apps.AppBase
             if nargout == 0
                 clear app
             end
-        end
-
-        % Code that executes before app deletion
-        function delete(app)
-
-            % Delete UIFigure when app is deleted
-            delete(app.BruteForceToolUIFigure)
-        end
-        
-        function fWriteStatus(app,message)
-            app.StatusOutput.Value= message;
-        end
-        
-        %Message Buffer
-        function fWriteMessageBuffer(app,message)
-            app.messageBuffer{end + 1} = message;
-            app.LogMonitorOutput.Value = app.messageBuffer;
         end
         
     end %end of class public methods
