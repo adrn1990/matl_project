@@ -144,16 +144,3 @@ else
     Obj.fWriteMessageBuffer('Please try again.');
     Obj.fWriteMessageBuffer(Obj.delemiter);
 end
-
-function [Pw] = doBruteForceAscendingly (Iterations,Hash,Array,Opt)
-
-for Increment=1:Iterations
-    if strcmp(Hash,DataHash(createString(Increment,Array),Opt))
-        Pw= createString(Increment,Array);
-        break
-    end
-    
-    if mod(Increment,1000) == 0
-        send(D,Increment);
-    end
-end
