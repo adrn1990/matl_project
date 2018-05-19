@@ -574,7 +574,7 @@ classdef userInterface_script < matlab.apps.AppBase
                     fWriteMessageBuffer(app, 'New system evaluation required!');
                     fWriteMessageBuffer(app, app.delemiter2);
 
-                    app.evaluateDone = false;
+%                     app.evaluateDone = false;
  
                 case 'Disabled'
                     app.GpuEnabled = false;
@@ -589,7 +589,8 @@ classdef userInterface_script < matlab.apps.AppBase
                         app.EvaluateButton.Enable = 'off';
                         app.evaluateDone = true;
                     else
-                        app.EvaluateButton.Enable = 'off';
+                        compAfterEval(app);
+%                         app.EvaluateButton.Enable = 'off';
                     end
             end
             
