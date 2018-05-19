@@ -317,24 +317,25 @@ classdef userInterface_script < matlab.apps.AppBase
             end
             
             %set the backgroundcolor.
-            Color= [1 0.302 0];
+            Color1= [1 0.302 0];
+            Color2= [0.3137 0.3137 0.3137];
             
             %check which mode is used
             if strcmp(app.ModeDropDown.Value,'Password')%PWmode
                 if valLength > app.MaxPwLength || ~evalChars(app,value)
                     app.WarningBox.Visible = 'on';
-                    app.InputEditField.BackgroundColor= Color;
+                    app.InputEditField.BackgroundColor= Color1;
                 else
                     app.WarningBox.Visible = 'off';
-                    app.InputEditField.BackgroundColor= 'white';
+                    app.InputEditField.BackgroundColor= Color2;
                 end
             elseif strcmp(app.ModeDropDown.Value,'Hash') %hashmode
                 if ~(app.HashLength == valLength) || ~evalChars(app,value)
                     app.WarningBox.Visible = 'on';
-                    app.InputEditField.BackgroundColor= Color;
+                    app.InputEditField.BackgroundColor= Color1;
                 else
                     app.WarningBox.Visible = 'off';
-                    app.InputEditField.BackgroundColor= 'white';
+                    app.InputEditField.BackgroundColor= Color2;
                 end
             end
         end
