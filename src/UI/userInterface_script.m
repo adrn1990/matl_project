@@ -711,6 +711,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.HashLength= getHashLength(app);
 
             evalInputFieldWarningMsg(app);
+            evalInputFieldWarningVisibility(app);
             evalStartBF(app);
         end
                 
@@ -1063,10 +1064,11 @@ classdef userInterface_script < matlab.apps.AppBase
             value = event.Value;
             strVal = convertCharsToStrings(value);
             valLength = strlength(strVal);
-            evalInputFieldWarningVisibility(app,valLength,value);
 
             evalStartBF(app,value);
             evalInputFieldWarningMsg(app);
+            evalInputFieldWarningVisibility(app,valLength,value);
+
         end
 
         % Value changed function: ModeDropDown
