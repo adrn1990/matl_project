@@ -89,7 +89,7 @@ try
         
         while(~strcmp(Task1.State,'finished') && ~strcmp(Task2.State,'finished') && ~Break)
             %TODO: displaydata throws an exception
-            %displayData(Obj)
+            displayData(Obj)
              pause(3);
             if Obj.Abort
                 %Abort the BruteForce by cancelling the job and break the while

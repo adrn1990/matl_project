@@ -436,7 +436,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.CPUTempCLabel.HorizontalAlignment = 'right';
             app.CPUTempCLabel.FontColor = [1 1 1];
             app.CPUTempCLabel.Position = [999 345 90 15];
-            app.CPUTempCLabel.Text = 'CPU Temp. [°]';
+            app.CPUTempCLabel.Text = 'CPU Temp. [°C]';
 
             % Create CpuTemperatureOutput
             app.CpuTemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
@@ -517,7 +517,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.WarningBox = uitextarea(app.BruteForceToolUIFigure);
             app.WarningBox.Editable = 'off';
             app.WarningBox.FontSize = 9;
-            app.WarningBox.FontColor = [1 0 0];
+            app.WarningBox.FontColor = [1 0.27 0];
             app.WarningBox.BackgroundColor = [0.3137 0.3137 0.3137];
             app.WarningBox.Position = [332 669 164 35];
 
@@ -586,7 +586,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.GPUTempCLabel.HorizontalAlignment = 'right';
             app.GPUTempCLabel.FontColor = [1 1 1];
             app.GPUTempCLabel.Position = [998 304 91 15];
-            app.GPUTempCLabel.Text = 'GPU Temp. [°]';
+            app.GPUTempCLabel.Text = 'GPU Temp. [°C]';
 
             % Create GpuTemperatureOutput
             app.GpuTemperatureOutput = uitextarea(app.BruteForceToolUIFigure);
@@ -863,7 +863,7 @@ classdef userInterface_script < matlab.apps.AppBase
                         evalCPUData(app);
                         
                         %get the
-                        if ispc && app.GpuAvailable
+                        if ispc && app.GpuAvailable && strcmp(app.GPUSwitch.Value,'Enabled')
                             evalGPUData(app);
                             app.gpuEvaluationDone= true;
                         end
