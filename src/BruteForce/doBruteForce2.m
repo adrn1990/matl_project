@@ -36,7 +36,6 @@ Method= Obj.HashStruct.Method;
 Array= Obj.AllowedChars;
 Cluster= Obj.ClusterDropDown.Value;
 ClusterObj= parcluster(Cluster);
-NumWorkers= ClusterObj.NumWorkers;
 
 %local variable to save the logical information if the brute force should
 %be aborted.
@@ -76,48 +75,44 @@ try
         
         c = parcluster(Cluster);
         Job = createJob(c);
-        
-        
-        %TODO: Divide Iterations for amount of workers
-        IterationsPerWorker= 2*Iterations/NumWorkers;
-        
-        
-        
-        
-        
-        
-        
-        %TODO: divide the task to more than two workers (if there are any)
-              
-        for Increment=1:NumWorkers/2
-            createTask(Job, @doBruteForceAscendingly, Increment, {Iterations,Hash,Array,Opt},'CaptureDiary',true);
-            createTask(Job, @doBruteForceRandomly, Increment+1, {Iterations,Hash,Array,Opt},'CaptureDiary',true);
+
+        %with 2*n amount of tasks we will only be using even amount of
+        %workers.
+        NumWorkers= ClusterObj.NumWorkers;
+        if mod(NumWorkers,2) == 1
+            NumWorkers= NumWorkers-1;
         end
         
-        %Task1= createTask(Job, @doBruteForceAscendingly, 1, {Iterations,Hash,Array,Opt},'CaptureDiary',true);
-        %Task2= createTask(Job, @doBruteForceRandomly, 1, {Iterations,Hash,Array,Opt},'CaptureDiary',true);
+        %Divide Iterations for amount of workers
+        IterationsPerWorker= ceil(2*Iterations/NumWorkers);
         
-
-        
-        
+        %each task will be given the same amount of iterations depending on
+        %the number of workers to do the bruteforcing the fastes way possible.             
+        for Increment=1:NumWorkers/2
+            createTask(Job, @doBruteForceAscendingly, 1, ...
+                {(Increment-1)*IterationsPerWorker+1,Increment*IterationsPerWorker,Hash,Array,Opt},'CaptureDiary',true);
+            createTask(Job, @doBruteForceRandomly, 1, ...
+                {(Increment-1)*IterationsPerWorker+1,Increment*IterationsPerWorker,Hash,Array,Opt},'CaptureDiary',true);
+        end
+                
+        %safe all task object into one property.
         Tasks= Job.Tasks;
         
-        %prealocate some memory for faster for-loop operation
-        States= cell(length(Tasks),1);
+        %preallocate some memory for faster for-loop operations.
+        TaskState= cell(length(Tasks),1);
         
-        
-        for Increment=1:length(Tasks)
-            States{Increment}= Tasks(Increment).State;
-        end
-        
+        %Stopcondition of the while loop
+        StopCondition= false;
         
         %submit the job to the scheduler
         submit(Job)
         
         tic
         Obj.fWriteMessageBuffer(sprintf('Started BruteForcing on %s',datestr(now,'dd.mm.yyyy at HH:MM:SS')));
-        
-        while(~strcmp(Task1.State,'finished') && ~strcmp(Task2.State,'finished') && ~Break)
+
+        %stay in the while loop until the brute forcing has been aborted or
+        %the stop condition is set (which indicates a found password).
+        while(~StopCondition && ~Break)
             if ispc
                 displayData(Obj);
             else
@@ -130,19 +125,26 @@ try
                 Job.cancel;
                 Obj.fWriteMessageBuffer(sprintf('The BruteForcing has after %0.4f seconds been aborted!',toc));
             end
+            for Increment=1:length(Tasks)
+                TaskState{Increment}= strcmp(Tasks(Increment).State,'finished');
+            end
+            LogicalTaskState= vertcat(TaskState{:});
+            StopCondition= any(LogicalTaskState);
         end
         
-        %TODO append this part for multiple workers / tasks
-        %cancel the task which is not finished yet
-        if strcmp(Task1.State,'finished')
-            Task2.delete
-        elseif strcmp(Task2.State,'finished')
-            Task1.delete
+        %get rid of each not finished task to fetch the output from the
+        %job. (otherwise the fetchOutputs throws an exception).
+        for Increment=1:length(Tasks)
+            if ~LogicalTaskState(Increment)
+                Tasks(Increment).delete
+            end
         end
-        
+
+        %this part will only be done if the job hasn't been aborted.
+        %it fetches the job output, hands the password over and saves the 
+        %improvements 
         if ~Obj.Abort
             Pw = fetchOutputs(Job);
-            Pw{1};
             Obj.ResultOutput.Value= Pw;
             
             %if the password was not found by improvement, save it into the

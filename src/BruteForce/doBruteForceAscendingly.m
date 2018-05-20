@@ -20,9 +20,9 @@
 %**************************************************************************
 
 
-function [Pw] = doBruteForceAscendingly (Iterations,Hash,Array,Opt)
+function [Pw] = doBruteForceAscendingly (StartIndex,StopIndex,Hash,Array,Opt)
 
-for Increment=1:Iterations
+for Increment=StartIndex:StopIndex
     if strcmpi(Hash,DataHash(createString(Increment,Array),Opt))
         Pw= createString(Increment,Array);
         break

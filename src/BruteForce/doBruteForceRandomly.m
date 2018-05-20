@@ -6,7 +6,8 @@
 %
 %Name:              doBruteForceRandomly
 %
-%Description:       TODO:
+%Description:       This function is doing the bruteforcing with a random
+%                   number for the createString function.
 %
 %Input:             TODO:
 %
@@ -19,11 +20,13 @@
 %
 %**************************************************************************
 
-function [Pw] = doBruteForceRandomly (Iterations,Hash,Array,Opt)
 
 
-for Increment=1:Iterations
-    Inc= randi(Iterations);
+function [Pw] = doBruteForceRandomly (StartIndex,StopIndex,Hash,Array,Opt)
+
+
+for Increment=StartIndex:StopIndex
+    Inc= randi([StartIndex StopIndex]);
     if strcmpi(Hash,DataHash(createString(Inc,Array),Opt))
         Pw= createString(Inc,Array);
         break
