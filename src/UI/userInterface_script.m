@@ -43,6 +43,7 @@
 %                           - Dynamic warning depending on the
 %                             configuration of the components.
 %                           - Password length changed to 4 chars.
+%                           - CreateAHash button with callback added
 %==========================================================================
 %}
 
@@ -91,7 +92,7 @@ classdef userInterface_script < matlab.apps.AppBase
         AbortButton              matlab.ui.control.Button
         GPUSwitchLabel           matlab.ui.control.Label
         GPUSwitch                matlab.ui.control.Switch
-        
+        CreateahashButton        matlab.ui.control.Button
 %manual properties---
 
         %TODO: description
@@ -637,6 +638,23 @@ classdef userInterface_script < matlab.apps.AppBase
             app.GPUSwitch.FontColor = [1 1 1];
             app.GPUSwitch.Position = [391 484 54 24];
             app.GPUSwitch.Value = 'Disabled';
+            
+            % Create CreateahashButton
+            app.CreateahashButton = uibutton(app.BruteForceToolUIFigure, 'push');
+            app.CreateahashButton.ButtonPushedFcn = createCallbackFcn(app, @CreateahashButtonPushed, true);
+            app.CreateahashButton.BackgroundColor = [0.5765 0.4392 0.8588];
+            app.CreateahashButton.FontSize = 15;
+            app.CreateahashButton.FontWeight = 'bold';
+            app.CreateahashButton.FontColor = [1 0.902 0];
+            app.CreateahashButton.Position = [1088 34 145 28];
+            app.CreateahashButton.Text = 'CREATE A HASH';
+        end
+        
+        % Button pushed function: CreateahashButton
+        function CreateahashButtonPushed(app, event)
+      
+            web('https://hashgenerator.de/'); 
+            
         end
         
         % Value changed function: EncryptionDropDown
