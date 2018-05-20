@@ -11,8 +11,6 @@ src/test_dll\.m
 
 *.asv
 
-*.mat
-
 src/Files/Improvements.mat
 
 src\Files\Improvements.mat

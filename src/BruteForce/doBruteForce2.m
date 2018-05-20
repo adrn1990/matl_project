@@ -36,6 +36,7 @@ Method= Obj.HashStruct.Method;
 Array= Obj.AllowedChars;
 Cluster= Obj.ClusterDropDown.Value;
 ClusterObj= parcluster(Cluster);
+Slash= Obj.Slash;
 
 %local variable to save the logical information if the brute force should
 %be aborted.
@@ -48,10 +49,9 @@ Iterations= Obj.Iterations;
 %Options for function DataHash
 Opt= Obj.HashStruct;
 
-%TODO: Update status bar
-% %Preparation for UI update
-% D = parallel.FevalQueue;
-% D.afterEach(@disp);
+%prepare for UI-update
+Increment= 0;
+save(['Files',Slash,'Progress'],'Increment');
 
 Obj.fWriteMessageBuffer(Obj.delemiter);
 Obj.fWriteMessageBuffer(sprintf('Prepare BruteForcing on %s',datestr(now,'dd.mm.yyyy at HH:MM:SS')));
@@ -90,7 +90,7 @@ try
         %the number of workers to do the bruteforcing the fastes way possible.             
         for Increment=1:NumWorkers/2
             createTask(Job, @doBruteForceAscendingly, 1, ...
-                {(Increment-1)*IterationsPerWorker+1,Increment*IterationsPerWorker,Hash,Array,Opt},'CaptureDiary',true);
+                {(Increment-1)*IterationsPerWorker+1,Increment*IterationsPerWorker,Hash,Array,Opt,Slash},'CaptureDiary',true);
             createTask(Job, @doBruteForceRandomly, 1, ...
                 {(Increment-1)*IterationsPerWorker+1,Increment*IterationsPerWorker,Hash,Array,Opt},'CaptureDiary',true);
         end
@@ -113,6 +113,9 @@ try
         %stay in the while loop until the brute forcing has been aborted or
         %the stop condition is set (which indicates a found password).
         while(~StopCondition && ~Break)
+            load(['Files',Slash,'Progress'],'Increment');
+            X= 100*Increment/Iterations;
+            Obj.fWriteStatus([sprintf('Your current progress in BruteForcing is: %0.4f',X),'%']);
             if ispc
                 displayData(Obj);
             else
