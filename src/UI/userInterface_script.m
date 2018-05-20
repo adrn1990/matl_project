@@ -106,6 +106,8 @@ classdef userInterface_script < matlab.apps.AppBase
                 
         %This property is to calculate the progress
         AmountOfCalls;
+
+        ClusterIsValid= false;
         
         %TODO: description
         cpuData;
@@ -215,7 +217,38 @@ classdef userInterface_script < matlab.apps.AppBase
             delete(app);
             
         end
-                
+
+        % Value changed function: ClusterDropDown
+        function ClusterDropDownValueChanged(app, event)
+            Value= app.ClusterDropDown.Value;
+            clusterValidity(app,Value);
+        end        
+
+        %check if the chosen cluster is valid.
+        function clusterValidity(app,Value)
+            try
+                Cluster= parcluster(Value);
+                if Cluster.isvalid
+                    app.ClusterIsValid= true;
+                    app.fWriteMessageBuffer(sprintf(...
+                        'The chosen cluster ''%s'' is valid.',Value));
+                    app.fWriteMessageBuffer(app.delemiter);
+                else
+                    app.ClusterIsValid= false;
+                    app.fWriteMessageBuffer(sprintf(...
+                        'The chosen cluster ''%s'' is not valid. Please choose another one.',Value));
+                    app.fWriteMessageBuffer(app.delemiter);
+                end
+            catch ME
+                Msg= ME.message;
+                app.fWriteMessageBuffer(Msg);
+                app.fWriteMessageBuffer(app.delemiter);
+                app.ClusterIsValid= false;
+            end
+            
+            evalStartBF(app);
+        end
+        
         %this function sets the components properties to the state after the system is evaluated
         function compAfterEval(app)
             app.EvaluateButton.Enable = 'off';
@@ -799,15 +832,26 @@ classdef userInterface_script < matlab.apps.AppBase
         end
         
         %evaluate the parallel computing toolbox
-        function evalPCT(app)
-            fWriteMessageBuffer(app, 'Starting up parallel processing...');
-            fWriteMessageBuffer(app, 'Getting Clusters:');
-            fWriteMessageBuffer(app, ' ');
+        function evalPCT(app,varargin)
             
-            %get available clusters and plot it to the buffer
-            Clusters = parallel.clusterProfiles;
-            for Increment=1:length(Clusters)
-                fWriteMessageBuffer(app, ['- "',Clusters{Increment},'"']);
+            %check if varargin is used
+            if isempty(varargin)
+                Input = '';
+            else
+                Input= varargin{1};
+            end
+            
+            if ~strcmp(Input,'part')
+                fWriteMessageBuffer(app, 'Starting up parallel processing...');
+                fWriteMessageBuffer(app, 'Getting Clusters:');
+                fWriteMessageBuffer(app, ' ');
+                
+                %get available clusters and plot it to the buffer
+                Clusters = parallel.clusterProfiles;
+                for Increment=1:length(Clusters)
+                    fWriteMessageBuffer(app, ['- "',Clusters{Increment},'"']);
+                end
+                
             end
             
             %close the current pool if there is one running
@@ -819,10 +863,14 @@ classdef userInterface_script < matlab.apps.AppBase
                 fWriteMessageBuffer(app, 'The pool is closed.');
             end
             
-            app.ClusterDropDown.Items= Clusters;
-            fWriteMessageBuffer(app, ' ');
-            fWriteMessageBuffer(app, 'Parallel processing ready.');
-            fWriteMessageBuffer(app, app.delemiter);
+            if ~strcmp(Input,'part')
+                app.ClusterDropDown.Items= Clusters;
+                fWriteMessageBuffer(app, ' ');
+                fWriteMessageBuffer(app, 'Parallel processing ready.');
+                fWriteMessageBuffer(app, app.delemiter);
+                
+                clusterValidity(app,Clusters{1});
+            end
         end
                 
         % Button pushed function: EvaluateButton
@@ -863,7 +911,7 @@ classdef userInterface_script < matlab.apps.AppBase
                         evalCPUData(app);
                         
                         %get the
-                        if ispc && app.GpuAvailable && strcmp(app.GPUSwitch.Value,'Enabled')
+                        if app.GpuAvailable && strcmp(app.GPUSwitch.Value,'Enabled')
                             evalGPUData(app);
                             app.gpuEvaluationDone= true;
                         end
@@ -931,7 +979,8 @@ classdef userInterface_script < matlab.apps.AppBase
             ModeValidity= ~strcmp(app.ModeDropDown.Value,'Select...');
             
             %if all checks are true, the StartButton can be enabled.
-            if EvalDone && InputValidity && ModeValidity && CharValidity && EncryptValidity
+            if app.ClusterIsValid && EvalDone && InputValidity &&...
+                    ModeValidity && CharValidity && EncryptValidity
                 app.StartButton.Enable = 'on';
             else
                 app.StartButton.Enable = 'off';
@@ -1096,6 +1145,10 @@ classdef userInterface_script < matlab.apps.AppBase
         function StartButtonPushed(app, event)
             app.ResultOutput.Value = '';
             app.StatusOutput.Value = 'Your current progress in BruteForcing is: 0%';
+            
+            %check the parallel computing toolbox again partly because
+            %meanwhile a pool could be opened.
+            evalPCT(app,'part')
             
             %change the visibility of components while brute forcing
             compWhileBruteForce(app)
