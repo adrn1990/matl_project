@@ -1,7 +1,7 @@
 %**************************************************************************
 %Project:           Brute-Force Tool
 %
-%Authors:           B. Hürzeler
+%Authors:           B. Hï¿½rzeler
 %                   A. Gonzalez
 %
 %Name:              doBruteForce2
