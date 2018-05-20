@@ -35,6 +35,8 @@ FoundByImprovement= false;
 Method= Obj.HashStruct.Method;
 Array= Obj.AllowedChars;
 Cluster= Obj.ClusterDropDown.Value;
+ClusterObj= parcluster(Cluster);
+NumWorkers= ClusterObj.NumWorkers;
 
 %local variable to save the logical information if the brute force should
 %be aborted.
@@ -53,8 +55,7 @@ Opt= Obj.HashStruct;
 % D.afterEach(@disp);
 
 Obj.fWriteMessageBuffer(Obj.delemiter);
-Obj.fWriteMessageBuffer('BruteForcing in progress...');
-Obj.fWriteMessageBuffer(sprintf('Started on %s',datestr(now,'dd.mm.yyyy at HH:MM:SS')));
+Obj.fWriteMessageBuffer(sprintf('Prepare BruteForcing on %s',datestr(now,'dd.mm.yyyy at HH:MM:SS')));
 tic
 try
     %go first thru the improvements
@@ -73,24 +74,55 @@ try
     %improvements.
     if ~FoundByImprovement
         
-        %TODO: Divide Iterations for amount of workers and gpus
-               
-        
-        %TODO choose cluster from UI
         c = parcluster(Cluster);
         Job = createJob(c);
         
+        
+        %TODO: Divide Iterations for amount of workers
+        IterationsPerWorker= 2*Iterations/NumWorkers;
+        
+        
+        
+        
+        
+        
+        
         %TODO: divide the task to more than two workers (if there are any)
-        Task1= createTask(Job, @doBruteForceAscendingly, 1, {Iterations,Hash,Array,Opt},'CaptureDiary',true);
-        Task2= createTask(Job, @doBruteForceRandomly, 1, {Iterations,Hash,Array,Opt},'CaptureDiary',true);
+              
+        for Increment=1:NumWorkers/2
+            createTask(Job, @doBruteForceAscendingly, Increment, {Iterations,Hash,Array,Opt},'CaptureDiary',true);
+            createTask(Job, @doBruteForceRandomly, Increment+1, {Iterations,Hash,Array,Opt},'CaptureDiary',true);
+        end
+        
+        %Task1= createTask(Job, @doBruteForceAscendingly, 1, {Iterations,Hash,Array,Opt},'CaptureDiary',true);
+        %Task2= createTask(Job, @doBruteForceRandomly, 1, {Iterations,Hash,Array,Opt},'CaptureDiary',true);
+        
+
+        
+        
+        Tasks= Job.Tasks;
+        
+        %prealocate some memory for faster for-loop operation
+        States= cell(length(Tasks),1);
+        
+        
+        for Increment=1:length(Tasks)
+            States{Increment}= Tasks(Increment).State;
+        end
+        
         
         %submit the job to the scheduler
-        submit(Job)       
+        submit(Job)
+        
+        tic
+        Obj.fWriteMessageBuffer(sprintf('Started BruteForcing on %s',datestr(now,'dd.mm.yyyy at HH:MM:SS')));
         
         while(~strcmp(Task1.State,'finished') && ~strcmp(Task2.State,'finished') && ~Break)
-            %TODO: displaydata throws an exception
-            displayData(Obj)
-             pause(3);
+            if ispc
+                displayData(Obj);
+            else
+                pause(2);%pause the while loop to get information from UI.
+            end
             if Obj.Abort
                 %Abort the BruteForce by cancelling the job and break the while
                 %loop
@@ -127,6 +159,7 @@ try
 catch ME
     Obj.fWriteMessageBuffer('An error with the following message occured:');
     Obj.fWriteMessageBuffer(ME.message);
+    Job.cancel;
 end
 
 %write the message buffer
