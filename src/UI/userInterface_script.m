@@ -457,7 +457,7 @@ classdef userInterface_script < matlab.apps.AppBase
 
             % Create EncryptionDropDown
             app.EncryptionDropDown = uidropdown(app.BruteForceToolUIFigure);
-            app.EncryptionDropDown.Items = {'Select...', 'SHA-1', 'SHA-256', 'SHA-512', 'MD5', 'AES-256'};
+            app.EncryptionDropDown.Items = {'Select...', 'SHA-1', 'SHA-256', 'SHA-512', 'MD5'};
             app.EncryptionDropDown.ValueChangedFcn = createCallbackFcn(app, @EncryptionDropDownValueChanged, true);
             app.EncryptionDropDown.FontColor = [1 1 1];
             app.EncryptionDropDown.BackgroundColor = [0.3137 0.3137 0.3137];
