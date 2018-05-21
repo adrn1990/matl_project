@@ -32,7 +32,8 @@ Obj.CpuLoadOutput.Value = CpuData.avgCpuLoad;
 Obj.CpuTemperatureOutput.Value = CpuData.currCpuTemp;
 
 %Get GPU data
-if Obj.gpuEvaluationDone == true
+if (Obj.gpuEvaluationDone == true)...
+        && strcmp(Obj.GPUSwitch.Value,'Enabled')
     GpuData = getGpuData;
     Obj.GpuLoadOutput.Value = GpuData.avgGpuLoad;
     Obj.GpuTemperatureOutput.Value = GpuData.currGpuTemp;
@@ -43,7 +44,8 @@ end
 if Obj.SizeReached
     Obj.CpuValue = circshift(Obj.CpuValue,1);
     
-    if Obj.gpuEvaluationDone == true
+    if (Obj.gpuEvaluationDone == true)...
+        && strcmp(Obj.GPUSwitch.Value,'Enabled')
     Obj.GpuValue = circshift(Obj.GpuValue,1);
     end
 end
@@ -51,7 +53,8 @@ end
 %Write actual value in first element
 Obj.CpuValue(1) = str2double(CpuData.avgCpuLoad);
 
-if Obj.gpuEvaluationDone == true
+if (Obj.gpuEvaluationDone == true)...
+        && strcmp(Obj.GPUSwitch.Value,'Enabled')
     Obj.GpuValue(1) = str2double(GpuData.avgGpuLoad);
 end
 
@@ -60,7 +63,8 @@ Obj.UIAxes_cpu.Children.YData = Obj.CpuValue;
 Obj.UIAxes_cpu.Children.XData= Obj.time;
 
 %Write data in GPUaxis object
-if Obj.gpuEvaluationDone == true
+if (Obj.gpuEvaluationDone == true)...
+        && strcmp(Obj.GPUSwitch.Value,'Enabled')
     Obj.UIAxes_gpu.Children.YData = Obj.GpuValue;
     Obj.UIAxes_gpu.Children.XData= Obj.time;
 end
@@ -70,10 +74,11 @@ if Obj.time(end) < 61
     %Build up array
     Obj.CpuValue = [0,Obj.CpuValue];
     
-    if Obj.gpuEvaluationDone == true
+    if (Obj.gpuEvaluationDone == true)...
+        && strcmp(Obj.GPUSwitch.Value,'Enabled')
         Obj.GpuValue = [0,Obj.GpuValue];
     else
-        Obj.GpuValue = [0,zeros(1,Obj.time(end)+1)];
+        Obj.GpuValue = [0,zeros(1,Obj.time(end)+1)]; %Fill up with zeros
     end
     
     %Prepare next time element
