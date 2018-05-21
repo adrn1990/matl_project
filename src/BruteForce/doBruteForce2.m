@@ -1,23 +1,33 @@
 %**************************************************************************
 %Project:           Brute-Force Tool
 %
-%Authors:           B. Hï¿½rzeler
+%Authors:           B. Hürzeler
 %                   A. Gonzalez
 %
 %Name:              doBruteForce2
 %
-%Description:       TODO:
+%Description:       This function builds the main functionality of the
+%                   tool. It creates the job and the tasks depending on the
+%                   amount of workers. It calls the function to plot the
+%                   UI-graphs and updates the progress. 
 %
-%Input:             TODO:
+%Input:             An object of the class userInterface
 %
+%Output:            no Output
 %
-%Output:            TODO:
-%
-%Example:           TODO:
+%Example:           Obj= userInterface;
+%                   doBruteForce2 (Obj);
 %
 %Copyright:
 %
 %**************************************************************************
+
+%==========================================================================
+%<Version 1.0> - 12.05.2018 - First version of the function.
+%<Version 2.0> - 21.05.2018 - The function updates the UI, can be aborted,
+%                             divides the load for each worker dynamically
+%                             and plots the cpu/gpu load.
+%==========================================================================
 function [] = doBruteForce2 (Obj)
 
 %local variable for the numbers of chars
@@ -26,7 +36,6 @@ NbrOfChars= Obj.NbrOfChars;
 %local variable for the number of digits the password can have
 MaxPwLength= Obj.MaxPwLength;
 
-Obj.AmountOfCalls= 1;
 
 Hash= Obj.Hash;
 Improvements= Obj.Improvements;
@@ -121,9 +130,16 @@ try
         %the stop condition is set (which indicates a found password).
         while(~StopCondition && ~Break)
             %update progress of brute forcing on UI
-            load(['Files',Slash,'Progress'],'Increment');
-            X= 100*Increment/Iterations;
+            try
+                %sometimes, when save and load happens simultaneously, an
+                %exception is thrown.
+                load(['Files',Slash,'Progress'],'Increment');
+            catch
+                %do nothing
+            end
+            X= 100*NumWorkers*Increment/(2*Iterations);
             Obj.fWriteStatus([sprintf('Your current progress in BruteForcing is: %0.4f',X),'%']);
+            
             %get and plot the data from the cpu/gpu on the graphs
             if ispc
                 displayData(Obj);
