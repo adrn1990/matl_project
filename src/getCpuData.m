@@ -1,12 +1,14 @@
 %**************************************************************************
 %Project:           Brute-Force Tool
 %
-%Authors:           B. Hürzeler
+%Authors:           B. Huerzeler
 %                   A. Gonzalez
 %
 %Name:              getCpuData
 %
-%Description:       TODO
+%Description:       This function get the cpu data (Temperature & Usage).
+%                   The data is determined by Windows Powershell scripts
+%                   and converted into known units (°C)
 %
 %Input:             No input
 %

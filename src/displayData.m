@@ -1,12 +1,13 @@
 %**************************************************************************
 %Project:           Brute-Force Tool
 %
-%Authors:           B. Hürzeler
+%Authors:           B. Huerzeler
 %                   A. Gonzalez
 %
 %Name:              displayData
 %
-%Description:       TODO
+%Description:       This function extract hardware data and display those
+%                   on the user interface
 %
 %Input:             Object Obj of the class userInterface
 %
