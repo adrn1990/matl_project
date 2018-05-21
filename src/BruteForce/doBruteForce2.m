@@ -143,6 +143,7 @@ try
             %get and plot the data from the cpu/gpu on the graphs
             if ispc
                 displayData(Obj);
+                pause(5/10);
             else
                 pause(2);%pause the while loop to get information from UI.
             end
