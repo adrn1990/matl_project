@@ -186,6 +186,7 @@ classdef userInterface_script < matlab.apps.AppBase
         
         %TODO: description
         time = 0;
+        
 
     end % end of class properties
 %==========================================================================    
@@ -682,7 +683,13 @@ classdef userInterface_script < matlab.apps.AppBase
         
         % Button pushed function: CreateahashButton
         function CreateahashButtonPushed(app, event)
-      
+            % Create a dynamic string for warnbox
+            warnStr = sprintf('Please keep the maximal character length of %s for password!', ...
+                num2str(app.MaxPwLength));
+            % Wait until user click the box away
+            uiwait(msgbox({'You will be redirected to a website!';...
+                warnStr}, 'Warning','warn'));
+            % Open the website
             web('https://hashgenerator.de/'); 
             
         end
