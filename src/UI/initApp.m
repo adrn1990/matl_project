@@ -21,6 +21,7 @@
 
 %==========================================================================
 %<Version 1.0> - 12.05.2018 - First version of the function.
+%<Version 1.1> - 12.05.2018 - Folder get_set_Data added.
 %==========================================================================
 
 function Obj = initApp(Obj)
@@ -31,6 +32,7 @@ Obj.Folders= {'UI';
     'Scripts';
     'Files';
     'Log-files';
+    'get_set_Data';
     };
 
 %Specify the slash for different operating systems

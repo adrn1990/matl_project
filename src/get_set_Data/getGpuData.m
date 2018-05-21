@@ -1,12 +1,14 @@
 %**************************************************************************
 %Project:           Brute-Force Tool
 %
-%Authors:           B. Hürzeler
+%Authors:           B. Huerzeler
 %                   A. Gonzalez
 %
 %Name:              getGpuData
 %
-%Description:       TODO
+%Description:       This function get the gpu data (Temperature & Usage).
+%                   The data is determined by Windows Powershell scripts
+%                   and converted into known units (°C)
 %
 %Input:             No input
 %
