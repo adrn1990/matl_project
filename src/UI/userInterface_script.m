@@ -105,6 +105,7 @@ classdef userInterface_script < matlab.apps.AppBase
         %horzcat(Arr{:})
         AllowedChars= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
+        %This property saves the information if a cluster is valid or not
         ClusterIsValid= false;
         
         %TODO: description
@@ -1181,7 +1182,7 @@ classdef userInterface_script < matlab.apps.AppBase
             initBruteForce(app);
             
             %execute the function to do the brute force
-            doBruteForce2(app);
+            doBruteForce(app);
             
             %change the visibility of the components
             compAfterEval(app);
