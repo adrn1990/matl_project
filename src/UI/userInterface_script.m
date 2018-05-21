@@ -1182,7 +1182,7 @@ classdef userInterface_script < matlab.apps.AppBase
             initBruteForce(app);
             
             %execute the function to do the brute force
-            doBruteForce2(app);
+            doBruteForce(app);
             
             %change the visibility of the components
             compAfterEval(app);

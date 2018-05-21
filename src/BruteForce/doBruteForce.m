@@ -16,7 +16,7 @@
 %Output:            no Output
 %
 %Example:           Obj= userInterface;
-%                   doBruteForce2 (Obj);
+%                   doBruteForce (Obj);
 %
 %Copyright:
 %
@@ -28,7 +28,7 @@
 %                             divides the load for each worker dynamically
 %                             and plots the cpu/gpu load.
 %==========================================================================
-function [] = doBruteForce2 (Obj)
+function [] = doBruteForce (Obj)
 
 %local variable for the numbers of chars
 NbrOfChars= Obj.NbrOfChars;
