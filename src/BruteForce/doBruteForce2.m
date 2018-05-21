@@ -89,8 +89,15 @@ try
         %each task will be given the same amount of iterations depending on
         %the number of workers to do the bruteforcing the fastes way possible.             
         for Increment=1:NumWorkers/2
-            createTask(Job, @doBruteForceAscendingly, 1, ...
+            %create only one task with the function which updates the UI
+            %progress to avoid multiple access on file "Progress".
+            if Increment == 1
+                createTask(Job, @doBruteForceAscendinglyUIUpdate, 1, ...
                 {(Increment-1)*IterationsPerWorker+1,Increment*IterationsPerWorker,Hash,Array,Opt,Slash},'CaptureDiary',true);
+            else
+                createTask(Job, @doBruteForceAscendingly, 1, ...
+                {(Increment-1)*IterationsPerWorker+1,Increment*IterationsPerWorker,Hash,Array,Opt},'CaptureDiary',true);
+            end
             createTask(Job, @doBruteForceRandomly, 1, ...
                 {(Increment-1)*IterationsPerWorker+1,Increment*IterationsPerWorker,Hash,Array,Opt},'CaptureDiary',true);
         end
@@ -113,9 +120,11 @@ try
         %stay in the while loop until the brute forcing has been aborted or
         %the stop condition is set (which indicates a found password).
         while(~StopCondition && ~Break)
+            %update progress of brute forcing on UI
             load(['Files',Slash,'Progress'],'Increment');
             X= 100*Increment/Iterations;
             Obj.fWriteStatus([sprintf('Your current progress in BruteForcing is: %0.4f',X),'%']);
+            %get and plot the data from the cpu/gpu on the graphs
             if ispc
                 displayData(Obj);
             else
@@ -175,6 +184,7 @@ if (~isempty(Obj.ResultOutput.Value{1}))%if a password has been found
     Obj.fWriteMessageBuffer(sprintf('Elapsed time is %0.4f seconds',toc));
     Obj.fWriteMessageBuffer(Obj.delemiter);
 elseif Break %if the brute forcing has been aborted
+    Obj.fWriteStatus('Your current progress in BruteForcing is: 0%');
     Obj.fWriteMessageBuffer(Obj.delemiter);
 else
     Obj.fWriteStatus('Your current progress in BruteForcing is: 0%');
