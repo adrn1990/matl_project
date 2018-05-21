@@ -104,9 +104,6 @@ classdef userInterface_script < matlab.apps.AppBase
         %Arr= {char(48:57),char(65:90),char(97:122)} %0-9, A-Z, a-z 48-57, 65-90, 97-122
         %horzcat(Arr{:})
         AllowedChars= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-                
-        %This property is to calculate the progress
-        AmountOfCalls;
 
         ClusterIsValid= false;
         
