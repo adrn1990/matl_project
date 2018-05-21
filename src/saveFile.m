@@ -21,16 +21,20 @@
 
 %==========================================================================
 %<Version 1.0> - 15.05.2018 - First version of the function.
+%<Version 1.1> - 17.05.2018 - Change index into time in filename
+%<Version 2.0> - 17.05.2018 - Save file into Log-file directory
 %==========================================================================
 function  saveFile(Obj)
-Obj.LogIndex = Obj.LogIndex + 1;
 Buffer = Obj.messageBuffer;
 TransBuffer = Buffer';
 BufferSize = size(TransBuffer);
-Date = sprintf('BruteForce_Log_%s_%s.txt',datestr(now,'yyyymmdd'), num2str(Obj.LogIndex));
-filePh = fopen(Date,'w');
+FileName = sprintf('BruteForce_Log_%s.txt',datestr(now,'yyyy-mm-dd_HHMMSS'));
+CurrDir= pwd;
+cd([CurrDir,Obj.Slash,'Log-files']);
+fileID = fopen(FileName,'w');
+cd(CurrDir);
 
 for i=1:BufferSize(1)
-    fprintf(filePh,'%s\n',TransBuffer{i,:});
+    fprintf(fileID,'%s\n',TransBuffer{i,:});
 end
-fclose(filePh);
+fclose(fileID);

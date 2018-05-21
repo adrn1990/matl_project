@@ -1,0 +1,35 @@
+
+System evaluation started...
+Get CPU information: 
+---------------------------------------------------------------------------------------------------------------
+Name: 	 	 	 	 	 Intel(R) Core(TM) i7-6600U CPU @ 2.60GHz
+Number of cores: 	 2
+Clock: 	 	 	 	 	 2808 MHz
+OS Type: 	 	 	 	 	Windows (Microsoft Windows 10 Pro)
+Getting CPU information done...
+---------------------------------------------------------------------------------------------------------------
+Compatible GPU detected...
+Get GPUinformation: 
+---------------------------------------------------------------------------------------------------------------
+Name: 	 	 	 	 	 	 	GeForce GPU
+Compute Capability: 	 	 5.0
+Max Threads per block: 	 1024
+Clock rate [kHz]: 	 	 	 993000
+Getting GPU information done...
+---------------------------------------------------------------------------------------------------------------
+Getting CPU data...
+CPU data recieved
+---------------------------------------------------------------------------------------------------------------
+Getting GPU data...
+GPU data recieved
+---------------------------------------------------------------------------------------------------------------
+Starting up parallel processing...
+Getting Clusters:
+ 
+- "Select..."
+- "local"
+- "LocalProfile1"
+- "MATLAB Parallel Cloud"
+ 
+Parallel processing ready.
+---------------------------------------------------------------------------------------------------------------

@@ -30,6 +30,7 @@ Obj.Folders= {'UI';
     'BruteForce';
     'Scripts';
     'Files';
+    'Log-files';
     };
 
 %Specify the slash for different operating systems

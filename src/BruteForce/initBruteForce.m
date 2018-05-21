@@ -24,6 +24,7 @@
 %<Version 1.1> - 15.05.2018 - The function no longer calls the doBruteForce
 %                             function.
 %                           - The return value has been changed to nothing.
+%<Version 1.2> - 20.05.2018 - BugFix on method with hash comparing.
 %==========================================================================
 
 function initBruteForce(Obj)
@@ -40,7 +41,7 @@ if(strcmp(ToDecrypt,'Password'))
     Data= Obj.InputEditField.Value;
     Hash = DataHash(Data, Opt);
 else
-    Hash= Obj.ModeDropDown.Value;
+    Hash= Obj.InputEditField.Value;
 end
 
 %Handover the hash to the object.
