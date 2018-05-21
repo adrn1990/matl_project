@@ -105,6 +105,7 @@ classdef userInterface_script < matlab.apps.AppBase
         %horzcat(Arr{:})
         AllowedChars= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
+        %This property saves the information if a cluster is valid or not
         ClusterIsValid= false;
         
         %TODO: description
