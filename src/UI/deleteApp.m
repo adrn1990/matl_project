@@ -7,7 +7,7 @@
 %Name:              deleteApp
 %
 %Description:       This function removes the path to the subfolders of the
-%                   app and quits the running parallel pool.
+%                   app and saves all improvements into a file.
 %
 %Input:             Object Obj of the class userInterface
 %
@@ -21,11 +21,12 @@
 
 %==========================================================================
 %<Version 1.0> - 12.05.2018 - First version of the function.
+%<Version 1.1> - 22.05.2018 - Part of closing the parallel pool deleted.
 %==========================================================================
 
 function [] = deleteApp(Obj)
 
-%safe improvements
+%safe all improvements into a file called Improvement
 CurrPath= pwd;
 cd([CurrPath,Obj.Slash,'Files']);
 Improvements= Obj.Improvements;
@@ -37,11 +38,5 @@ clear Improvements CurrPath
 for Increment=1:length(Obj.Folders)
     rmpath([pwd,Obj.Slash,Obj.Folders{Increment}]);
 end
-
-%stop the current parallel session
-delete(gcp('nocreate'));
-
-
-
 
 end
