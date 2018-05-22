@@ -4,7 +4,7 @@
 %Authors:           B. Hürzeler
 %                   A. Gonzalez
 %
-%Name:              doBruteForce2
+%Name:              doBruteForce
 %
 %Description:       This function builds the main functionality of the
 %                   tool. It creates the job and the tasks depending on the
@@ -27,6 +27,7 @@
 %<Version 2.0> - 21.05.2018 - The function updates the UI, can be aborted,
 %                             divides the load for each worker dynamically
 %                             and plots the cpu/gpu load.
+%<Version 2.1> - 22.05.2018 - Descriptiv comments added.
 %==========================================================================
 function [] = doBruteForce (Obj)
 
@@ -36,7 +37,7 @@ NbrOfChars= Obj.NbrOfChars;
 %local variable for the number of digits the password can have
 MaxPwLength= Obj.MaxPwLength;
 
-
+%save the value of the object properties to local function variables.
 Hash= Obj.Hash;
 Improvements= Obj.Improvements;
 [Length,~]= size(Improvements);
@@ -137,6 +138,7 @@ try
             catch
                 %do nothing
             end
+            %update the progress on the UI
             X= 100*NumWorkers*Increment/(2*Iterations);
             Obj.fWriteStatus([sprintf('Your current progress in BruteForcing is: %0.4f',X),'%']);
             
@@ -154,6 +156,9 @@ try
                 Job.cancel;
                 Obj.fWriteMessageBuffer(sprintf('The BruteForcing has after %0.4f seconds been aborted!',toc));
             end
+            
+            %get the state of each task and save it to variable to provide 
+            %information if any state is finished.
             for Increment=1:length(Tasks)
                 TaskState{Increment}= strcmp(Tasks(Increment).State,'finished');
             end
