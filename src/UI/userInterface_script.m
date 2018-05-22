@@ -262,7 +262,8 @@ classdef userInterface_script < matlab.apps.AppBase
             app.EncryptionDropDown.Enable = 'on';
             app.ClusterDropDown.Enable = 'on';
             app.Abort = false;
-            
+            app.CreateahashButton.Enable = 'on';
+
             if app.GpuAvailable
                 app.GPUSwitch.Enable = 'on';
             end
@@ -287,6 +288,8 @@ classdef userInterface_script < matlab.apps.AppBase
             app.InputEditField.Enable = 'off';
             app.EncryptionDropDown.Enable = 'off';
             app.ClusterDropDown.Enable = 'off';
+            app.CreateahashButton.Enable = 'off';
+
             
             if strcmp(value,'full')
                 app.messageBuffer = {''};
@@ -320,6 +323,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.ClusterDropDown.Enable = 'off';
             app.GPUSwitch.Enable = 'off';
             app.ExitMenu.Enable = 'off';
+            app.CreateahashButton.Enable = 'off';
             
         end
         
@@ -337,7 +341,7 @@ classdef userInterface_script < matlab.apps.AppBase
             app.EncryptionDropDown.Enable = 'off';
             app.ClusterDropDown.Enable = 'off';
             app.GPUSwitch.Enable = 'off';
-
+            app.CreateahashButton.Enable = 'off';
         end
 
         % Create UIFigure and components
@@ -1171,12 +1175,13 @@ classdef userInterface_script < matlab.apps.AppBase
             app.ResultOutput.Value = '';
             app.StatusOutput.Value = 'Your current progress in BruteForcing is: 0%';
             
+            %change the visibility of components while brute forcing
+            compWhileBruteForce(app)            
+            
             %check the parallel computing toolbox again partly because
             %meanwhile a pool could be opened.
             evalPCT(app,'part')
             
-            %change the visibility of components while brute forcing
-            compWhileBruteForce(app)
             
             %initialize the brute force
             initBruteForce(app);

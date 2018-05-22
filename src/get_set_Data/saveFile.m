@@ -25,6 +25,8 @@
 %<Version 2.0> - 17.05.2018 - Save file into Log-file directory
 %==========================================================================
 function  saveFile(Obj)
+
+%Todo: add some comments.
 Buffer = Obj.messageBuffer;
 TransBuffer = Buffer';
 BufferSize = size(TransBuffer);
