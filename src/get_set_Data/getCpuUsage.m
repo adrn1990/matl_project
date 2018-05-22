@@ -1,3 +1,29 @@
+%**************************************************************************
+%Project:           Brute-Force Tool
+%
+%Authors:           B. Huerzeler
+%                   A. Gonzalez
+%
+%Name:              getCpuUsage
+%
+%Description:       This function get the gpu data (Temperature & Usage).
+%                   The data is determined by Windows Powershell scripts
+%                   and converted into known units (°C)
+%
+%Input:             No input
+%
+%Output:            TODO:
+%
+%Example:           h = getCpuUsage();
+%
+%Copyright:         TODO:
+%
+%**************************************************************************
+
+%==========================================================================
+%<Version 1.0> - 12.05.2018 - First version of the function.
+%==========================================================================
+
 function h = getCpuUsage
 
 h = create_gui ;

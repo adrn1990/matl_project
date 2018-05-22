@@ -12,15 +12,17 @@
 %
 %Input:             No input
 %
-%Output:            No output
+%Output:            TODO:
 %
-%Example:           getGpuData();
+%Example:           info= getGpuData();
 %
 %Copyright:
 %
 %**************************************************************************
 
-%Version:           1.0
+%==========================================================================
+%<Version 1.0> - 12.05.2018 - First version of the function.
+%==========================================================================
 
 function info = getGpuData
 
@@ -34,6 +36,7 @@ end
 %define the path to the powershell scripts per each user
 UserPath= [pwd,Slash,'Scripts',Slash];
 
+%TODO: add some comments
 [~,gpuTermalZones] = system(sprintf('powershell -inputformat none -file %sget-gpu-temperature.ps1',UserPath));
 gpuTermalZones = regexp(gpuTermalZones,'\d*','match');
 gpuTempKelvin = str2double(horzcat(gpuTermalZones{:}));
