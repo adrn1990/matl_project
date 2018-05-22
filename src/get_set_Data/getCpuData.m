@@ -12,7 +12,7 @@
 %
 %Input:             No input
 %
-%Output:            No output
+%Output:            TODO
 %
 %Example:           getCpuData();
 %

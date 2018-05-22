@@ -20,8 +20,14 @@
 %Copyright:         Author: Ben Tordoff
 %                   Copyright 2011 The MathWorks, Inc.
 %
+%                   For further information and licence info:
+%                   https://ch.mathworks.com/matlabcentral/fileexchange/
+%                   33155-cpu-info?focused=6792596&tab=function
 %************************************************************************** 
 
+%==========================================================================
+%<Version 1.0> - 12.05.2018 - Authors version of the function.
+%==========================================================================
 
 function info = cpuinfo()
 
