@@ -30,18 +30,22 @@
 %Copyright:
 %
 %**************************************************************************
+
+%==========================================================================
+%<Version 1.0> - 09.05.2018 - First version of the function.
+%<Version 2.0> - 22.05.2018 - The function now operates with the function
+%                             "sum" for better readability
+%==========================================================================
+
 function [Str] = createString(Inc,Array)
 
+%save the length of the allowed chars into a variable
 Chars= length(Array);
 
-%Pw as cell
+%preallocation Pw as cell
 Pw= cell(1,8);
 
-%
-persistent Index;
-
 %digit 1
-
 Index=  mod(Inc-1,Chars^1)+1;
 Pw{1}= Array(Index);
 
@@ -57,47 +61,48 @@ end
 
 
 %digit 3
-if Inc > Chars^2+Chars^1
+if Inc > sum(Chars.^(1:2))
     
-    Index= floor(mod(Inc-Chars^1-Chars^2-1,Chars^3)/Chars^2)+1;
+    Index= floor(mod(Inc+sum(-Chars.^(1:2))-1,Chars^3)/Chars^2)+1;
     Pw{3}= Array(Index);
 end
 
 %digit 4
-if Inc > Chars^3+Chars^2+Chars^1
+if Inc > sum(Chars.^(1:3))
     
-    Index= floor(mod(Inc-Chars^1-Chars^2-Chars^3-1,Chars^4)/Chars^3)+1;
+    Index= floor(mod(Inc+sum(-Chars.^(1:3))-1,Chars^4)/Chars^3)+1;
     Pw{4}= Array(Index);
 end
 
 %digit 5
-if Inc > Chars^4+Chars^3+Chars^2+Chars^1
+if Inc > sum(Chars.^(1:4))
     
-    Index= floor(mod(Inc-Chars^1-Chars^2-Chars^3-Chars^4-1,Chars^5)/Chars^4)+1;
+    Index= floor(mod(Inc+sum(-Chars.^(1:4))-1,Chars^5)/Chars^4)+1;
     Pw{5}= Array(Index);
 end
 
 %digit 6
-if Inc > Chars^5+Chars^4+Chars^3+Chars^2+Chars^1
+if Inc > sum(Chars.^(1:5))
     
-    Index= floor(mod(Inc-Chars^1-Chars^2-Chars^3-Chars^4-Chars^5-1,Chars^6)/Chars^5)+1;
+    Index= floor(mod(Inc+sum(-Chars.^(1:5))-1,Chars^6)/Chars^5)+1;
     Pw{6}= Array(Index);
 end
 
 %digit 7
-if Inc > Chars^6+Chars^5+Chars^4+Chars^3+Chars^2+Chars^1
+if Inc > sum(Chars.^(1:6))
     
-    Index= floor(mod(Inc-Chars^1-Chars^2-Chars^3-Chars^4-Chars^5-Chars^6-1,Chars^7)/Chars^6)+1;
+    Index= floor(mod(Inc+sum(-Chars.^(1:6))-1,Chars^7)/Chars^6)+1;
     Pw{7}= Array(Index);
 end
 
 %digit 8
-if Inc > Chars^7+Chars^6+Chars^5+Chars^4+Chars^3+Chars^2+Chars^1
+if Inc > sum(Chars.^(1:7))
     
-    Index= floor(mod(Inc-Chars^1-Chars^2-Chars^3-Chars^4-Chars^5-Chars^6-Chars^7-1,Chars^8)/Chars^7)+1;
+    Index= floor(mod(Inc+sum(-Chars.^(1:7))-1,Chars^8)/Chars^7)+1;
     Pw{8}= Array(Index);
 end
 
+%concat the cell-array and get rid of empty cells
 Str= horzcat(Pw{:});
 
 end
