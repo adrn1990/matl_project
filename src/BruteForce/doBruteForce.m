@@ -27,7 +27,10 @@
 %<Version 2.0> - 21.05.2018 - The function updates the UI, can be aborted,
 %                             divides the load for each worker dynamically
 %                             and plots the cpu/gpu load.
-%<Version 2.1> - 22.05.2018 - Descriptiv comments added.
+%<Version 2.1> - 22.05.2018 - The bruteforcing waits now until at least one
+%                             task has started and writes a message to the
+%                             buffer.
+%                           - Descriptiv comments added.
 %==========================================================================
 function [] = doBruteForce (Obj)
 
@@ -64,7 +67,10 @@ Increment= 0;
 save(['Files',Slash,'Progress'],'Increment');
 
 Obj.fWriteMessageBuffer(Obj.delemiter);
-Obj.fWriteMessageBuffer(sprintf('Prepare BruteForcing on %s',datestr(now,'dd.mm.yyyy at HH:MM:SS')));
+Obj.fWriteMessageBuffer(sprintf('Prepare BruteForcing on %s'...
+    ,datestr(now,'dd.mm.yyyy at HH:MM:SS')));
+
+%tic to measure in case of abording the brute force
 tic
 try
     %go first thru the improvements
@@ -124,9 +130,37 @@ try
         %submit the job to the scheduler
         submit(Job)
         
-        tic
-        Obj.fWriteMessageBuffer(sprintf('Started BruteForcing on %s',datestr(now,'dd.mm.yyyy at HH:MM:SS')));
+        Obj.fWriteMessageBuffer(sprintf('Job submitted to the workers on %s'...
+            ,datestr(now,'dd.mm.yyyy at HH:MM:SS')));
 
+        %wait until at least one task is running. 
+        PrepDone= false;
+                
+        while(~PrepDone && ~Break)
+            for Increment=1:length(Tasks)
+                TaskState{Increment}= strcmp(Tasks(Increment).State,'running');
+            end
+            LogicalTaskState= vertcat(TaskState{:});
+            PrepDone= any(LogicalTaskState);
+            
+            pause(1);%pause the while loop to get information from UI.
+            
+            if Obj.Abort
+                %Abort the BruteForce by cancelling the job and break the while
+                %loop
+                Break = true;
+                Job.cancel;
+                Obj.fWriteMessageBuffer(sprintf(['The BruteForcing preparation',...
+                    ' has after %0.4f seconds been aborted!'],toc));
+            end
+        end
+        
+        %tic ans send start message to the message buffer.
+        tic
+        Obj.fWriteMessageBuffer(sprintf('Started BruteForcing on %s'...
+            ,datestr(now,'dd.mm.yyyy at HH:MM:SS')));
+
+        
         %stay in the while loop until the brute forcing has been aborted or
         %the stop condition is set (which indicates a found password).
         while(~StopCondition && ~Break)
@@ -154,7 +188,8 @@ try
                 %loop
                 Break = true;
                 Job.cancel;
-                Obj.fWriteMessageBuffer(sprintf('The BruteForcing has after %0.4f seconds been aborted!',toc));
+                Obj.fWriteMessageBuffer(sprintf(['The BruteForcing has after',...
+                    '%0.4f seconds been aborted!'],toc));
             end
             
             %get the state of each task and save it to variable to provide 
