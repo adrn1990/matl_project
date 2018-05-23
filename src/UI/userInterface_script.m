@@ -44,6 +44,8 @@
 %                             configuration of the components.
 %                           - Password length changed to 4 chars.
 %                           - CreateAHash button with callback added
+%
+%<Version 4.0.1> - 23.05.2018 - Missing descriptions added.
 %==========================================================================
 %}
 
@@ -95,12 +97,14 @@ classdef userInterface_script < matlab.apps.AppBase
         CreateahashButton        matlab.ui.control.Button
 %manual properties---
 
-        %TODO: description
+        %This property indicates a flag for aborting the Brute force
+        %process
         Abort= false;
 
         %The following property saves the allowed chars for the password
         %To generate the following cell-array as specified us the commented part in
         %the command window.
+        %FIXME: Following 2 lines -> delete?
         %Arr= {char(48:57),char(65:90),char(97:122)} %0-9, A-Z, a-z 48-57, 65-90, 97-122
         %horzcat(Arr{:})
         AllowedChars= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -108,46 +112,47 @@ classdef userInterface_script < matlab.apps.AppBase
         %This property saves the information if a cluster is valid or not
         ClusterIsValid= false;
         
-        %TODO: description
+        %This property includes all data about the cpu
         cpuData;
 
-        %TODO: description
+        %This property includes all information about the cpu
         cpuInfo;
 
-        %TODO: description
+        %This property is required for displaying the cpu values 
         CpuValue = 0;
 
-        %TODO: description
+        %This property is needed for grouping log messages
         delemiter = '---------------------------------------------------------------------------------------------------------------';
 
-        %TODO: description
+        %This property is needed for important log messages for the user
         delemiter2 = '===============================================================';
 
-        %TODO: description
+        %This property indicates a flag if an evaluation has processed
         evaluateDone = false;
 
-        %This property safes the name of the file with the allready found passwords and hashes
+        %This property safes the name of the file with the allready found 
+        %passwords and hashes
         FileName;
 
         %This property safes all folders of the path
         Folders;
                 
-        %TODO: description
+        %This property indicates a flag for an available gpu device
         GpuAvailable= false;
         
-        %TODO: description
+        %This property includes all information about the gpu
         gpuInfo;
 
-        %TODO: description
+        %This property includes all data about the gpu
         gpuData;
 
-        %TODO: description
+        %This property indicates a flag for an enabled gpu device
         GpuEnabled = false;
 
-        %TODO: description
+        %This property indicates a flag if an gpu evaluation has processed
         gpuEvaluationDone = false;
 
-        %TODO: description
+        %This property is required for displaying the gpu values 
         GpuValue = 0;
 
         %This property saves the hash of the given data
@@ -169,23 +174,20 @@ classdef userInterface_script < matlab.apps.AppBase
         %The maximum of the password length is set to 4
         MaxPwLength= 4;
         
-        %TODO: description
+        %This property is required to write the log messages
         messageBuffer = {''};
         
         %This property safes the number of chars for the password
         %0-9, A-Z, a-z
         NbrOfChars= 62;
-        
-        %TODO: description
-        Property % Description
 
-        %TODO: description
+        %This property is required for displaying the values on axes
         SizeReached = false;
         
         %This property safes the char slash/backslash
         Slash;
         
-        %TODO: description
+        %This property indicates the x-axis values in graphs 
         time = 0;
         
 
@@ -1018,12 +1020,10 @@ classdef userInterface_script < matlab.apps.AppBase
         % Menu selected function: ExitMenu
         function ExitMenuSelected(app, event)
             exitBox = questdlg('Do you really want to exit without saving?','Warning');
-            %TODO: File saving should be implemented here as well
             switch exitBox
                 case 'Yes'
                     app.delete;
-                case 'No'
-                    
+                case 'No'         
             end
         end
         
@@ -1104,7 +1104,7 @@ classdef userInterface_script < matlab.apps.AppBase
             compBeforeEval(app,'full')
         end
         
-        %TODO
+        %Set the visibility and behaviour of the axes
         function setAxisProps(app)
             if app.GpuEnabled
                 app.UIAxes_cpu.Position = [600 631 639 228];
