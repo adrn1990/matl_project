@@ -6,7 +6,11 @@
 %
 %Name:              userInterface
 %
-%Description:       TODO
+%Description:       This class creates an UI object of the BruteForce-Tool.
+%                   It contains all needed properties for the handling with
+%                   called functions and contains functions to provide good
+%                   user interaction.
+%                   
 %
 %Input:             No input
 %
@@ -21,35 +25,37 @@
 %=============================Version- Overview============================
 %{
 %==========================================================================
-%<Version 1.0> - 28.04.2018 - First draft of the class and its UI.
+%<Version 1.0.0> - 28.04.2018 - First draft of the class and its UI.
 %
-%<Version 2.0> - 11.05.2018 - Second draft of the class and its UI.
-%                           - Integration of bruteforcing with parfor-loop 
-%                             up to three characters.
-%                           - Implementation of improvement procedure.
-%                           - Call of initialization and delete functions.
-%                           - Integration of powershell scripts.
-%                           - Implementation of runApp script to create an
-%                             object and check different things of system.
+%<Version 2.0.0> - 11.05.2018 - Second draft of the class and its UI.
+%                             - Integration of bruteforcing with parfor-loop 
+%                               up to three characters.
+%                             - Implementation of improvement procedure.
+%                             - Call of initialization and delete functions.
+%                             - Integration of powershell scripts.
+%                             - Implementation of runApp script to create an
+%                               object and check different things of system.
 %
-%<Version 3.0> - 14.05.2018 - New strategy of providing the load to the
-%                             workers of the parallel computing toolbox.
-%                           - Graphs changed and displaying of data
-%                             implemented.
+%<Version 3.0.0> - 14.05.2018 - New strategy of providing the load to the
+%                               workers of the parallel computing toolbox.
+%                             - Graphs changed and displaying of data
+%                               implemented.
 %
-%<Version 4.0> - 18.05.2018 - New functionalities around the GPU and its
-%                             graphs.
-%                           - Hashes and passwords can now be forced.
-%                           - Dynamic warning depending on the
-%                             configuration of the components.
-%                           - Password length changed to 4 chars.
-%                           - CreateAHash button with callback added
+%<Version 4.0.0> - 18.05.2018 - New functionalities around the GPU and its
+%                               graphs.
+%                             - Hashes and passwords can now be forced.
+%                             - Dynamic warning depending on the
+%                               configuration of the components.
+%                             - Password length changed to 4 chars.
+%                             - CreateAHash button with callback added
 %
 %<Version 4.0.1> - 23.05.2018 - Missing descriptions added.
+%
+%<Version 5.0.0> - 25.05.2018 - Final Version for first release.
 %==========================================================================
 %}
 
-classdef userInterface_script < matlab.apps.AppBase
+classdef userInterface < matlab.apps.AppBase
 
 %==========================================================================
 %=============================class properties=============================
@@ -1275,7 +1281,7 @@ classdef userInterface_script < matlab.apps.AppBase
         end
         
         % Construct app
-        function [app] = userInterface_script
+        function [app] = userInterface
             
             %Check if there is allready an UI opened of the class userInterface
             if ~isempty(findall(0, 'HandleVisibility', 'off','Name','Brute-Force Tool'))

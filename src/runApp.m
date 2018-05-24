@@ -88,7 +88,7 @@ addpath([pwd,Slash,'UI']);
 clear Slash msg VerException IsInstalled IsLicensed Struct
 
 %==============================Calling the GUI=============================
-userInterface_script;
+userInterface;
 %==========================================================================
 
 %% local function
