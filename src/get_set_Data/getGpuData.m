@@ -24,6 +24,7 @@
 %==========================================================================
 %<Version 1.0> - 12.05.2018 - First version of the function.
 %<Version 1.1> - 23.05.2018 - Few descriptions added.
+%<Version 1.2> - 24.05.2018 - Problem with path changing solved.
 %==========================================================================
 
 function info = getGpuData
@@ -35,8 +36,10 @@ else
     Slash= '/';
 end
 
+CurrDir= Obj.ApplicationRoot;
+
 %define the path to the powershell scripts per each user
-UserPath= [pwd,Slash,'Scripts',Slash];
+UserPath= [CurrDir,Slash,'Scripts',Slash];
 
 %Execute the powershell script and extract the gpu temperature
 [~,gpuTermalZones] = system(sprintf('powershell -inputformat none -file %sget-gpu-temperature.ps1',UserPath));
