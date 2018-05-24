@@ -12,7 +12,8 @@
 %
 %Input:             No input
 %
-%Output:            TODO:
+%Output:            A struct which includes the actual temperature and the
+%                   average usage of the gpu device.
 %
 %Example:           info= getGpuData();
 %
@@ -22,6 +23,7 @@
 
 %==========================================================================
 %<Version 1.0> - 12.05.2018 - First version of the function.
+%<Version 1.1> - 23.05.2018 - Few descriptions added.
 %==========================================================================
 
 function info = getGpuData
@@ -36,13 +38,14 @@ end
 %define the path to the powershell scripts per each user
 UserPath= [pwd,Slash,'Scripts',Slash];
 
-%TODO: add some comments
+%Execute the powershell script and extract the gpu temperature
 [~,gpuTermalZones] = system(sprintf('powershell -inputformat none -file %sget-gpu-temperature.ps1',UserPath));
 gpuTermalZones = regexp(gpuTermalZones,'\d*','match');
 gpuTempKelvin = str2double(horzcat(gpuTermalZones{:}));
 dblTempCelsius = gpuTempKelvin - 273.15;
 info.currGpuTemp = {num2str(dblTempCelsius)};
 
+%Execute the powershell script and extract the gpu usage
 [~,gpuAvgLoad] = system(sprintf('powershell -inputformat none -file %sget-gpu-load.ps1',UserPath));
  info.avgGpuLoad = regexp(gpuAvgLoad,'\d*','match');
 return 
