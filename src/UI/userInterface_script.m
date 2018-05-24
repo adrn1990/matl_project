@@ -310,15 +310,26 @@ classdef userInterface_script < matlab.apps.AppBase
                 app.gpuEvaluationDone= false;
                 app.GPUSwitch.Enable = 'off';
                 app.InputEditField.Value= '';
-                
-                %set the graph back to the start.
-                app.CpuValue= 0;
-                
-                if app.GpuAvailable
-                    app.GpuValue= 0;
-                end
-                
             end
+                
+            %set the graph back to the start.
+            app.CpuValue= 0;
+            app.time = 0;
+            
+            app.UIAxes_cpu.Children.YData = app.CpuValue;
+            app.UIAxes_cpu.Children.XData= app.time;
+            
+            if app.GpuAvailable              
+                app.GpuValue = 0;          
+                app.UIAxes_gpu.Children.YData = app.GpuValue;
+                app.UIAxes_gpu.Children.XData= app.time;
+            end
+            
+            %Pause to clear graphs
+            pause(5/100);
+
+            %Pause to disable Button
+            pause(5/100);
 
             setAxisProps(app);                      
             
