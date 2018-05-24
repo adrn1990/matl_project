@@ -723,7 +723,7 @@ classdef userInterface_script < matlab.apps.AppBase
             uiwait(msgbox({'You will be redirected to a website!';...
                 warnStr}, 'Warning','warn'));
             % Open the website
-            web('https://hashgenerator.de/'); 
+            web('https://www.passwort-generator.org/hashgenerator.html'); 
             
         end
         
