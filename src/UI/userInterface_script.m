@@ -168,6 +168,10 @@ classdef userInterface_script < matlab.apps.AppBase
         %This property saves the amount of iterations the parfor loop has
         %to do.
         Iterations;
+        
+        %This property saves the information, if the log monitor has been
+        %saved to a file.
+        LogSaved= false;
                 
         %The maximum of the password length is set to 4.
         MaxPwLength= 4;
@@ -1024,11 +1028,17 @@ classdef userInterface_script < matlab.apps.AppBase
 
         % Menu selected function: ExitMenu
         function ExitMenuSelected(app, event)
-            exitBox = questdlg('Do you really want to exit without saving?','Warning');
+            if ~app.LogSaved && ~isempty(app.messageBuffer{end})
+                Msg= 'Do you really want to exit without saving?';
+            else
+                Msg= 'Do you really want to exit?';
+            end
+            exitBox = questdlg(Msg,'Warning');
             switch exitBox
                 case 'Yes'
                     app.CloseRequest();
-                case 'No'         
+                case 'No'
+                    %do nothing
             end
         end
         
@@ -1096,17 +1106,23 @@ classdef userInterface_script < matlab.apps.AppBase
 
         % Menu selected function: NewrunMenu
         function NewrunMenuSelected(app, event)
-            exitBox = questdlg('Do you want to save Log data?','Warning');
+            if app.LogSaved
+                Msg= 'Do you really want to create a new run?';
+            else
+                Msg= 'Do you want to save Log data before creating a new run?';
+            end
+            NewRunBox = questdlg(Msg,'Warning');
             
-            switch exitBox
+            switch NewRunBox
                 case 'Yes'
                     saveFile(app);
+                    app.evaluateDone = false;
+                    compBeforeEval(app,'full')
                 case 'No'
-                    %do nothing
+                    app.evaluateDone = false;
+                    compBeforeEval(app,'full')
             end
             
-            app.evaluateDone = false;
-            compBeforeEval(app,'full')
         end
         
         %Set the visibility and behaviour of the axes
@@ -1160,8 +1176,13 @@ classdef userInterface_script < matlab.apps.AppBase
 
         % Menu selected function: SaveMenu
         function SaveMenuSelected(app, event)
-            saveFile(app);
-            msgbox('File saved!');
+            if ~app.LogSaved
+                saveFile(app);
+                app.LogSaved= true;
+                msgbox('File saved!');
+            else
+                msgbox('The file has already been saved.');
+            end
         end
 
         % Button pushed function: StartButton
@@ -1211,6 +1232,7 @@ classdef userInterface_script < matlab.apps.AppBase
         function fWriteMessageBuffer(app,message)
             app.messageBuffer{end + 1} = message;
             app.LogMonitorOutput.Value = app.messageBuffer;
+            app.LogSaved= false;
         end
         
         function fWriteStatus(app,message)
