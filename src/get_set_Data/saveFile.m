@@ -23,19 +23,31 @@
 %<Version 1.0> - 15.05.2018 - First version of the function.
 %<Version 1.1> - 17.05.2018 - Change index into time in filename
 %<Version 2.0> - 17.05.2018 - Save file into Log-file directory
+%<Version 2.1> - 23.05.2018 - Few descriptions added
 %==========================================================================
 function  saveFile(Obj)
 
-%Todo: add some comments.
+%Read in the messageBuffer from the UI
 Buffer = Obj.messageBuffer;
+
+%Transpose the buffer
 TransBuffer = Buffer';
+
+%Determine the buffer size
 BufferSize = size(TransBuffer);
+
+%Generate the unique filename
 FileName = sprintf('BruteForce_Log_%s.txt',datestr(now,'yyyy-mm-dd_HHMMSS'));
 CurrDir= pwd;
+
+%Change directory to Log-files
 cd([CurrDir,Obj.Slash,'Log-files']);
+
+%Open a new text file
 fileID = fopen(FileName,'w');
 cd(CurrDir);
 
+%Write each line into the .txt file
 for i=1:BufferSize(1)
     fprintf(fileID,'%s\n',TransBuffer{i,:});
 end

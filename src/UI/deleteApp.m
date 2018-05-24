@@ -22,21 +22,24 @@
 %==========================================================================
 %<Version 1.0> - 12.05.2018 - First version of the function.
 %<Version 1.1> - 22.05.2018 - Part of closing the parallel pool deleted.
+%<Version 1.2> - 24.05.2018 - Get the path now from the object to avoid
+%                             warnings in case the current path has been
+%                             changed while the app was open.
 %==========================================================================
 
 function [] = deleteApp(Obj)
 
-%safe all improvements into a file called Improvement
-CurrPath= pwd;
-cd([CurrPath,Obj.Slash,'Files']);
+AppPath= Obj.ApplicationRoot;
+
+%save all improvements into a file called Improvement
+cd([AppPath,Obj.Slash,'Files']);
 Improvements= Obj.Improvements;
 save(sprintf('%s',Obj.FileName),'Improvements');
-cd(CurrPath);
-clear Improvements CurrPath
+cd(AppPath);
 
 %delete specified folders from path
 for Increment=1:length(Obj.Folders)
-    rmpath([pwd,Obj.Slash,Obj.Folders{Increment}]);
+    rmpath([AppPath,Obj.Slash,Obj.Folders{Increment}]);
 end
 
 end
