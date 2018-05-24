@@ -311,6 +311,12 @@ classdef userInterface_script < matlab.apps.AppBase
                 app.GPUSwitch.Enable = 'off';
                 app.InputEditField.Value= '';
                 
+                %set the graph back to the start.
+                app.CpuValue= 0;
+                
+                if app.GpuAvailable
+                    app.GpuValue= 0;
+                end
                 
             end
 
@@ -771,7 +777,7 @@ classdef userInterface_script < matlab.apps.AppBase
         %evaluate the cpu data
         function evalCPUData(app)
             fWriteMessageBuffer(app, 'Getting CPU data...');
-            app.cpuData = getCpuData;
+            app.cpuData = getCpuData(app);
             app.CpuLoadOutput.Value = app.cpuData.avgCpuLoad;
             app.CpuTemperatureOutput.Value = app.cpuData.currCpuTemp;
             fWriteMessageBuffer(app, 'CPU data recieved');
@@ -810,7 +816,7 @@ classdef userInterface_script < matlab.apps.AppBase
         %evaluate the gpu data
         function evalGPUData(app)
             fWriteMessageBuffer(app, 'Getting GPU data...');
-            app.gpuData = getGpuData;
+            app.gpuData = getGpuData(app);
             app.GpuLoadOutput.Value = app.gpuData.avgGpuLoad;
             app.GpuTemperatureOutput.Value = app.gpuData.currGpuTemp;
             fWriteMessageBuffer(app, 'GPU data recieved');
@@ -927,7 +933,6 @@ classdef userInterface_script < matlab.apps.AppBase
             else
                 app.StatusOutput.Value = 'Existing GPU is not compatible!';
             end
-            
             
             if ~app.evaluateDone
                 try
@@ -1189,6 +1194,13 @@ classdef userInterface_script < matlab.apps.AppBase
         function StartButtonPushed(app, event)
             app.ResultOutput.Value = '';
             app.StatusOutput.Value = 'Your current progress in BruteForcing is: 0%';
+            
+            %set the graph back to the start.
+            app.CpuValue= 0;
+            
+            if app.GpuAvailable
+                app.GpuValue= 0;
+            end
             
             %change the visibility of components while brute forcing
             compWhileBruteForce(app)            
