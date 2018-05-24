@@ -21,7 +21,9 @@
 
 %==========================================================================
 %<Version 1.0> - 12.05.2018 - First version of the function.
-%<Version 1.1> - 12.05.2018 - Folder get_set_Data added.
+%<Version 1.1> - 21.05.2018 - Folder get_set_Data added.
+%<Version 1.2> - 24.05.2018 - Save the path into a property to use it in
+%                             other functions without warnings.
 %==========================================================================
 
 function Obj = initApp(Obj)
@@ -42,6 +44,9 @@ else
     Obj.Slash= '/';
 end
 
+%save the path of the application into a property.
+Obj.ApplicationRoot= pwd;
+
 %Add specified folders to the path
 for Increment=1:length(Obj.Folders)
     addpath([pwd,Obj.Slash,Obj.Folders{Increment}]);
@@ -49,10 +54,8 @@ end
 
 %load the file with the allready found passwords and hashes.
 Obj.FileName= 'Improvements.mat';
-CurrPath= pwd;
-cd([CurrPath,Obj.Slash,'Files']);
+cd([pwd,Obj.Slash,'Files']);
 Obj.Improvements= importdata(Obj.FileName);
-cd(CurrPath);
-clear CurrPath
+cd(Obj.ApplicationRoot);
 
 end
