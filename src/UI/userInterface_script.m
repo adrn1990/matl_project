@@ -98,67 +98,62 @@ classdef userInterface_script < matlab.apps.AppBase
 %manual properties---
 
         %This property indicates a flag for aborting the Brute force
-        %process
+        %process.
         Abort= false;
 
-        %The following property saves the allowed chars for the password
-        %To generate the following cell-array as specified us the commented part in
-        %the command window.
-        %FIXME: Following 2 lines -> delete?
-        %Arr= {char(48:57),char(65:90),char(97:122)} %0-9, A-Z, a-z 48-57, 65-90, 97-122
-        %horzcat(Arr{:})
+        %The following property saves the allowed chars for the password.
         AllowedChars= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
-        %This property saves the information if a cluster is valid or not
+        %This property saves the information if a cluster is valid or not.
         ClusterIsValid= false;
         
-        %This property includes all data about the cpu
+        %This property includes all data about the cpu.
         cpuData;
 
-        %This property includes all information about the cpu
+        %This property includes all information about the cpu as struct.
         cpuInfo;
 
-        %This property is required for displaying the cpu values 
+        %This property is required for displaying the cpu values.
         CpuValue = 0;
 
-        %This property is needed for grouping log messages
+        %This property is needed for grouping log messages.
         delemiter = '---------------------------------------------------------------------------------------------------------------';
 
-        %This property is needed for important log messages for the user
+        %This property is needed for important log messages for the user.
         delemiter2 = '===============================================================';
 
-        %This property indicates a flag if an evaluation has processed
+        %This property indicates a flag if an evaluation has processed.
         evaluateDone = false;
 
         %This property safes the name of the file with the allready found 
-        %passwords and hashes
+        %passwords and hashes.
         FileName;
 
-        %This property safes all folders of the path
+        %This property safes all folders of the path.
         Folders;
                 
-        %This property indicates a flag for an available gpu device
+        %This property indicates a flag for an available gpu device.
         GpuAvailable= false;
         
-        %This property includes all information about the gpu
+        %This property includes all information about the gpu.
         gpuInfo;
 
-        %This property includes all data about the gpu
+        %This property includes all data about the gpu.
         gpuData;
 
-        %This property indicates a flag for an enabled gpu device
+        %This property indicates a flag for an enabled gpu device.
         GpuEnabled = false;
 
-        %This property indicates a flag if an gpu evaluation has processed
+        %This property indicates a flag if an gpu evaluation has processed.
         gpuEvaluationDone = false;
 
-        %This property is required for displaying the gpu values 
+        %This property is required for displaying the gpu values.
         GpuValue = 0;
 
-        %This property saves the hash of the given data
+        %This property saves the hash of the given data.
         Hash;
         
-        %This property saves the lenght of the hash        
+        %This property saves the lenght of the hash (Default is SHA-1).    
         HashLength= 40;
         
         %This struct safes the properties for the function DataHash
@@ -168,26 +163,27 @@ classdef userInterface_script < matlab.apps.AppBase
         Improvements;
 
         %This property saves the amount of iterations the parfor loop has
-        %to do
+        %to do.
         Iterations;
                 
-        %The maximum of the password length is set to 4
+        %The maximum of the password length is set to 4.
         MaxPwLength= 4;
         
-        %This property is required to write the log messages
+        %This property is required to write the log messages.
         messageBuffer = {''};
         
         %This property safes the number of chars for the password
         %0-9, A-Z, a-z
         NbrOfChars= 62;
 
-        %This property is required for displaying the values on axes
+        %This property is required for displaying the values on axes.
         SizeReached = false;
         
-        %This property safes the char slash/backslash
+        %This property safes the char slash/backslash dependency on the
+        %operating system of the user.
         Slash;
         
-        %This property indicates the x-axis values in graphs 
+        %This property indicates the x-axis values in graphs.
         time = 0;
         
 
@@ -222,12 +218,15 @@ classdef userInterface_script < matlab.apps.AppBase
 
         % Value changed function: ClusterDropDown
         function ClusterDropDownValueChanged(app, event)
+            app.ClusterIsValid= false;
+            app.evalStartBF();
             Value= app.ClusterDropDown.Value;
             clusterValidity(app,Value);
         end        
 
         %check if the chosen cluster is valid.
         function clusterValidity(app,Value)
+            app.fWriteMessageBuffer('Checking cluster validity...')
             try
                 Cluster= parcluster(Value);
                 if Cluster.isvalid
@@ -271,7 +270,8 @@ classdef userInterface_script < matlab.apps.AppBase
             end
         end
 
-        %this function sets the components properties to the state before the system is evaluated
+        %this function sets the components properties to the state before 
+        %the system is evaluated
         function compBeforeEval(app,varargin)
             %check if varargin is used
             if ~isempty(varargin)
@@ -311,7 +311,8 @@ classdef userInterface_script < matlab.apps.AppBase
             
         end
                 
-        %this function sets the component properties to the state while the brute forcing is in progress
+        %this function sets the component properties to the state while the
+        %brute forcing is in progress
         function compWhileBruteForce(app)
             app.EvaluateButton.Enable = 'off';
             app.StartButton.Enable = 'off';
@@ -329,7 +330,8 @@ classdef userInterface_script < matlab.apps.AppBase
             
         end
         
-        %this function sets the components properties to the state while the system gets evaluated
+        %this function sets the components properties to the state while 
+        %the system gets evaluated
         function compWhileEvaluate(app)
             app.EvaluateButton.Enable = 'off';
             app.WarningBox.Visible = 'off';
@@ -974,7 +976,7 @@ classdef userInterface_script < matlab.apps.AppBase
             
 
             if strcmp(app.ModeDropDown.Value,app.ModeDropDown.Items{1})
-                %check if the input is between 0 and the maximum of the pasword
+                %check if the input is between 0 and the maximum of the password
                 %length
                 if (0 < length(Input)) &&  (length(Input) < app.MaxPwLength+1)
                     InputValidity= true;
