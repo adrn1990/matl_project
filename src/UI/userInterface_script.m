@@ -210,7 +210,7 @@ classdef userInterface_script < matlab.apps.AppBase
                
         % Menu selected function: AboutMenu
         function AboutMenuSelected(app, event)
-            msgbox({'Name: Brute-Force Tool' 'Version: 0.0.0' 'Designer: A.Gonzalez / B. Huerzeler'}, 'About...');
+            msgbox({'Name: Brute-Force Tool' 'Version: 0.0.0' 'Developer: A.Gonzalez / B. Huerzeler'}, 'About...');
         end
         
         % Close request function: BruteForceToolUIFigure
@@ -310,9 +310,26 @@ classdef userInterface_script < matlab.apps.AppBase
                 app.gpuEvaluationDone= false;
                 app.GPUSwitch.Enable = 'off';
                 app.InputEditField.Value= '';
-                
-                
             end
+                
+            %set the graph back to the start.
+            app.CpuValue= 0;
+            app.time = 0;
+            
+            app.UIAxes_cpu.Children.YData = app.CpuValue;
+            app.UIAxes_cpu.Children.XData= app.time;
+            
+            if app.GpuAvailable              
+                app.GpuValue = 0;          
+                app.UIAxes_gpu.Children.YData = app.GpuValue;
+                app.UIAxes_gpu.Children.XData= app.time;
+            end
+            
+            %Pause to clear graphs
+            pause(5/100);
+
+            %Pause to disable Button
+            pause(5/100);
 
             setAxisProps(app);                      
             
@@ -771,7 +788,7 @@ classdef userInterface_script < matlab.apps.AppBase
         %evaluate the cpu data
         function evalCPUData(app)
             fWriteMessageBuffer(app, 'Getting CPU data...');
-            app.cpuData = getCpuData;
+            app.cpuData = getCpuData(app);
             app.CpuLoadOutput.Value = app.cpuData.avgCpuLoad;
             app.CpuTemperatureOutput.Value = app.cpuData.currCpuTemp;
             fWriteMessageBuffer(app, 'CPU data recieved');
@@ -810,7 +827,7 @@ classdef userInterface_script < matlab.apps.AppBase
         %evaluate the gpu data
         function evalGPUData(app)
             fWriteMessageBuffer(app, 'Getting GPU data...');
-            app.gpuData = getGpuData;
+            app.gpuData = getGpuData(app);
             app.GpuLoadOutput.Value = app.gpuData.avgGpuLoad;
             app.GpuTemperatureOutput.Value = app.gpuData.currGpuTemp;
             fWriteMessageBuffer(app, 'GPU data recieved');
@@ -927,7 +944,6 @@ classdef userInterface_script < matlab.apps.AppBase
             else
                 app.StatusOutput.Value = 'Existing GPU is not compatible!';
             end
-            
             
             if ~app.evaluateDone
                 try
@@ -1152,7 +1168,7 @@ classdef userInterface_script < matlab.apps.AppBase
         function startupFcn(app)
             
             %Create directory for Log-files
-            dirStatus = exist('Log-files');
+            dirStatus = exist('Log-files','dir');
             if dirStatus == 0
                 mkdir('Log-files');
             end
@@ -1190,9 +1206,28 @@ classdef userInterface_script < matlab.apps.AppBase
             app.ResultOutput.Value = '';
             app.StatusOutput.Value = 'Your current progress in BruteForcing is: 0%';
             
+            %set the graph back to the start.
+            app.CpuValue= 0;
+            app.time = 0;
+            
+            app.UIAxes_cpu.Children.YData = app.CpuValue;
+            app.UIAxes_cpu.Children.XData= app.time;
+            
+            if app.GpuAvailable              
+                app.GpuValue = 0;          
+                app.UIAxes_gpu.Children.YData = app.GpuValue;
+                app.UIAxes_gpu.Children.XData= app.time;
+            end
+            
+            %Pause to clear graphs
+            pause(5/100);
+            
             %change the visibility of components while brute forcing
             compWhileBruteForce(app)            
-            
+ 
+            %Pause to disable Button
+            pause(5/100);
+
             %check the parallel computing toolbox again partly because
             %meanwhile a pool could be opened.
             evalPCT(app,'part')
@@ -1254,6 +1289,8 @@ classdef userInterface_script < matlab.apps.AppBase
             % Create and configure components
             createComponents(app)
 
+            app.BruteForceToolUIFigure.Resize= 'off';
+            
             % Register the app with App Designer
             registerApp(app, app.BruteForceToolUIFigure)
 

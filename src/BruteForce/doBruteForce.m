@@ -31,6 +31,7 @@
 %                             task has started and writes a message to the
 %                             buffer.
 %                           - Descriptiv comments added.
+%<Version 2.2> - 24.05.2018 - Problem with path changing solved.
 %==========================================================================
 function [] = doBruteForce (Obj)
 
@@ -50,6 +51,7 @@ Array= Obj.AllowedChars;
 Cluster= Obj.ClusterDropDown.Value;
 ClusterObj= parcluster(Cluster);
 Slash= Obj.Slash;
+CurrDir= Obj.ApplicationRoot;
 
 %local variable to save the logical information if the brute force should
 %be aborted.
@@ -64,7 +66,7 @@ Opt= Obj.HashStruct;
 
 %prepare for UI-update
 Increment= 0;
-save(['Files',Slash,'Progress'],'Increment');
+save([CurrDir,Slash,'Files',Slash,'Progress'],'Increment');
 
 Obj.fWriteMessageBuffer(Obj.delemiter);
 Obj.fWriteMessageBuffer(sprintf('Prepare BruteForcing on %s'...
@@ -168,7 +170,7 @@ try
             try
                 %sometimes, when save and load happens simultaneously, an
                 %exception is thrown.
-                load(['Files',Slash,'Progress'],'Increment');
+                load([CurrDir,Slash,'Files',Slash,'Progress'],'Increment');
             catch
                 %do nothing
             end
