@@ -15,7 +15,7 @@
 %Output:            A struct which includes the actual temperature and the
 %                   average usage of the gpu device.
 %
-%Example:           getCpuData();
+%Example:           getCpuData(Obj);
 %
 %Copyright:
 %
@@ -27,14 +27,9 @@
 %<Version 1.2> - 24.05.2018 - Problem with path changing solved.
 %==========================================================================
 
-function info = getCpuData
+function info = getCpuData(Obj)
 
-%Define slash for operating system
-if ispc
-    Slash= '\';
-else
-    Slash= '/';
-end
+Slash= Obj.Slash;
 
 CurrDir= Obj.ApplicationRoot;
 

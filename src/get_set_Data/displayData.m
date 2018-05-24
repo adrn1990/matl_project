@@ -13,7 +13,7 @@
 %
 %Output:            Object Obj of the class userInterface
 %
-%Example:           displayData;
+%Example:           Obj= displayData(Obj);
 %
 %Copyright:
 %
@@ -28,14 +28,14 @@
 function [Obj] = displayData(Obj)
 
 %Get CPU data
-CpuData = getCpuData;
+CpuData = getCpuData(Obj);
 Obj.CpuLoadOutput.Value = CpuData.avgCpuLoad;
 Obj.CpuTemperatureOutput.Value = CpuData.currCpuTemp;
 
 %Get GPU data
 if (Obj.gpuEvaluationDone == true)...
         && strcmp(Obj.GPUSwitch.Value,'Enabled')
-    GpuData = getGpuData;
+    GpuData = getGpuData(Obj);
     Obj.GpuLoadOutput.Value = GpuData.avgGpuLoad;
     Obj.GpuTemperatureOutput.Value = GpuData.currGpuTemp;
 else
