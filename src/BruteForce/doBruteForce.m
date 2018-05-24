@@ -190,7 +190,7 @@ try
                 %loop
                 Break = true;
                 Job.cancel;
-                Obj.fWriteMessageBuffer(sprintf(['The BruteForcing has after',...
+                Obj.fWriteMessageBuffer(sprintf(['The BruteForcing has after ',...
                     '%0.4f seconds been aborted!'],toc));
             end
             
