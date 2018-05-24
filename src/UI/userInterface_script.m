@@ -104,6 +104,9 @@ classdef userInterface_script < matlab.apps.AppBase
         %The following property saves the allowed chars for the password.
         AllowedChars= '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
+        %This property saves the path of the application.
+        ApplicationRoot;
+        
         %This property saves the information if a cluster is valid or not.
         ClusterIsValid= false;
         
@@ -1024,7 +1027,7 @@ classdef userInterface_script < matlab.apps.AppBase
             exitBox = questdlg('Do you really want to exit without saving?','Warning');
             switch exitBox
                 case 'Yes'
-                    app.delete;
+                    app.CloseRequest();
                 case 'No'         
             end
         end
@@ -1149,17 +1152,6 @@ classdef userInterface_script < matlab.apps.AppBase
                 'FaceColor', 'red',...
                 'FaceAlpha', 0.4,...
                 'AlignVertexCenters', 'on');
-            
-%             %Set axis properties
-%             app.UIAxes_gpu.Visible = 'off';
-%             app.UIAxes_gpu.Position = [1231 370 10 10];
-%             app.UIAxes_cpu.Position = [600 411 639 448];
-%             
-%             %Set GPU output data visibility
-%             app.GpuTemperatureOutput.Visible = 'off';
-%             app.GPUTempCLabel.Visible = 'off';
-%             app.GpuLoadOutput.Visible = 'off';
-%             app.GPULoadLabel.Visible = 'off';
             
             compBeforeEval(app,'full')
             
