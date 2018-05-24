@@ -210,7 +210,7 @@ classdef userInterface_script < matlab.apps.AppBase
                
         % Menu selected function: AboutMenu
         function AboutMenuSelected(app, event)
-            msgbox({'Name: Brute-Force Tool' 'Version: 0.0.0' 'Designer: A.Gonzalez / B. Huerzeler'}, 'About...');
+            msgbox({'Name: Brute-Force Tool' 'Version: 0.0.0' 'Developer: A.Gonzalez / B. Huerzeler'}, 'About...');
         end
         
         % Close request function: BruteForceToolUIFigure
