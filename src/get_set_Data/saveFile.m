@@ -24,6 +24,7 @@
 %<Version 1.1> - 17.05.2018 - Change index into time in filename
 %<Version 2.0> - 17.05.2018 - Save file into Log-file directory
 %<Version 2.1> - 23.05.2018 - Few descriptions added
+%<Version 2.2> - 24.05.2018 - Problem with path changing fixed.
 %==========================================================================
 function  saveFile(Obj)
 
@@ -38,7 +39,7 @@ BufferSize = size(TransBuffer);
 
 %Generate the unique filename
 FileName = sprintf('BruteForce_Log_%s.txt',datestr(now,'yyyy-mm-dd_HHMMSS'));
-CurrDir= pwd;
+CurrDir= Obj.ApplicationRoot;
 
 %Change directory to Log-files
 cd([CurrDir,Obj.Slash,'Log-files']);
