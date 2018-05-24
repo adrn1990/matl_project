@@ -1266,6 +1266,8 @@ classdef userInterface_script < matlab.apps.AppBase
             % Create and configure components
             createComponents(app)
 
+            app.BruteForceToolUIFigure.Resize= 'off';
+            
             % Register the app with App Designer
             registerApp(app, app.BruteForceToolUIFigure)
 
