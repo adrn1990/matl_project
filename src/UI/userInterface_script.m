@@ -1152,7 +1152,7 @@ classdef userInterface_script < matlab.apps.AppBase
         function startupFcn(app)
             
             %Create directory for Log-files
-            dirStatus = exist('Log-files');
+            dirStatus = exist('Log-files','dir');
             if dirStatus == 0
                 mkdir('Log-files');
             end
